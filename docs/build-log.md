@@ -81,3 +81,41 @@ Before changing anything, the real data was measured:
 **First real poll:** all 10 feeds OK, 475 articles, 3.6 s. Phrase search ran in 0.2–0.7 ms ("Tata Sons": 5 hits, "Paytm": 1).
 
 **Trade-off:** RSS carries only recent items, so history accrues from the first poll; there's no backfill. For listed entities, the primary evidence is the regulator's own order (Step 1), not news coverage.
+
+## Step 1 — Full watchlist records, with revocations and PEP terms
+
+**Why:** the simple CSV export reduced each listing to a name, so a debarment revoked in 2018 screened exactly like one issued last week.
+
+**What changed:** `sources.py` now parses the full OpenSanctions FollowTheMoney export (`entities.ftm.json`) and keeps what an analyst needs:
+
+- `details.orders`: date, end date, authority, duration, order text, and a link to the NSE/SEBI order PDF
+- `details.terms`: posts held, with start and end dates
+- `details.relatives`: family links for Parliament members
+
+Identifiers (PAN, registration numbers, addresses, email) are never stored. The UK Sanctions List was added as a fifth source.
+
+**Status rules** (each is a `# ponytail:` heuristic with its limit named in the code):
+
+- An order is **revoked** if its duration or text says so. Real variants: "REVOKED", "Revoked 20072018", "DEBARMENT REVOKED", "PAN REVOKED" and a misspelt "DEBARREMENT REVOKED".
+- It is **expired** if its end date has passed, if "N years / N months" from the order date has elapsed, or if it says "completed". Bare numbers such as "24" are months, confirmed against order texts reading "period of two years".
+- Otherwise it is **active**, including "TILL FURTHER ORDERS".
+- An entity is **active** if any order is active. With no orders, it is also active.
+- A Parliament member is **active** while in office and for 365 days after (UK FCA FG17/6 treats a former PEP as a PEP for at least 12 months). With no term data, the member is active, the conservative choice.
+- Only **active** entries raise alerts. Historical entries still appear in screening results.
+- **Known gap:** two NSE records read "Debarred till <date>" in free text and default to active.
+
+**Snapshots** (JSON lines, gzip, 2.3 MB total, built 2026-09-17):
+
+| List | Screened entries | Active | Historical | Detail carried |
+|---|---:|---:|---:|---|
+| NSE debarred (SEBI orders) | 14,435 | 5,035 | 9,400 | 16,059 orders: 9,669 revoked, 5,594 active, 796 expired |
+| Lok Sabha & Rajya Sabha | 8,368 | 6,552 | 1,816 | terms for 2,672 people, relatives for 2,546 |
+| MHA banned organisations | 146 | 146 | 0 | listing orders |
+| UN Security Council | 1,005 | 1,005 | 0 | listing orders |
+| UK Sanctions List (FCDO) | 5,620 | 5,620 | 0 | persons and organisations (664 vessels excluded) |
+
+**Benchmark after adding the UK list.** Positives still come from the four India-relevant lists, because the variants are Indian-name transforms. The UK list's names stay in the index as extra distractors (29,574 entities, 44,220 indexed names). The gate passes:
+
+- dev-selected threshold 77: P 0.960, R 0.946, F1 0.953
+- production threshold 80: P 0.971, R 0.938, F1 0.954
+- RapidFuzz at 80: P 0.678, R 0.499, F1 0.575

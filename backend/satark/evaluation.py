@@ -73,9 +73,16 @@ class SatarkSystem:
         return [(m.entity_id, m.score) for m in result.matches]
 
 
+# The variants are Indian-name transforms (Devanagari, S/O clauses, -bhai, Md./Kr.), so positives come from the
+# India-relevant lists; the UK Sanctions List stays in the index as extra distractors.
+BENCHMARK_SOURCES = {"in_nse_debarred", "in_sansad", "in_mha_banned", "un_sc_sanctions"}
+
+
 def eligible_people(index: MatchIndex) -> list[Record]:
     people = []
     for record in index.records.values():
+        if record.source not in BENCHMARK_SOURCES:
+            continue
         norm = normalize(record.name, record.schema)
         if norm.kind != "person" or len(norm.keys) < 2 or len(norm.keys) > 4:
             continue
