@@ -218,6 +218,11 @@ def normalize(name: str, schema: str | None = None) -> NormalizedName:
         notes.append(f"dropped relation clause '{parts[cut]} …'")
         parts = parts[:cut]
     original_case = re.split(r"\s+", stripped)
+    # ponytail: guess kind from the raw parts *before* the initials heuristic runs, so an
+    # org's all-caps acronym (e.g. "KSN") doesn't get shredded into initials before we know
+    # it's an org. guess_kind only looks at ORG_WORDS membership, which survives untouched
+    # through the plain `[^a-z0-9]` strip below, so pre-scanning here is safe.
+    kind = guess_kind([re.sub(r"[^a-z0-9]", "", p) for p in parts], schema)
     words: list[tuple[str, bool]] = []
     for idx, part in enumerate(parts):
         if part == "m/s":
@@ -232,13 +237,16 @@ def normalize(name: str, schema: str | None = None) -> NormalizedName:
         clean = re.sub(r"[^a-z0-9]", "", part)
         if not clean:
             continue
-        if clean not in HONORIFICS and re.fullmatch(r"[B-DF-HJ-NP-TV-Z]{2,3}", re.sub(r"[^A-Za-z]", "", source)):
+        if (
+            kind != "org"
+            and clean not in HONORIFICS
+            and re.fullmatch(r"[B-DF-HJ-NP-TV-Z]{2,3}", re.sub(r"[^A-Za-z]", "", source))
+        ):
             words.extend((c, True) for c in clean)
             notes.append(f"split initials '{source}'")
             continue
         words.append((clean, len(clean) == 1))
     plain = [w for w, _ in words]
-    kind = guess_kind(plain, schema)
     while (len(words) > 1 and words[0][0] in HONORIFICS) or (len(words) > 2 and words[0][0] in LEADING_HONORIFICS):
         notes.append(f"removed honorific '{words[0][0]}'")
         words.pop(0)
