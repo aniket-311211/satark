@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+node_modules/
+frontend/dist/
+satark.db
+.env
+scratch/
+.DS_Store
+frontend/tsconfig.tsbuildinfo
+graphify-out/
+.claude-flow/
+.swarm/
+ruvector.db
+data/cache/
