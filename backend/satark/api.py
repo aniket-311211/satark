@@ -114,8 +114,8 @@ def create_app(service: Satark | None = None) -> FastAPI:
             raise HTTPException(409, str(exc)) from exc
 
     @app.get("/customers")
-    def customers(request: Request, q: str = "", limit: int = Query(50, le=200), offset: int = 0):
-        return core(request).customers(q=q, limit=limit, offset=offset)
+    def customers(request: Request, q: str = "", group: str = "", kind: str = "", limit: int = Query(50, le=2000), offset: int = 0):
+        return core(request).customers(q=q, limit=limit, offset=offset, group=group, kind=kind)
 
     @app.post("/customers")
     def onboard(body: CustomerRequest, request: Request):
@@ -174,6 +174,50 @@ def create_app(service: Satark | None = None) -> FastAPI:
     @app.get("/audit")
     def audit(request: Request, limit: int = Query(100, le=500)):
         return core(request).audit_log(limit)
+
+    @app.get("/users")
+    def users():
+        from .service import ROLES
+
+        return [{"id": user, "role": role} for user, role in ROLES.items()]
+
+    def news_db(request: Request):
+        path = core(request).settings.data_dir / "cache" / "news.db"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+
+    @app.get("/news")
+    def news(request: Request, limit: int = Query(60, le=500), kind: str = ""):
+        from .media.feeds import recent
+
+        return recent(news_db(request), limit=limit, kind=kind)
+
+    @app.get("/news/search")
+    def news_search(request: Request, q: str = Query(min_length=2, max_length=200), limit: int = Query(20, le=100)):
+        from dataclasses import asdict as as_dict
+
+        from .media.feeds import search
+
+        return [as_dict(a) for a in search(news_db(request), q, limit)]
+
+    @app.get("/news/feeds")
+    def news_feeds(request: Request):
+        from .media.feeds import feed_status
+
+        return feed_status(news_db(request))
+
+    @app.post("/news/poll")
+    def news_poll(request: Request):
+        from .media.feeds import poll
+
+        return poll(news_db(request))
+
+    @app.get("/eval/real")
+    def evaluation_real(request: Request):
+        from .evaluation import evaluate_real, load_real_cases
+
+        s = core(request)
+        return evaluate_real(s.index, load_real_cases(s.settings.data_dir / "eval" / "real_cases.csv"), s.settings.alert_threshold)
 
     @app.get("/audit/verify")
     def verify_audit(request: Request):

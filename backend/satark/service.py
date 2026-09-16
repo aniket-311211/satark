@@ -509,15 +509,26 @@ class Satark:
                 query, count_query = query.where(Case.status == status), count_query.where(Case.status == status)
             rows = session.scalars(query.limit(limit).offset(offset)).all()
             customers = {c.id: c for c in session.scalars(select(Customer).where(Customer.id.in_({r.customer_id for r in rows})))}
-            tallies = {}
-            for case_id, score in session.execute(select(Alert.case_id, Alert.score).where(Alert.case_id.in_([r.id for r in rows]))):
-                count, top = tallies.get(case_id, (0, 0.0))
-                tallies[case_id] = (count + 1, max(top, score))
+            tallies: dict[int, dict] = {}
+            for case_id, score, band, secondary, source in session.execute(
+                select(Alert.case_id, Alert.score, Alert.band, Alert.secondary, WatchlistEntity.source)
+                .join(WatchlistEntity, WatchlistEntity.id == Alert.entity_id, isouter=True)
+                .where(Alert.case_id.in_([r.id for r in rows]))
+            ):
+                tally = tallies.setdefault(case_id, {"alerts": 0, "top_score": 0.0, "top_band": "", "verdicts": {}, "lists": set()})
+                tally["alerts"] += 1
+                if score > tally["top_score"]:
+                    tally["top_score"], tally["top_band"] = score, band
+                verdict = (secondary or {}).get("verdict", "unchecked")
+                tally["verdicts"][verdict] = tally["verdicts"].get(verdict, 0) + 1
+                if source:
+                    tally["lists"].add(source)
             items = []
             for case in rows:
-                count, top = tallies.get(case.id, (0, 0.0))
+                tally = tallies.get(case.id, {"alerts": 0, "top_score": 0.0, "top_band": "", "verdicts": {}, "lists": set()})
                 customer = customers.get(case.customer_id)
-                items.append({**case_dict(case), "customer": customer_dict(customer) if customer else None, "alerts": count, "top_score": top})
+                items.append({**case_dict(case), "customer": customer_dict(customer) if customer else None,
+                              **tally, "lists": sorted(tally["lists"])})
             return {"total": session.scalar(count_query), "items": items}
 
     def case(self, case_id: int) -> dict | None:
@@ -550,13 +561,14 @@ class Satark:
             entities = {e.id: e for e in session.scalars(select(WatchlistEntity).where(WatchlistEntity.id.in_({a.entity_id for a in rows})))}
             return {"total": session.scalar(count_query), "items": [alert_dict(a, customers.get(a.customer_id), entities.get(a.entity_id)) for a in rows]}
 
-    def customers(self, q: str = "", limit: int = 50, offset: int = 0) -> dict:
+    def customers(self, q: str = "", limit: int = 50, offset: int = 0, group: str = "", kind: str = "") -> dict:
         with self.Session() as session:
             query = select(Customer).order_by(Customer.id.desc())
             count_query = select(func.count()).select_from(Customer)
-            if q:
-                query = query.where(Customer.name.ilike(f"%{q}%"))
-                count_query = count_query.where(Customer.name.ilike(f"%{q}%"))
+            for condition in [Customer.name.ilike(f"%{q}%") if q else None, Customer.book_group == group if group else None,
+                              Customer.kind == kind if kind else None]:
+                if condition is not None:
+                    query, count_query = query.where(condition), count_query.where(condition)
             rows = session.scalars(query.limit(limit).offset(offset)).all()
             open_counts = dict(session.execute(
                 select(Alert.customer_id, func.count()).where(Alert.status == "open", Alert.customer_id.in_([c.id for c in rows])).group_by(Alert.customer_id)
@@ -661,7 +673,16 @@ class Satark:
             cases_by_status = dict(session.execute(select(Case.status, func.count()).group_by(Case.status)).all())
             customers = session.scalar(select(func.count()).select_from(Customer))
             entities = session.scalar(select(func.count()).select_from(WatchlistEntity).where(WatchlistEntity.active.is_(True)))
+            customers_by_group = dict(session.execute(select(Customer.book_group, func.count()).group_by(Customer.book_group)).all())
+            outcomes: dict[tuple, int] = {}
+            for group, status, secondary in session.execute(
+                select(Customer.book_group, Alert.status, Alert.secondary).join(Customer, Customer.id == Alert.customer_id)
+            ):
+                key = (group, status, (secondary or {}).get("verdict", "unchecked"))
+                outcomes[key] = outcomes.get(key, 0) + 1
         return {
+            "customers_by_group": customers_by_group,
+            "alert_outcomes": [{"group": g, "status": s, "verdict": v, "count": n} for (g, s, v), n in sorted(outcomes.items())],
             "entities": entities,
             "indexed_names": len(self.index.names),
             "customers": customers,

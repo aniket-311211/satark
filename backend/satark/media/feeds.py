@@ -202,3 +202,26 @@ def fetch_news(subject: str, limit: int = 12, timeout: float = 20.0) -> list[Art
             if empty:
                 raise
     return search(db_path, subject, limit)
+
+
+def recent(db_path: str | Path, limit: int = 60, kind: str = "") -> list[dict]:
+    con = _connect(db_path)
+    try:
+        rows = con.execute(
+            "SELECT url, title, summary, publisher, kind, country, published, fetched_at FROM articles "
+            "WHERE (? = '' OR kind = ?) ORDER BY fetched_at DESC, rowid DESC LIMIT ?", (kind, kind, limit)).fetchall()
+    finally:
+        con.close()
+    keys = ("url", "title", "summary", "publisher", "kind", "country", "published", "fetched_at")
+    return [dict(zip(keys, r)) for r in rows]
+
+
+def feed_status(db_path: str | Path) -> list[dict]:
+    con = _connect(db_path)
+    try:
+        polled = {r[0]: r[1:] for r in con.execute("SELECT url, polled_at, status, items FROM feeds")}
+        counts = dict(con.execute("SELECT publisher, COUNT(*) FROM articles GROUP BY publisher").fetchall())
+    finally:
+        con.close()
+    return [{"name": f.name, "url": f.url, "kind": f.kind, "country": f.country, "articles": counts.get(f.name, 0),
+             "polled_at": polled.get(f.url, (None,))[0], "status": polled.get(f.url, (None, "never polled"))[1]} for f in FEEDS]

@@ -253,16 +253,18 @@ def load_real_cases(path: Path) -> list[dict]:
 def evaluate_real(index: MatchIndex, cases: list[dict], threshold: float) -> dict:
     """Labelled real pairs: a `match` must reach the alert threshold for its entity, a `no_match` must stay below it
     (for its entity, or for every entity when entity_id is blank). Status is ignored: this guards name matching."""
-    failures = []
+    failures, results = [], []
     for case in cases:
         matches = index.screen(case["query"], kind=case.get("kind") or None, min_score=0, limit=20).matches
         if case["entity_id"]:
             score = next((m.score for m in matches if m.entity_id == case["entity_id"]), 0.0)
         else:
             score = max((m.score for m in matches), default=0.0)
-        if (score >= threshold) != (case["expected"] == "match"):
+        passed = (score >= threshold) == (case["expected"] == "match")
+        results.append({**case, "score": score, "passed": passed})
+        if not passed:
             failures.append({**case, "score": score})
-    return {"cases": len(cases), "passed": len(cases) - len(failures), "threshold": threshold, "failures": failures}
+    return {"cases": len(cases), "passed": len(cases) - len(failures), "threshold": threshold, "failures": failures, "results": results}
 
 
 def write_report(report: dict, reports_dir: Path) -> Path:
