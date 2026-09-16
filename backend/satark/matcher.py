@@ -26,6 +26,7 @@ class Record:
     countries: str = ""
     program: str = ""
     sanctions: str = ""
+    status: str = "active"
 
 
 @dataclass
@@ -56,6 +57,7 @@ class Match:
     components: dict
     pairs: list[Pair]
     reasons: list[str]
+    status: str = "active"
 
 
 @dataclass
@@ -275,6 +277,7 @@ class MatchIndex:
                     components=components,
                     pairs=pairs,
                     reasons=reasons,
+                    status=record.status,
                 )
         matches = sorted(best.values(), key=lambda m: -m.score)[:limit]
         return ScreenResult(

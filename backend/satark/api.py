@@ -3,13 +3,13 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field
 
 from .config import get_settings
-from .service import Satark, screen_dict
+from .service import AuditConflict, Satark, WorkflowError, screen_dict
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
@@ -31,10 +31,14 @@ class CustomerRequest(BaseModel):
     segment: str = "retail"
 
 
-class DecisionRequest(BaseModel):
-    decision: Literal["confirmed", "discarded", "escalated"]
+class ProposalRequest(BaseModel):
+    decision: Literal["confirmed", "discarded"]
+    note: str = Field(min_length=10, max_length=2000)
+
+
+class ReviewRequest(BaseModel):
+    approve: bool
     note: str = Field(default="", max_length=2000)
-    actor: str = Field(default="analyst", max_length=64)
 
 
 class DeltaRequest(BaseModel):
@@ -123,12 +127,35 @@ def create_app(service: Satark | None = None) -> FastAPI:
     def alerts(request: Request, status: str | None = None, limit: int = Query(100, le=500), offset: int = 0):
         return core(request).alerts(status=status, limit=limit, offset=offset)
 
-    @app.post("/alerts/{alert_id}/decision")
-    def decide(alert_id: int, body: DecisionRequest, request: Request):
+    def workflow(action, case_id: int):
         try:
-            return core(request).decide(alert_id, body.decision, body.note, body.actor)
+            return action()
         except KeyError as exc:
-            raise HTTPException(404, f"No alert {alert_id}") from exc
+            raise HTTPException(404, f"No case {case_id}") from exc
+        except PermissionError as exc:
+            raise HTTPException(403, str(exc)) from exc
+        except (WorkflowError, AuditConflict) as exc:
+            raise HTTPException(409, str(exc)) from exc
+
+    @app.get("/cases")
+    def cases(request: Request, status: str | None = None, limit: int = Query(50, le=200), offset: int = 0):
+        return core(request).cases(status=status, limit=limit, offset=offset)
+
+    @app.get("/cases/{case_id}")
+    def case(case_id: int, request: Request):
+        found = core(request).case(case_id)
+        if not found:
+            raise HTTPException(404, f"No case {case_id}")
+        return found
+
+    # ponytail: X-Satark-User is a demo identity header, not authentication.
+    @app.post("/cases/{case_id}/proposal")
+    def propose(case_id: int, body: ProposalRequest, request: Request, x_satark_user: str = Header(...)):
+        return workflow(lambda: core(request).propose(case_id, body.decision, body.note, x_satark_user), case_id)
+
+    @app.post("/cases/{case_id}/review")
+    def review(case_id: int, body: ReviewRequest, request: Request, x_satark_user: str = Header(...)):
+        return workflow(lambda: core(request).review(case_id, body.approve, body.note, x_satark_user), case_id)
 
     @app.post("/media/brief")
     def media(body: MediaRequest, request: Request):
@@ -137,6 +164,10 @@ def create_app(service: Satark | None = None) -> FastAPI:
     @app.get("/audit")
     def audit(request: Request, limit: int = Query(100, le=500)):
         return core(request).audit_log(limit)
+
+    @app.get("/audit/verify")
+    def verify_audit(request: Request):
+        return core(request).verify_audit()
 
     @app.get("/eval")
     def evaluation(request: Request):
