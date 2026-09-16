@@ -80,6 +80,18 @@ def cmd_rescreen(args) -> None:
     print(json.dumps(app.rescreen_all(actor="cli"), indent=2))
 
 
+def cmd_news_poll(args) -> None:
+    from .config import get_settings
+    from .media.feeds import poll
+
+    db = get_settings().data_dir / "cache" / "news.db"
+    db.parent.mkdir(parents=True, exist_ok=True)
+    results = poll(db)
+    for r in results:
+        print(f"{r['name']:<26} {r['status']:<14} new {r['new']:>4}  total {r['total']:>5}")
+    print(f"index: {db}")
+
+
 def cmd_mcp(args) -> None:
     from .mcp_server import main
 
@@ -124,6 +136,8 @@ def main() -> None:
     worker.set_defaults(func=cmd_worker)
     sub.add_parser("rescreen", help="rescreen every customer against the full index").set_defaults(func=cmd_rescreen)
     sub.add_parser("mcp", help="run the MCP server over stdio").set_defaults(func=cmd_mcp)
+    news = sub.add_parser("news", help="adverse-media index built from allowlisted regulator and publisher feeds")
+    news.add_subparsers(dest="news_command", required=True).add_parser("poll", help="fetch new items into the local index").set_defaults(func=cmd_news_poll)
 
     args = parser.parse_args()
     args.func(args)
