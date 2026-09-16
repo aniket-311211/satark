@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     min_score: float = 70.0
     anthropic_api_key: str = Field(default="", validation_alias=AliasChoices("SATARK_ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY"))
     llm_model: str = "claude-haiku-4-5"
+    companies_house_key: str = ""
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     media_max_items: int = 12
 
