@@ -156,3 +156,46 @@ def test_active_listing_alerts_even_behind_many_historical_namesakes(tmp_path):
     app.index = MatchIndex([*namesakes, Record(id="t:live", name="Abhishek Gupta", schema="Person", dataset="t", source="t")])
     _, alerts, _ = app.onboard("GUPTA, Abhishek", actor="analyst")
     assert [a["entity_id"] for a in alerts] == ["t:live"]
+
+
+def test_secondary_check_clears_a_perfect_name_match_with_a_different_date_of_birth(service):
+    from satark.models import WatchlistEntity
+
+    with service.Session() as session:
+        session.add(WatchlistEntity(id="in_sansad:test-mp", source="in_sansad", schema="Person", name="Abhishek Singh", aliases=[],
+                                    birth_date="1981-03-05", countries="in", row_hash="x", status="active", details={}))
+        session.commit()
+    service.rebuild_index()
+    _, alerts, screening = service.onboard("SINGH, Abhishek", birth_date="1978-12", nationality="Indian", actor="analyst")
+    listed = next(a for a in alerts if a["entity_id"] == "in_sansad:test-mp")
+    assert listed["score"] == 100.0 and listed["status"] == "auto_cleared" and listed["case_id"] is None
+    assert listed["secondary"]["verdict"] == "contradicted" and "1981" in listed["secondary"]["summary"]
+    assert "alert.auto_cleared" in [e["action"] for e in service.audit_log()] and service.verify_audit()["ok"]
+
+    _, alerts, _ = service.onboard("Abhishek Singh", birth_date="1981-03", actor="analyst")
+    same = next(a for a in alerts if a["entity_id"] == "in_sansad:test-mp")
+    assert same["status"] == "open" and same["case_id"] and same["secondary"]["verdict"] == "confirmed"
+
+
+def test_auto_clearance_is_revisited_when_the_listing_is_corrected(service):
+    from satark.models import WatchlistEntity
+    from satark.service import utcnow
+
+    with service.Session() as session:
+        session.add(WatchlistEntity(id="in_sansad:test-mp2", source="in_sansad", schema="Person", name="Anand Kumar", aliases=[],
+                                    birth_date="1974-08-07", countries="in", row_hash="x", status="active", details={}))
+        session.commit()
+    service.rebuild_index()
+    customer, alerts, _ = service.onboard("KUMAR, Anand", birth_date="1955-09", actor="analyst")
+    assert next(a for a in alerts if a["entity_id"] == "in_sansad:test-mp2")["status"] == "auto_cleared"
+    audit = next(e for e in service.audit_log() if e["action"] == "customer.onboard")
+    assert audit["detail"]["alerts"] == sum(a["status"] == "open" for a in alerts)  # counts include the last alert of the batch
+
+    assert service.rescreen_all(actor="tester")["auto_cleared"] == 0  # unchanged listing: the clearance stands
+    with service.Session() as session:
+        entity = session.get(WatchlistEntity, "in_sansad:test-mp2")
+        entity.birth_date, entity.updated_at = "1955-09-14", utcnow()  # the list corrects its date of birth
+        session.commit()
+    service.handle_delta({"entity_ids": ["in_sansad:test-mp2"], "source": "in_sansad"})
+    reopened = [a for a in service.alerts(status="open")["items"] if a["entity_id"] == "in_sansad:test-mp2"]
+    assert len(reopened) == 1 and reopened[0]["secondary"]["verdict"] == "confirmed"

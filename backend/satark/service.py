@@ -16,6 +16,7 @@ from .config import Settings, get_settings
 from .events import DELTA_STREAM, EventBus, MemoryBus, make_bus
 from .matcher import MatchIndex, Record, ScreenResult
 from .media.graph import build_media_graph
+from .secondary import check as secondary_check
 from .models import GENESIS_HASH, Alert, AuditEvent, AuditHead, Case, Customer, IngestRun, MediaEvent, WatchlistEntity, make_session_factory
 from .sources import SOURCE_BY_KEY, SOURCES, entity_key, fetch_remote, load_custom_csv, load_snapshot, row_hash, write_snapshot
 from .variants import VariantMaker, latin_to_devanagari
@@ -83,6 +84,7 @@ def alert_dict(alert: Alert, customer: Customer | None, entity: WatchlistEntity 
         "matched_name": alert.matched_name,
         "reasons": alert.reasons,
         "components": alert.components,
+        "secondary": alert.secondary or {},
         "trigger": alert.trigger,
         "status": alert.status,
         "decided_by": alert.decided_by,
@@ -110,6 +112,15 @@ def customer_dict(customer: Customer) -> dict:
         "created_at": customer.created_at.isoformat() if customer.created_at else None,
         "last_screened_at": customer.last_screened_at.isoformat() if customer.last_screened_at else None,
     }
+
+
+def customer_evidence(customer: Customer) -> dict:
+    return {"kind": customer.kind, "birth_date": customer.birth_date, "nationality": (customer.details or {}).get("nationality", ""),
+            "country": customer.country}
+
+
+def entity_evidence(entity: WatchlistEntity) -> dict:
+    return {"birth_date": entity.birth_date, "countries": entity.countries, "source": entity.source, "details": entity.details or {}}
 
 
 def case_dict(case: Case) -> dict:
@@ -275,13 +286,19 @@ class Satark:
             self.bus.publish(DELTA_STREAM, {"entity_ids": ids, "source": key, "reason": "custom list"})
         return {k: (len(v) if isinstance(v, list) else v) for k, v in summary.items()}
 
-    def screen(self, name: str, kind: str | None = None, birth_date: str | None = None, country: str | None = None,
-               limit: int = 10, min_score: float | None = None, trigger: str = "manual", index: MatchIndex | None = None) -> ScreenResult:
+    def screen(self, name: str, kind: str | None = None, limit: int = 10, min_score: float | None = None,
+               trigger: str = "manual", index: MatchIndex | None = None, evidence: dict | None = None) -> ScreenResult:
+        """Name match first; pass `evidence` (birth_date, nationality, country) to attach the secondary check per match."""
         idx = index or self.index
         with metrics.SCREEN_LATENCY.time():
-            result = idx.screen(name, kind=kind, birth_date=birth_date, country=country, limit=limit,
-                                min_score=self.settings.min_score if min_score is None else min_score)
+            result = idx.screen(name, kind=kind, limit=limit, min_score=self.settings.min_score if min_score is None else min_score)
         metrics.SCREENINGS.labels(trigger=trigger).inc()
+        if evidence is not None and result.matches:
+            with self.Session() as session:
+                entities = {e.id: e for e in session.scalars(select(WatchlistEntity).where(WatchlistEntity.id.in_([m.entity_id for m in result.matches])))}
+            for match in result.matches:
+                if match.entity_id in entities:
+                    match.secondary = secondary_check(evidence, entity_evidence(entities[match.entity_id]))
         return result
 
     def _raise_alerts(self, session, customer: Customer, result: ScreenResult, trigger: str) -> list[Alert]:
@@ -289,10 +306,35 @@ class Satark:
         open_pairs = set(session.execute(
             select(Alert.entity_id).where(Alert.customer_id == customer.id, Alert.status == "open")
         ).scalars())
+        # An auto-clearance stands only while the listing is unchanged: if the list corrects a date of birth later, the pair
+        # is re-evaluated with fresh evidence instead of a stale clearance hiding a true match.
+        # ponytail: customer-side corrections aren't tracked (customers have no updated_at); re-import rescreens them anyway.
+        open_pairs |= {entity_id for entity_id, cleared_at, changed_at in session.execute(
+            select(Alert.entity_id, Alert.created_at, WatchlistEntity.updated_at)
+            .join(WatchlistEntity, WatchlistEntity.id == Alert.entity_id)
+            .where(Alert.customer_id == customer.id, Alert.status == "auto_cleared")
+        ) if changed_at is None or cleared_at >= changed_at}
         case = None
         for match in result.matches:
             # Historical entries (revoked orders, PEPs out of office for over a year) stay visible in screening but don't queue work.
             if match.score < self.settings.alert_threshold or match.entity_id in open_pairs or match.status != "active":
+                continue
+            entity = session.get(WatchlistEntity, match.entity_id)
+            evidence = secondary_check(customer_evidence(customer), entity_evidence(entity)) if entity else {}
+            if evidence.get("verdict") == "contradicted":
+                # Strong independent evidence (e.g. a different date of birth) clears the name match without queueing work,
+                # but the alert is kept with its evidence so the clearance is visible and auditable.
+                cleared = Alert(
+                    customer_id=customer.id, entity_id=match.entity_id, score=match.score, band=match.band,
+                    matched_name=match.matched_name, reasons=match.reasons, components=match.components, trigger=trigger,
+                    secondary=evidence, status="auto_cleared", decided_by="secondary-check", decided_at=utcnow(), note=evidence["summary"],
+                )
+                session.add(cleared)
+                session.flush()
+                self.audit(session, "secondary-check", "alert.auto_cleared", f"alert:{cleared.id}", customer=customer.id,
+                           entity=match.entity_id, name_score=match.score, summary=evidence["summary"])
+                metrics.ALERTS.labels(trigger=trigger, band="auto_cleared").inc()
+                created.append(cleared)
                 continue
             if case is None:
                 case = session.scalar(select(Case).where(Case.customer_id == customer.id, Case.status != "closed"))
@@ -303,6 +345,7 @@ class Satark:
             alert = Alert(
                 customer_id=customer.id, case_id=case.id, entity_id=match.entity_id, score=match.score, band=match.band,
                 matched_name=match.matched_name, reasons=match.reasons, components=match.components, trigger=trigger,
+                secondary=evidence, status="open",
             )
             session.add(alert)
             created.append(alert)
@@ -310,15 +353,17 @@ class Satark:
         customer.last_screened_at = utcnow()
         return created
 
-    def onboard(self, name: str, kind: str = "person", birth_date: str = "", country: str = "in",
-                segment: str = "retail", actor: str = "analyst", synthetic: bool = False) -> tuple[dict, list[dict], dict]:
+    def onboard(self, name: str, kind: str = "person", birth_date: str = "", country: str = "in", segment: str = "retail",
+                actor: str = "analyst", synthetic: bool = False, nationality: str = "") -> tuple[dict, list[dict], dict]:
         with self.Session() as session:
-            customer = Customer(name=name, kind=kind, birth_date=birth_date, country=country, segment=segment, synthetic=synthetic)
+            customer = Customer(name=name, kind=kind, birth_date=birth_date, country=country, segment=segment, synthetic=synthetic,
+                                details={"nationality": nationality} if nationality else {})
             session.add(customer)
             session.flush()
-            result = self.screen(name, kind=kind, birth_date=birth_date, country=country, trigger="onboarding", limit=ALERT_SCAN_LIMIT)
+            result = self.screen(name, kind=kind, trigger="onboarding", limit=ALERT_SCAN_LIMIT)
             alerts = self._raise_alerts(session, customer, result, "onboarding")
-            self.audit(session, actor, "customer.onboard", f"customer:{customer.id}", name=name, alerts=len(alerts))
+            self.audit(session, actor, "customer.onboard", f"customer:{customer.id}", name=name,
+                       alerts=sum(a.status == "open" for a in alerts), auto_cleared=sum(a.status == "auto_cleared" for a in alerts))
             session.commit()
             entities = {e.id: e for e in session.scalars(select(WatchlistEntity).where(WatchlistEntity.id.in_([a.entity_id for a in alerts])))}
             return customer_dict(customer), [alert_dict(a, customer, entities.get(a.entity_id)) for a in alerts], screen_dict(result)
@@ -349,35 +394,36 @@ class Satark:
         return {"rows": len(rows), "added": added, "updated": updated}
 
     def rescreen_all(self, actor: str = "system", trigger: str = "batch") -> dict:
-        created = 0
+        raised = []
         with self.Session() as session:
             customers = session.scalars(select(Customer)).all()
             for customer in customers:
-                result = self.screen(customer.name, kind=customer.kind, birth_date=customer.birth_date,
-                                     country=customer.country, trigger=trigger, limit=ALERT_SCAN_LIMIT)
-                created += len(self._raise_alerts(session, customer, result, trigger))
-            self.audit(session, actor, "customers.rescreen", "all", customers=len(customers), alerts=created)
+                result = self.screen(customer.name, kind=customer.kind, trigger=trigger, limit=ALERT_SCAN_LIMIT)
+                raised += self._raise_alerts(session, customer, result, trigger)
+            counts = {"alerts": sum(a.status == "open" for a in raised), "auto_cleared": sum(a.status == "auto_cleared" for a in raised)}
+            self.audit(session, actor, "customers.rescreen", "all", customers=len(customers), **counts)
             session.commit()
-        return {"customers": len(customers), "alerts": created}
+        return {"customers": len(customers), **counts}
 
     def handle_delta(self, payload: dict) -> dict:
         ids = payload.get("entity_ids", [])
         if any(i not in self.index.records for i in ids):
             self.rebuild_index()
         subset = self.index.subset(ids)
-        created = 0
+        raised = []
         with self.Session() as session:
             customers = session.scalars(select(Customer)).all()
             for customer in customers:
-                result = self.screen(customer.name, kind=customer.kind, birth_date=customer.birth_date,
-                                     country=customer.country, trigger="watchlist_delta", index=subset, limit=ALERT_SCAN_LIMIT)
-                created += len(self._raise_alerts(session, customer, result, "watchlist_delta"))
+                result = self.screen(customer.name, kind=customer.kind, trigger="watchlist_delta", index=subset, limit=ALERT_SCAN_LIMIT)
+                raised += self._raise_alerts(session, customer, result, "watchlist_delta")
+            created = sum(a.status == "open" for a in raised)
             self.audit(session, "rescreen-worker", "watchlist.delta.handled", payload.get("source", ""),
                        entities=len(ids), customers=len(customers), alerts=created, bus=self.bus.kind)
             session.commit()
         metrics.DELTAS.inc()
         log.info("delta %s entities → %s alerts", len(ids), created)
-        return {"entities": len(ids), "customers": len(customers), "alerts": created}
+        return {"entities": len(ids), "customers": len(customers), "alerts": created,
+                "auto_cleared": sum(a.status == "auto_cleared" for a in raised)}
 
     def simulate_delta(self, actor: str = "analyst", customer_id: int | None = None, style: str | None = None) -> dict:
         maker = VariantMaker(random.randrange(1_000_000))

@@ -99,6 +99,7 @@ class Alert(Base):
     matched_name: Mapped[str] = mapped_column(Text)
     reasons: Mapped[list] = mapped_column(JSON, default=list)
     components: Mapped[dict] = mapped_column(JSON, default=dict)
+    secondary: Mapped[dict] = mapped_column(JSON, default=dict)
     trigger: Mapped[str] = mapped_column(String(24))
     status: Mapped[str] = mapped_column(String(16), default="open", index=True)
     decided_by: Mapped[str] = mapped_column(String(64), default="")

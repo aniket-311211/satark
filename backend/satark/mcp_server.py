@@ -31,7 +31,8 @@ def screen_entity(name: str, kind: str | None = None, birth_date: str | None = N
 
     kind is "person" or "org"; birth_date may be a year or ISO date; country is an ISO-2 code such as "in".
     Returns potential matches with a 0-100 score, a band (strong/probable/possible) and plain-English reasons."""
-    result = core().screen(name, kind=kind, birth_date=birth_date, country=country, limit=limit, trigger="mcp")
+    evidence = {"kind": kind or "", "birth_date": birth_date or "", "nationality": "", "country": (country or "").lower()}
+    result = core().screen(name, kind=kind, limit=limit, trigger="mcp", evidence=evidence)
     return {
         "query": result.query,
         "normalized_as": result.normalized,
@@ -41,6 +42,7 @@ def screen_entity(name: str, kind: str | None = None, birth_date: str | None = N
             {
                 "entity_id": m.entity_id, "listed_name": m.entity_name, "matched_on": m.matched_name,
                 "list": m.source, "score": m.score, "band": m.band, "reasons": m.reasons,
+                "identity_evidence": m.secondary,
             }
             for m in result.matches
         ],

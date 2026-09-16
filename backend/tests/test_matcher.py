@@ -30,13 +30,9 @@ def test_surname_swap_stays_below_alert_threshold(index):
     )
 
 
-def test_birth_year_mismatch_penalises():
-    records = [Record(id="x1", name="Arjun Mehta", schema="Person", dataset="t", source="t", birth_date="1970-01-01")]
-    idx = MatchIndex(records)
-    same = idx.screen("Arjun Mehta", birth_date="1970", min_score=0).matches[0].score
-    different = idx.screen("Arjun Mehta", birth_date="1995", min_score=0).matches[0].score
-    assert same > different
-    assert different < 80
+def test_name_score_ignores_everything_but_the_name():
+    idx = MatchIndex([Record(id="x1", name="Arjun Mehta", schema="Person", dataset="t", source="t", birth_date="1970-01-01")])
+    assert idx.screen("Arjun Mehta", min_score=0).matches[0].score == 100.0  # date of birth is the secondary check's job
 
 
 def test_subset_keeps_global_weights(index):

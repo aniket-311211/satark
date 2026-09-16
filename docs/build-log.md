@@ -168,3 +168,47 @@ Screening real people found three more defects the synthetic benchmark couldn't:
 **Regression gate on real data.** `data/eval/real_cases.csv` holds 34 labelled pairs: the 2 acronym false positives and the short-name false positive (must stay below 80), plus the 31 debarred LEI holders (must reach 80). `satark eval --real --gate` runs in CI next to the synthetic gate. It was confirmed to **fail 0/2 on the pre-fix name normaliser** and passes 34/34 now.
 
 **Learning loop.** `satark eval --export-decisions` appends every approved maker-checker decision to the same file: confirmed → `match`, discarded → `no_match`, noting the case and approver. Analysts' work becomes regression tests.
+
+## Step 5 — Secondary matching: a second, independent check
+
+**Why:** name matching can't be exact on its own. "RAI, Rajesh" against "Shri Rajesh Rai" is a perfect name match (100) and still may be a different person. Screening vendors separate *finding* candidates (name) from *confirming or clearing* them (independent attributes). Before this step, Satark hid that second judgement inside the name score: a birth-year mismatch multiplied the score by 0.75, so the pair silently never alerted and nobody saw why.
+
+**What changed:**
+
+- **Check 1: name match.** `MatchIndex.screen` returns a pure name score. The birth-year and country adjustments were removed; person vs organisation stays, because it's a property of the name.
+- **Check 2: identity evidence.** `secondary.check(customer, entity)` returns a verdict, a one-line summary, and each check with `supports` / `contradicts` / `neutral` / `no_data`:
+
+| Check | Strength | Rule |
+|---|---|---|
+| Date of birth | strong | Same year (months equal or unknown) supports. Same year with a different month is neutral (a common data-entry slip). ±1 year is neutral. 2+ years apart contradicts. With several listed dates, the most favourable wins. Doesn't apply to organisations |
+| PEP term age | strong | Only for listings with term dates. If the earliest term began before the customer would have been 25 (the Lok Sabha minimum age, Article 84), it contradicts |
+| Nationality / country | weak | Recorded, never decisive: a country on a list can mean jurisdiction, not citizenship |
+
+- **Verdicts.** Any strong contradiction → `contradicted`. A strong support → `confirmed` (a reviewer still decides). Otherwise → `inconclusive`.
+- **Alerting.** A `contradicted` alert is stored as `auto_cleared` by `secondary-check`, with its evidence, no case, and a hash-chained `alert.auto_cleared` audit event, so the clearance is visible and reviewable. Everything else joins the customer's case with the evidence attached. `/screen` and the MCP `screen_entity` tool return both checks per match when a date of birth, nationality or country is supplied.
+
+**Measured on the real book** (re-screened from scratch):
+
+| Outcome | Count | Example |
+|---|---:|---|
+| Open, inconclusive | 48 | "RAI, Rajesh" vs "Shri Rajesh Rai" (100): the listing has no date of birth |
+| **Auto-cleared** | **2** | "KUMAR, Anand, Dr" (born 1955-09) vs MP "Anand Kumar" (born 1974-08-07), name score **100**; "PATEL, Prayasvin" (born 1958-04) vs MP "Praveen Patel" (born 1979-01-25), 87.1 |
+| Confirmed | 0 | none of the book's matches share a date of birth |
+
+**What it can't do here, and why:**
+
+- **Identifier matching was measured and not built.** Across all 1,385 customers there are 0 comparable identifier pairs. NSE listings carry PANs but no LEIs, only 605 carry a registration number (39 of them CINs), and every GLEIF company in the book carries a CIN. A check that always returns "no data" would be dead code. It becomes worthwhile when customers arrive with PANs, e.g. an uploaded KYC file.
+- **17 of 19 director alerts stay inconclusive** because the matched NSE and Parliament entries carry no date of birth. That's a property of the source lists, and it's exactly the work maker-checker review is for.
+
+The synthetic benchmark is unchanged (it has no dates of birth): dev threshold 77, P 0.965, R 0.940, F1 0.953. The real-case gate stays at 34/34.
+
+**Independent review before commit.** A reviewer agent read the uncommitted change and found:
+
+| Finding | Severity | Resolution |
+|---|---|---|
+| New open alerts relied on the column default, which applies only at flush. The last alert of a batch was uncounted in audit details and rescreen summaries (onboarding 3 alerts logged `alerts: 2`) | bug | status set explicitly |
+| An auto-clearance was permanent: if the list later corrected a date of birth, the stale clearance would keep hiding a true match | compliance risk | a clearance stands only while the listing is unchanged (`WatchlistEntity.updated_at`); after a delta the pair is re-evaluated |
+| A term-age contradiction could auto-clear a pair whose date of birth *agrees*, i.e. an inconsistent listing | compliance risk | conflicting strong evidence is now `inconclusive` ("Conflicting evidence, needs review") and goes to a human |
+| The term-age check could run for organisations | minor | not applied to organisations |
+
+The regression test fails with either service fix reverted and passes with both. After the fixes: 117 tests pass, the real book still screens to 48 open and 2 auto-cleared, the real-case gate is 34/34, and the audit chain verifies.

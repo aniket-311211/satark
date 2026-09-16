@@ -58,6 +58,7 @@ class Match:
     pairs: list[Pair]
     reasons: list[str]
     status: str = "active"
+    secondary: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -76,10 +77,6 @@ def band_for(score: float) -> str:
         if score >= threshold:
             return label
     return "weak"
-
-
-def years(value: str) -> set[str]:
-    return set(re.findall(r"(?:19|20)\d{2}", value or ""))
 
 
 def token_similarity(q: Token, c: Token) -> tuple[float, str]:
@@ -234,8 +231,6 @@ class MatchIndex:
         self,
         query: str,
         kind: str | None = None,
-        birth_date: str | None = None,
-        country: str | None = None,
         limit: int = 10,
         min_score: float = 70.0,
         candidate_cap: int = 400,
@@ -253,17 +248,8 @@ class MatchIndex:
             if name.norm.kind != norm.kind:
                 score *= 0.85
                 reasons.append(f"entity type differs ({name.norm.kind} on list)")
-            query_years, list_years = years(birth_date or ""), years(record.birth_date)
-            if query_years and list_years:
-                if query_years & list_years:
-                    score = min(100.0, score + 4)
-                    reasons.append("birth year matches")
-                else:
-                    score *= 0.75
-                    reasons.append("birth year differs")
-            if country and record.countries and country.lower() not in record.countries.lower().split(";"):
-                score *= 0.95
-                reasons.append("country differs")
+            # Date of birth, nationality and PEP term dates are judged separately by secondary.check, so the score stays
+            # a pure name score and an analyst can see which check cleared or supported a hit.
             score = round(score, 1)
             current = best.get(record.id)
             if score >= min_score and (current is None or score > current.score):

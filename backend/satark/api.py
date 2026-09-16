@@ -18,6 +18,7 @@ class ScreenRequest(BaseModel):
     name: str = Field(min_length=2, max_length=256)
     kind: Literal["person", "org"] | None = None
     birth_date: str | None = None
+    nationality: str | None = None
     country: str | None = None
     limit: int = Field(default=10, ge=1, le=50)
     min_score: float | None = Field(default=None, ge=0, le=100)
@@ -27,6 +28,7 @@ class CustomerRequest(BaseModel):
     name: str = Field(min_length=2, max_length=256)
     kind: Literal["person", "org"] = "person"
     birth_date: str = ""
+    nationality: str = ""
     country: str = "in"
     segment: str = "retail"
 
@@ -81,8 +83,9 @@ def create_app(service: Satark | None = None) -> FastAPI:
 
     @app.post("/screen")
     def screen(body: ScreenRequest, request: Request):
-        result = core(request).screen(body.name, kind=body.kind, birth_date=body.birth_date, country=body.country,
-                                      limit=body.limit, min_score=body.min_score)
+        evidence = {"kind": body.kind or "", "birth_date": body.birth_date or "", "nationality": body.nationality or "",
+                    "country": (body.country or "").lower()}
+        result = core(request).screen(body.name, kind=body.kind, limit=body.limit, min_score=body.min_score, evidence=evidence)
         return screen_dict(result)
 
     @app.get("/entities/{entity_id}")
