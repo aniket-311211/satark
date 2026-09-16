@@ -16,3 +16,5 @@ graphify-out/
 ruvector.db
 data/cache/
 .claude/
+.agents/
+skills-lock.json

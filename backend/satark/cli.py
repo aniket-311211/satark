@@ -20,12 +20,50 @@ def cmd_ingest(args) -> None:
 
 
 def cmd_seed(args) -> None:
-    from .seed import seed_customers
     from .service import Satark
 
     app = Satark()
     app.ensure_ready()
-    print(json.dumps(seed_customers(app, count=args.customers, planted=args.planted, seed=args.seed), indent=2))
+    if args.synthetic:
+        from .seed import seed_customers
+
+        print(json.dumps(seed_customers(app, count=args.customers, planted=args.planted, seed=args.seed), indent=2))
+        return
+    from .book import load_book
+
+    summary = app.import_book(load_book(app.settings.data_dir), actor="cli")
+    print(json.dumps({**summary, **app.rescreen_all(actor="cli", trigger="onboarding")}, indent=2))
+
+
+def cmd_book_build(args) -> None:
+    import time
+
+    from . import book
+    from .config import get_settings
+    from .sources import load_snapshot
+
+    settings = get_settings()
+    groups = "".join(g for g in "ABC" if g in args.groups.upper())
+    rows, started = [], time.monotonic()
+    if "A" in groups:
+        rows += book.build_group_a()
+        print(f"group A: {sum(r['group'] == 'A' for r in rows)} LSE-issued Indian LEIs ({time.monotonic() - started:.0f}s)")
+    if "C" in groups:
+        pairs = book.nse_active_company_pairs(load_snapshot(settings.data_dir, "in_nse_debarred"))
+        found = book.build_group_c(pairs, progress=print)
+        rows += found
+        print(f"group C: {len(found)} LEI holders among {len(pairs)} active debarred companies ({time.monotonic() - started:.0f}s)")
+    if "B" in groups:
+        if not settings.companies_house_key:
+            sys.exit("group B needs SATARK_COMPANIES_HOUSE_KEY (free: developer.company-information.service.gov.uk)")
+        found = book.build_group_b(settings.companies_house_key, limit=args.ch_limit)
+        rows += found
+        officers = sum(r["external_id"].startswith("ch-officer:") for r in found)
+        conflicts = sum(bool(r["details"].get("ownership_conflict", {}).get("conflict")) for r in found)
+        print(f"group B: {len(found) - officers} UK subsidiaries of Indian parents, {officers} current officers, "
+              f"{conflicts} ownership conflicts ({time.monotonic() - started:.0f}s)")
+    book.write_book(settings.data_dir, rows, groups)
+    print(f"wrote data/book for groups {groups}")
 
 
 def cmd_eval(args) -> None:
@@ -36,6 +74,19 @@ def cmd_eval(args) -> None:
 
     settings = get_settings()
     records = [to_record(row, s.key) for s in SOURCES for row in load_snapshot(settings.data_dir, s.key)]
+    if args.export_decisions:
+        export_decisions(settings.data_dir / "eval" / "real_cases.csv")
+        return
+    if args.real:
+        from .evaluation import evaluate_real, load_real_cases
+
+        result = evaluate_real(MatchIndex(records), load_real_cases(settings.data_dir / "eval" / "real_cases.csv"), settings.alert_threshold)
+        print(f"real labelled cases: {result['passed']}/{result['cases']} passed at threshold {result['threshold']:.0f}")
+        for failure in result["failures"]:
+            print(f"  FAIL {failure['expected']:<8} {failure['score']:5.1f}  {failure['query']}  ({failure['note']})")
+        if args.gate and result["failures"]:
+            sys.exit(1)
+        return
     report = evaluate(MatchIndex(records), positives=args.positives, negatives=args.negatives, seed=args.seed)
     path = write_report(report, settings.reports_dir)
     print(format_table(report))
@@ -48,6 +99,37 @@ def cmd_eval(args) -> None:
             print(f"quality gate failed: {failed} (floors {GATES})")
             sys.exit(1)
         print(f"quality gate passed (floors {GATES})")
+
+
+def export_decisions(path: Path) -> None:
+    """Closed maker-checker decisions become labelled real cases: confirmed -> match, discarded -> no_match."""
+    import csv
+
+    from sqlalchemy import select
+
+    from .models import Alert, Customer
+    from .service import Satark
+
+    with open(path, newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    seen = {(r["query"], r["entity_id"]) for r in rows}
+    added = 0
+    with Satark().Session() as session:
+        decided = session.execute(select(Alert, Customer).join(Customer, Customer.id == Alert.customer_id)
+                                  .where(Alert.status.in_(("confirmed", "discarded")))).all()
+        for alert, customer in decided:
+            if (customer.name, alert.entity_id) in seen:
+                continue
+            seen.add((customer.name, alert.entity_id))
+            rows.append({"query": customer.name, "kind": customer.kind, "entity_id": alert.entity_id,
+                         "expected": "match" if alert.status == "confirmed" else "no_match", "origin": "analyst_decision",
+                         "note": f"case {alert.case_id}, approved by {alert.decided_by}: {alert.note}"})
+            added += 1
+    with open(path, "w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["query", "kind", "entity_id", "expected", "origin", "note"])
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f"exported {added} new decisions; {len(rows)} labelled real cases in {path}")
 
 
 def cmd_serve(args) -> None:
@@ -111,7 +193,8 @@ def main() -> None:
     ingest.add_argument("--key", default="custom_list", help="source key for --custom")
     ingest.set_defaults(func=cmd_ingest)
 
-    seed = sub.add_parser("seed", help="create synthetic customers and screen them")
+    seed = sub.add_parser("seed", help="load watchlists and the real customer book, then screen everyone")
+    seed.add_argument("--synthetic", action="store_true", help="use the old Faker book with planted variants instead")
     seed.add_argument("--customers", type=int, default=1000)
     seed.add_argument("--planted", type=int, default=25)
     seed.add_argument("--seed", type=int, default=11)
@@ -122,6 +205,8 @@ def main() -> None:
     ev.add_argument("--negatives", type=int, default=1000)
     ev.add_argument("--seed", type=int, default=7)
     ev.add_argument("--gate", action="store_true", help="exit 1 if quality floors are missed")
+    ev.add_argument("--export-decisions", action="store_true", help="append closed case decisions to data/eval/real_cases.csv")
+    ev.add_argument("--real", action="store_true", help="check the labelled real cases in data/eval/real_cases.csv instead")
     ev.set_defaults(func=cmd_eval)
 
     serve = sub.add_parser("serve", help="run the REST API")
@@ -136,6 +221,12 @@ def main() -> None:
     worker.set_defaults(func=cmd_worker)
     sub.add_parser("rescreen", help="rescreen every customer against the full index").set_defaults(func=cmd_rescreen)
     sub.add_parser("mcp", help="run the MCP server over stdio").set_defaults(func=cmd_mcp)
+    book_cmd = sub.add_parser("book", help="real customer book from GLEIF and Companies House")
+    build = book_cmd.add_subparsers(dest="book_command", required=True).add_parser("build", help="rebuild data/book snapshots")
+    build.add_argument("--groups", default="ABC", help="A: LSE-issued Indian LEIs, B: UK subsidiaries of Indian groups, C: debarred LEI holders")
+    build.add_argument("--ch-limit", type=int, default=None, help="cap group B companies (Companies House calls)")
+    build.set_defaults(func=cmd_book_build)
+
     news = sub.add_parser("news", help="adverse-media index built from allowlisted regulator and publisher feeds")
     news.add_subparsers(dest="news_command", required=True).add_parser("poll", help="fetch new items into the local index").set_defaults(func=cmd_news_poll)
 

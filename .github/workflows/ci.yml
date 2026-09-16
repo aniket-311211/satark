@@ -18,6 +18,9 @@ jobs:
       - name: Matching quality gate
         run: satark eval --gate
         working-directory: backend
+      - name: Real labelled cases gate
+        run: satark eval --real --gate
+        working-directory: backend
 
   frontend:
     runs-on: ubuntu-latest

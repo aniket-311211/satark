@@ -246,7 +246,6 @@ def normalize(name: str, schema: str | None = None) -> NormalizedName:
             notes.append(f"split initials '{source}'")
             continue
         words.append((clean, len(clean) == 1))
-    plain = [w for w, _ in words]
     while (len(words) > 1 and words[0][0] in HONORIFICS) or (len(words) > 2 and words[0][0] in LEADING_HONORIFICS):
         notes.append(f"removed honorific '{words[0][0]}'")
         words.pop(0)

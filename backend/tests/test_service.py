@@ -35,9 +35,10 @@ def test_hallucinated_quote_fails_verification():
 
 def test_onboarding_opens_a_case_and_maker_checker_closes_it(service):
     import pytest
+
     from satark.service import WorkflowError
 
-    customer, alerts, screening = service.onboard("Hafiz Muhammad Saeed", actor="analyst")
+    _, alerts, screening = service.onboard("Hafiz Muhammad Saeed", actor="analyst")
     assert alerts, screening
     case_id = alerts[0]["case_id"]
     with pytest.raises(WorkflowError):
@@ -104,11 +105,13 @@ def test_api_screen_and_alert_flow(client):
     assert client.post(f"/cases/{case_id}/review", json={"approve": True}, headers={"X-Satark-User": "reviewer"}).json()["status"] == "closed"
     assert client.get("/audit/verify").json()["ok"]
     assert client.get("/metrics").text.count("satark_screenings_total") >= 1
-    assert client.get("/watchlists").json()[0]["entities"] > 1000
+    nse = client.get("/watchlists").json()[0]
+    assert nse["entities"] > 1000 and nse["active"] + nse["historical"] == nse["entities"] and nse["historical"] > 0
 
 
 def test_concurrent_audit_writers_cannot_fork_the_chain(service):
     import pytest
+
     from satark.service import AuditConflict
 
     head_both_writers_read = service.verify_audit()["head"]
@@ -120,3 +123,36 @@ def test_concurrent_audit_writers_cannot_fork_the_chain(service):
         with pytest.raises(AuditConflict):
             service.audit(second, "worker-b", "test.write")
     assert service.verify_audit()["ok"]
+
+
+def test_import_book_links_parents_and_alerts_only_on_active_entries(service):
+    rows = [
+        {"external_id": "lei:PARENT", "name": "Classic Holdings Limited", "kind": "org", "group": "A", "country": "in",
+         "birth_date": "", "parent_external_id": None, "details": {"lei": "PARENT"}},
+        {"external_id": "ch-officer:0001:o1", "name": "Hafiz Muhammad Saeed", "kind": "person", "group": "B", "country": "",
+         "birth_date": "", "parent_external_id": "lei:PARENT", "details": {"officer_role": "director"}},
+    ]
+    assert service.import_book(rows)["added"] == 2
+    assert service.import_book(rows)["updated"] == 2  # idempotent upsert by external_id
+    officer = next(c for c in service.customers(q="Saeed")["items"] if c["external_id"] == "ch-officer:0001:o1")
+    parent = next(c for c in service.customers(q="Classic Holdings")["items"])
+    assert officer["parent_id"] == parent["id"] and officer["group"] == "B"
+    service.rescreen_all(actor="tester", trigger="onboarding")
+    alerts = service.alerts(status="open")["items"]
+    assert alerts and all(a["entity"]["status"] == "active" for a in alerts)
+    assert service.cases(status="open")["total"] == 1
+    profile = service.customer(parent["id"])
+    assert [c["external_id"] for c in profile["children"]] == ["ch-officer:0001:o1"] and profile["parent"] is None
+    assert service.customer(officer["id"])["cases"][0]["status"] == "open"
+
+
+def test_active_listing_alerts_even_behind_many_historical_namesakes(tmp_path):
+    from satark.config import Settings
+    from satark.matcher import MatchIndex, Record
+    from satark.service import Satark
+
+    app = Satark(settings=Settings(database_url=f"sqlite:///{tmp_path / 't.db'}", redis_url="", reports_dir=tmp_path))
+    namesakes = [Record(id=f"t:old{i}", name="Abhishek Gupta", schema="Person", dataset="t", source="t", status="historical") for i in range(10)]
+    app.index = MatchIndex([*namesakes, Record(id="t:live", name="Abhishek Gupta", schema="Person", dataset="t", source="t")])
+    _, alerts, _ = app.onboard("GUPTA, Abhishek", actor="analyst")
+    assert [a["entity_id"] for a in alerts] == ["t:live"]

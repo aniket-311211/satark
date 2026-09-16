@@ -26,6 +26,9 @@ DEMO_SOURCE = "demo_feed"
 # ponytail: demo identities, not authentication. Swap for SSO claims before real use.
 ROLES = {"analyst": "analyst", "reviewer": "reviewer", "reviewer2": "reviewer"}
 DECISIONS = ("confirmed", "discarded")
+# Alerting keeps every match above min_score before dropping historical entries: a common name can have more revoked
+# listings than a small top-N, which would push its one active listing out of view.
+ALERT_SCAN_LIMIT = 200
 
 
 class WorkflowError(Exception):
@@ -74,6 +77,7 @@ def alert_dict(alert: Alert, customer: Customer | None, entity: WatchlistEntity 
     return {
         "id": alert.id,
         "case_id": alert.case_id,
+        "entity_id": alert.entity_id,
         "score": alert.score,
         "band": alert.band,
         "matched_name": alert.matched_name,
@@ -312,7 +316,7 @@ class Satark:
             customer = Customer(name=name, kind=kind, birth_date=birth_date, country=country, segment=segment, synthetic=synthetic)
             session.add(customer)
             session.flush()
-            result = self.screen(name, kind=kind, birth_date=birth_date, country=country, trigger="onboarding")
+            result = self.screen(name, kind=kind, birth_date=birth_date, country=country, trigger="onboarding", limit=ALERT_SCAN_LIMIT)
             alerts = self._raise_alerts(session, customer, result, "onboarding")
             self.audit(session, actor, "customer.onboard", f"customer:{customer.id}", name=name, alerts=len(alerts))
             session.commit()
@@ -350,7 +354,7 @@ class Satark:
             customers = session.scalars(select(Customer)).all()
             for customer in customers:
                 result = self.screen(customer.name, kind=customer.kind, birth_date=customer.birth_date,
-                                     country=customer.country, trigger=trigger, limit=5)
+                                     country=customer.country, trigger=trigger, limit=ALERT_SCAN_LIMIT)
                 created += len(self._raise_alerts(session, customer, result, trigger))
             self.audit(session, actor, "customers.rescreen", "all", customers=len(customers), alerts=created)
             session.commit()
@@ -366,7 +370,7 @@ class Satark:
             customers = session.scalars(select(Customer)).all()
             for customer in customers:
                 result = self.screen(customer.name, kind=customer.kind, birth_date=customer.birth_date,
-                                     country=customer.country, trigger="watchlist_delta", index=subset, limit=5)
+                                     country=customer.country, trigger="watchlist_delta", index=subset, limit=ALERT_SCAN_LIMIT)
                 created += len(self._raise_alerts(session, customer, result, "watchlist_delta"))
             self.audit(session, "rescreen-worker", "watchlist.delta.handled", payload.get("source", ""),
                        entities=len(ids), customers=len(customers), alerts=created, bus=self.bus.kind)
@@ -513,6 +517,21 @@ class Satark:
             ).all())
             return {"total": session.scalar(count_query), "items": [{**customer_dict(c), "open_alerts": open_counts.get(c.id, 0)} for c in rows]}
 
+    def customer(self, customer_id: int) -> dict | None:
+        with self.Session() as session:
+            customer = session.get(Customer, customer_id)
+            if customer is None:
+                return None
+            parent = session.get(Customer, customer.parent_id) if customer.parent_id else None
+            children = session.scalars(select(Customer).where(Customer.parent_id == customer_id).order_by(Customer.name)).all()
+            cases = session.scalars(select(Case).where(Case.customer_id == customer_id).order_by(Case.created_at.desc())).all()
+            return {
+                **customer_dict(customer),
+                "parent": customer_dict(parent) if parent else None,
+                "children": [customer_dict(c) for c in children],
+                "cases": [case_dict(c) for c in cases],
+            }
+
     def entity(self, entity_id: str) -> dict | None:
         with self.Session() as session:
             entity = session.get(WatchlistEntity, entity_id)
@@ -525,9 +544,13 @@ class Satark:
 
     def watchlists(self) -> list[dict]:
         with self.Session() as session:
-            counts = dict(session.execute(
-                select(WatchlistEntity.source, func.count()).where(WatchlistEntity.active.is_(True)).group_by(WatchlistEntity.source)
-            ).all())
+            counts, by_status = {}, {}
+            for source, status, count in session.execute(
+                select(WatchlistEntity.source, WatchlistEntity.status, func.count())
+                .where(WatchlistEntity.active.is_(True)).group_by(WatchlistEntity.source, WatchlistEntity.status)
+            ):
+                counts[source] = counts.get(source, 0) + count
+                by_status.setdefault(source, {})[status] = count
             runs = {}
             for run in session.scalars(select(IngestRun).order_by(IngestRun.at.desc())):
                 runs.setdefault(run.source, run)
@@ -543,6 +566,8 @@ class Satark:
                 "category": source.category if source else "demo",
                 "authority": source.authority if source else "Synthetic listings for demos",
                 "entities": counts.get(key, 0),
+                "active": by_status.get(key, {}).get("active", 0),
+                "historical": by_status.get(key, {}).get("historical", 0),
                 "last_run": None if run is None else {
                     "mode": run.mode, "total": run.total, "added": run.added, "changed": run.changed,
                     "removed": run.removed, "at": run.at.isoformat(),

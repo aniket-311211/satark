@@ -119,3 +119,52 @@ Identifiers (PAN, registration numbers, addresses, email) are never stored. The 
 - dev-selected threshold 77: P 0.960, R 0.946, F1 0.953
 - production threshold 80: P 0.971, R 0.938, F1 0.954
 - RapidFuzz at 80: P 0.678, R 0.499, F1 0.575
+
+## Step 2 — A real customer book from public registries
+
+**Why:** a screening system tested on names it planted itself proves little. No real bank customer list is public, and using one would breach India's DPDP Act and banking secrecy. So the book is built from *business* registries instead: the KYB (know-your-business) side of screening, where the data is public.
+
+| Group | What | Source | Built |
+|---|---|---|---|
+| **A** | Indian legal entities whose LEI is issued by **London Stock Exchange LEI Ltd** (LOU `213800WAVVOPS85N2205`) | GLEIF API, no key | 840 entities in 16 s |
+| **B** | UK companies whose direct or ultimate parent is Indian, with their **current officers** and **persons with significant control** | GLEIF Golden Copy bulk files (504 MB entities, 24 MB relationships) joined locally, then the Companies House API (free key) | 114 companies, 400 unique officers (434 appointments), 628 s |
+| **C** | Companies on NSE's **active** debarment list that also hold an LEI | Block 1 snapshot → GLEIF exact legal-name lookup | 31 LEI holders among 779 active debarred companies, 1,844 s |
+
+**Group B details:**
+- The join keeps only ACTIVE `IS_DIRECTLY/ULTIMATELY_CONSOLIDATED_BY` relationships, where the child is registered with Companies House (RA000585) and the parent's legal address is in India.
+- Largest Indian parents: HCL Technologies (5), Tata Motors Passenger Vehicles (4), Samvardhana Motherson, TVS Supply Chain, Tata Steel and Tata Consumer Products (3 each).
+- Companies House status: 111 active, 2 in liquidation, 1 dissolved.
+- Officers: 198 Indian nationals, 137 British.
+
+**Registry mismatches (26 of 114).** GLEIF records an Indian parent, but Companies House lists no person with significant control. Examples: ICICI Bank UK PLC, Kotak Mahindra (UK) Limited, Tata Steel Europe Limited, SPP Pumps Limited (parent Kirloskar Brothers). A mismatch is a reason to review ownership evidence, not a finding: the UK PSC regime has exemptions a parent may legitimately use. The case file surfaces it so an analyst decides.
+
+**Privacy.** Committed snapshots (`data/book/`) hold only company-level public registry data. Officer rows and raw Companies House responses (names, birth month and year, nationality) stay in `data/cache/`, which is gitignored and rebuilt locally with your own key. Individual PSC names are dropped even from the cache-derived company rows. Officer rows carry no country: a UK directorship says nothing about residence, and a wrong country would cost score.
+
+**Bugs found while building:**
+- GLEIF's API treats a comma inside a filter value as a list separator, so the debarred company "New Leader Trading Co. Pvt. Ltd.," returned HTTP 400 and aborted the run. Commas are now stripped from the query, and one unsearchable name skips that company instead of failing the build.
+- The company filter looked for "Limited" anywhere in the listing, so "Dinesh Sharma (having address at Risk Capital & Technology Finance Corporation Limited, …)" counted as a company. After the bracket was stripped for the retry, it matched an unrelated sole proprietor named Dinesh Sharma in Jaipur. The suffix check now ignores bracketed text. The fix can only remove candidates, so the existing results were re-filtered (32 → 31) rather than re-running 30 minutes of lookups.
+- The GLEIF throttle waited 1.05 s *after* each ~0.9 s response, doubling the run to 31 minutes. It now spaces requests from their start and prints progress every 50 lookups.
+- The half-finished group C test expected "Foo" to match "FOO LIMITED", contradicting the exact-name rule. The fixture was corrected, not the rule.
+
+
+**Group C highlights.** Karvy Stock Broking, Gensol Engineering, Pancard Clubs and Reliance Unicorn Enterprises are among the 31. 13 of the 31 LEIs have **lapsed**: a company under a live SEBI debarment that has also stopped renewing its LEI is a signal worth showing next to the order.
+
+## Step 3c — Screening the real book, and what it exposed
+
+`satark seed` loads the five lists and the 1,385-customer book (840 + 514 + 31), then screens everyone. It takes about 8 s.
+
+| Group | Customers | Alerts | What they are |
+|---|---:|---:|---|
+| A: LSE-issued Indian LEIs | 840 | **0** | clean after the acronym fix |
+| B: UK subsidiaries + directors | 114 companies + 400 people | **17** on 13 directors | name-only collisions on common Indian names ("Rajesh Rai", "Amit Gupta", "Abhishek Singh") against listings with no date of birth. This is the work maker-checker review exists for |
+| C: debarred LEI holders | 31 | **31** | every known positive alerts on its own listing |
+
+Screening real people found three more defects the synthetic benchmark couldn't:
+
+1. **Alert scan truncated before the status filter.** Alerting took the top 5 matches and *then* dropped historical entries. A common name with many revoked NSE listings could push its one active listing out of view, a silent false negative. Alerting now scans every match above the minimum score. The regression test (10 revoked namesakes + 1 active listing) fails with the old limit and passes with the fix.
+2. **Short names one edit apart.** After schwa deletion "Anita" keys to `anit`, one insertion away from `ankit`. UK director "SINGH, Ankit" scored **90.3 (strong)** against MP "Shrimati Anita Singh". Spelling variants now need keys of at least 5 letters. Measured at threshold 80: precision 0.9711 → 0.9749, recall 0.9381 → 0.9321, F1 0.9543 → 0.9531; typo recall falls 0.74 → 0.70. That's a deliberate precision-over-recall trade on a rule that produced a strong-band false positive in production-like data.
+3. **One director, many customers.** A person who directs two UK subsidiaries was two customers with two alerts. Companies House gives one officer id per person, so directors are now merged across appointments: 434 → 400 people.
+
+**Regression gate on real data.** `data/eval/real_cases.csv` holds 34 labelled pairs: the 2 acronym false positives and the short-name false positive (must stay below 80), plus the 31 debarred LEI holders (must reach 80). `satark eval --real --gate` runs in CI next to the synthetic gate. It was confirmed to **fail 0/2 on the pre-fix name normaliser** and passes 34/34 now.
+
+**Learning loop.** `satark eval --export-decisions` appends every approved maker-checker decision to the same file: confirmed → `match`, discarded → `no_match`, noting the case and approver. Analysts' work becomes regression tests.

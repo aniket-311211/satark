@@ -119,6 +119,13 @@ def create_app(service: Satark | None = None) -> FastAPI:
         customer, alerts, screening = core(request).onboard(**body.model_dump())
         return {"customer": customer, "alerts": alerts, "screening": screening}
 
+    @app.get("/customers/{customer_id}")
+    def customer(customer_id: int, request: Request):
+        found = core(request).customer(customer_id)
+        if not found:
+            raise HTTPException(404, f"No customer {customer_id}")
+        return found
+
     @app.post("/customers/rescreen")
     def rescreen(request: Request):
         return core(request).rescreen_all(actor="analyst", trigger="batch")

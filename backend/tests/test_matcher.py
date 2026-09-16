@@ -55,3 +55,28 @@ def test_reasons_are_human_readable(index):
 def test_latency_is_interactive(index):
     result = index.screen("Mohammad Irfan Shaikh")
     assert result.latency_ms < 250
+
+
+def test_real_case_gate_semantics():
+    from satark.evaluation import evaluate_real
+
+    idx = MatchIndex([
+        Record(id="t:1", name="S K Impex", schema="LegalEntity", dataset="t", source="t"),
+        Record(id="t:2", name="Classic Credit Ltd", schema="LegalEntity", dataset="t", source="t"),
+    ])
+    cases = [
+        {"query": "Classic Credit Limited", "kind": "org", "entity_id": "t:2", "expected": "match"},
+        {"query": "KSN IMPEX PRIVATE LIMITED", "kind": "org", "entity_id": "t:1", "expected": "no_match"},
+        {"query": "Classic Credit Ltd", "kind": "org", "entity_id": "", "expected": "no_match"},  # any entity counts
+    ]
+    result = evaluate_real(idx, cases, threshold=80)
+    assert result["passed"] == 2 and result["failures"][0]["query"] == "Classic Credit Ltd"
+
+
+def test_short_names_one_edit_apart_are_not_spelling_variants():
+    idx = MatchIndex([
+        Record(id="t:1", name="Shrimati Anita Singh", schema="Person", dataset="t", source="t"),
+        Record(id="t:2", name="Rakesh Sharma", schema="Person", dataset="t", source="t"),
+    ])
+    assert not idx.screen("SINGH, Ankit", kind="person", min_score=80).matches
+    assert idx.screen("Rakesh Sharmaa", kind="person", min_score=80).matches  # longer names keep spelling tolerance

@@ -4,3 +4,10 @@ frontend/dist
 **/__pycache__
 satark.db
 .git
+data/cache
+.env
+.claude
+.claude-flow
+.swarm
+ruvector.db
+graphify-out

@@ -95,7 +95,9 @@ def token_similarity(q: Token, c: Token) -> tuple[float, str]:
         return 0.94, "phonetic"
     jw = JaroWinkler.normalized_similarity(q.key, c.key)
     ratio = fuzz.ratio(q.key, c.key) / 100
-    if q.key[0] == c.key[0] and jw >= 0.88 and ratio >= 0.84 and min(len(q.key), len(c.key)) >= 4:
+    # Keys under 5 letters are excluded: after schwa deletion "Anita" keys to "anit", one edit from "ankit", and a UK
+    # director "SINGH, Ankit" scored 90 against a listed "Shrimati Anita Singh". Costs ~4 points of typo recall.
+    if q.key[0] == c.key[0] and jw >= 0.88 and ratio >= 0.84 and min(len(q.key), len(c.key)) >= 5:
         return round(0.9 * min(jw, ratio + 0.05), 3), "spelling"
     return 0.0, ""
 
