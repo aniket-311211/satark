@@ -43,10 +43,16 @@ export function DecisionPanel({ detail }: { detail: CaseDetail }) {
 
   const busy = propose.isPending || review.isPending;
   const tooShort = note.trim().length < MIN_NOTE;
+  const identity = DEMO_USERS.find((u) => u.id === user);
+  const identityLine = (
+    <p className="text-[13px] text-ink-2">
+      Acting as <span className="text-ink">{identity?.label ?? user}</span> <span className="text-ink-3">· {identity?.role ?? role}</span>
+    </p>
+  );
 
   if (detail.status === "closed") {
     return (
-      <section aria-labelledby="decision-heading" className="space-y-2 rounded-xl border border-rule bg-surface p-4">
+      <section aria-labelledby="decision-heading" className="space-y-2 rounded-sm border border-rule bg-surface p-4">
         <h2 id="decision-heading" ref={headingRef} tabIndex={-1} className="text-lg text-ink">Decision</h2>
         <p className="text-sm text-ink">
           {detail.decision === "confirmed" ? "Confirmed as a true match" : "Discarded as a false positive"}
@@ -62,7 +68,7 @@ export function DecisionPanel({ detail }: { detail: CaseDetail }) {
       <Label htmlFor={id} className="text-[13px] text-ink">{label}</Label>
       <Textarea id={id} value={note} onChange={(e) => setNote(e.target.value)} onBlur={() => setTouched(true)} rows={3}
         aria-invalid={required && touched && tooShort} aria-describedby={`${id}-hint`}
-        className="rounded-lg border-rule-strong bg-surface text-sm" />
+        className="rounded-sm border-rule-strong bg-surface text-sm" />
       <p id={`${id}-hint`} className={required && touched && tooShort ? "text-[12px] text-strong" : "text-[12px] text-ink-2"}>
         {required ? `A rationale of at least ${MIN_NOTE} characters goes into the audit trail (${note.trim().length}/${MIN_NOTE}).` : "Optional. Recorded in the audit trail."}
       </p>
@@ -76,10 +82,11 @@ export function DecisionPanel({ detail }: { detail: CaseDetail }) {
       propose.mutate({ decision, note: note.trim() });
     };
     return (
-      <section aria-labelledby="decision-heading" className="space-y-3 rounded-xl border border-rule bg-surface p-4">
+      <section aria-labelledby="decision-heading" className="space-y-3 rounded-sm border border-rule bg-surface p-4">
         <div>
           <h2 id="decision-heading" ref={headingRef} tabIndex={-1} className="text-lg text-ink">Propose a decision</h2>
           <p className="text-[13px] text-ink-2">A different reviewer has to approve it before the case closes.</p>
+          {identityLine}
         </div>
         {noteField("proposal-note", "Rationale", true)}
         <div className="flex flex-wrap gap-2">
@@ -106,30 +113,28 @@ export function DecisionPanel({ detail }: { detail: CaseDetail }) {
   const decided = detail.proposed_decision === "confirmed" || detail.proposed_decision === "discarded" ? detail.proposed_decision : null;
 
   return (
-    <section aria-labelledby="decision-heading" className="space-y-3 rounded-xl border border-rule bg-surface p-4">
+    <section aria-labelledby="decision-heading" className="space-y-3 rounded-sm border border-rule bg-surface p-4">
       <div>
         <h2 id="decision-heading" ref={headingRef} tabIndex={-1} className="text-lg text-ink">Review the proposal</h2>
         <p className="mt-1 text-sm text-ink">{decided ? DECISION_LABEL[decided] : "—"}</p>
         <p className="text-[13px] text-ink-2">Proposed by {detail.proposed_by} · {fmtTime(detail.proposed_at)}</p>
         {detail.proposed_note && <blockquote className="mt-2 border-l border-rule-strong pl-3 text-[13px] text-ink">{detail.proposed_note}</blockquote>}
+        {identityLine}
       </div>
-      {blocked ? (
-        <p className="text-[13px] text-ink-2">{blocked}</p>
-      ) : (
-        <>
-          {noteField("review-note", "Reviewer note", false)}
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => review.mutate({ approve: true, note: note.trim() })} disabled={busy || !canReview}>
-              {review.isPending && review.variables?.approve ? <Loader2 className="animate-spin" aria-hidden /> : <Check aria-hidden />}
-              Approve and close
-            </Button>
-            <Button variant="outline" onClick={() => review.mutate({ approve: false, note: note.trim() })} disabled={busy || !canReview}>
-              {review.isPending && review.variables && !review.variables.approve ? <Loader2 className="animate-spin" aria-hidden /> : <X aria-hidden />}
-              Reject and reopen
-            </Button>
-          </div>
-        </>
-      )}
+      {noteField("review-note", "Reviewer note", false)}
+      <div className="space-y-1.5">
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => review.mutate({ approve: true, note: note.trim() })} disabled={busy || !canReview} aria-describedby={blocked ? "review-blocked" : undefined}>
+            {review.isPending && review.variables?.approve ? <Loader2 className="animate-spin" aria-hidden /> : <Check aria-hidden />}
+            Approve and close
+          </Button>
+          <Button variant="outline" onClick={() => review.mutate({ approve: false, note: note.trim() })} disabled={busy || !canReview} aria-describedby={blocked ? "review-blocked" : undefined}>
+            {review.isPending && review.variables && !review.variables.approve ? <Loader2 className="animate-spin" aria-hidden /> : <X aria-hidden />}
+            Reject and reopen
+          </Button>
+        </div>
+        {blocked && <p id="review-blocked" className="text-[13px] text-amber">Disabled: {blocked}</p>}
+      </div>
       <ErrorLine error={review.error} />
     </section>
   );

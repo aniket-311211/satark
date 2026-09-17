@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { Building2, ScanSearch, User } from "lucide-react";
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut } from "@/components/ui/command";
 import { q } from "@/lib/api";
 import { NAV } from "@/components/satark/nav";
 
@@ -60,9 +60,10 @@ export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChang
         <CommandSeparator />
         <CommandGroup heading="Go to">
           {NAV.map((item) => (
-            <CommandItem key={item.to} value={`go ${item.label}`} onSelect={() => go(item.to)}>
+            <CommandItem key={item.to} value={`go ${item.label} ${item.code}`} onSelect={() => go(item.to)}>
               <item.icon aria-hidden />
               {item.label}
+              <CommandShortcut className="font-mono">{item.key} · {item.code}</CommandShortcut>
             </CommandItem>
           ))}
         </CommandGroup>

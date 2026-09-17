@@ -42,12 +42,12 @@ export function RegistryContext({ customer, parent }: { customer: Customer; pare
       {(lapsed || conflict) && (
         <ul className="space-y-1.5">
           {lapsed && (
-            <li className="flex items-start gap-2 rounded-lg bg-strong-soft px-3 py-2 text-[13px] text-strong">
+            <li className="flex items-start gap-2 rounded-sm bg-strong-soft px-3 py-2 text-[13px] text-strong">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />LEI lapsed: the entity stopped renewing its registration with GLEIF.
             </li>
           )}
           {conflict && (
-            <li className="flex items-start gap-2 rounded-lg bg-probable-soft px-3 py-2 text-[13px] text-probable">
+            <li className="flex items-start gap-2 rounded-sm bg-probable-soft px-3 py-2 text-[13px] text-probable">
               <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />Registry mismatch: {d.ownership_conflict?.reason}.
             </li>
           )}

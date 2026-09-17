@@ -53,7 +53,7 @@ export function RealCasesTable({ evalReal }: { evalReal: RealEval }) {
 export function SatarkMisses({ report }: { report: EvalReport }) {
   if (report.satark_misses.length === 0) return <EmptyState title="No misses">Satark caught every positive query in the held-out test set at its dev-picked threshold.</EmptyState>;
   return (
-    <div className="overflow-x-auto rounded-xl border border-rule bg-surface">
+    <div className="overflow-x-auto">
       <Table className="tabular">
         <TableHeader>
           <TableRow className="border-rule hover:bg-transparent">

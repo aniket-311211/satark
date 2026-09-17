@@ -35,8 +35,8 @@ function FunctionTabs({ onNavigate, vertical = false }: { onNavigate?: () => voi
   const queue = (cases.data?.total ?? 0) + (pending.data?.total ?? 0);
   return (
     <nav aria-label="Console" className={cn("flex", vertical ? "flex-col gap-px" : "h-full items-stretch")}>
-      {NAV.map(({ to, key, code, label, ...rest }) => (
-        <NavLink key={to} to={to} end={"end" in rest} onClick={onNavigate}
+      {NAV.map(({ to, key, code, short, label, ...rest }) => (
+        <NavLink key={to} to={to} end={"end" in rest} onClick={onNavigate} title={label}
           className={({ isActive }) => cn(
             "group relative flex items-center gap-2 text-ink-2 transition-colors duration-150 hover:bg-sunken hover:text-ink",
             vertical ? "h-11 px-3" : "px-2.5 2xl:px-3.5",
@@ -45,7 +45,7 @@ function FunctionTabs({ onNavigate, vertical = false }: { onNavigate?: () => voi
           {({ isActive }) => (
             <>
               <span className={cn("font-mono text-[10.5px] leading-none", isActive ? "text-amber" : "text-ink-3")} aria-hidden>{key}</span>
-              <span className={cn("text-[13px] whitespace-nowrap", !vertical && "hidden xl:inline")}>{label}</span>
+              <span className={cn("text-[13px] whitespace-nowrap", !vertical && "hidden xl:inline")}>{vertical ? label : short}</span>
               {!vertical && <span className="label-caps xl:hidden" title={label}>{code}</span>}
               {to === "/queue" && queue > 0 && (
                 <span className="bg-amber px-1 font-mono text-[10.5px] leading-4 text-bar" aria-label={`${queue} cases need attention`}>{queue}</span>
@@ -155,7 +155,7 @@ export function AppShell() {
         </div>
         <div className="ml-auto flex min-w-0 items-center gap-3 px-3 md:px-4">
           <button type="button" onClick={() => setCommandOpen(true)} aria-label="Screen a name or find a customer"
-            className="flex h-8 w-full min-w-0 cursor-pointer items-center gap-2 border border-rule bg-paper px-2.5 text-[13px] text-ink-3 transition-colors duration-150 hover:border-rule-strong hover:text-ink-2 sm:w-52 2xl:w-64">
+            className="flex h-8 w-full min-w-0 cursor-pointer items-center gap-2 border border-rule bg-paper px-2.5 text-[13px] text-ink-3 transition-colors duration-150 hover:border-rule-strong hover:text-ink-2 sm:w-52 lg:w-40 2xl:w-64">
             <Search className="size-3.5 shrink-0" aria-hidden />
             <span className="truncate">Screen a name…</span>
             <kbd className="ml-auto hidden border border-rule px-1 text-[10.5px] text-ink-2 sm:inline">⌘K</kbd>

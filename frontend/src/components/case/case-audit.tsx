@@ -16,7 +16,7 @@ export function CaseAudit({ entries }: { entries: AuditTrailEntry[] }) {
   return (
     <section aria-labelledby="case-audit-heading" className="space-y-3">
       <div>
-        <h2 id="case-audit-heading" className="text-lg text-ink">Audit trail</h2>
+        <h2 id="case-audit-heading" className="text-lg text-ink">Audit chain</h2>
         <p className="text-[13px] text-ink-2">
           Each hash seals the event and the event before it. <Link to="/audit" className="text-signal underline">Verify the whole chain</Link>.
         </p>
