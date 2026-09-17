@@ -59,7 +59,8 @@ function SecondaryStories({ items }: { items: NewsItem[] }) {
 function RiskDesk({ groups }: { groups: [string, NewsItem[]][] }) {
   const total = groups.reduce((n, [, items]) => n + items.length, 0);
   return (
-    <Panel label="Risk desk" meta={`${fmtInt(total)} stories tagged by keyword rules, not read by an analyst`} className="h-full">
+    <Panel label="Risk desk" meta={`${fmtInt(total)} stories`} className="h-full">
+      <p className="mb-2.5 text-[12px] text-ink-3">Tagged by keyword rules, not read by an analyst.</p>
       {groups.length === 0 ? (
         <p className="text-[13px] text-ink-2">No keyword-tagged stories in the loaded window.</p>
       ) : (
@@ -96,15 +97,15 @@ export function FrontPageGrid({ regulatorItems, riskItems }: { regulatorItems: N
   const sortedReg = [...regulatorItems].sort(byNewest);
   const lead = sortedReg.find(isRisk) ?? sortedReg[0] ?? null;
   const secondaries = sortedReg.filter((i) => i.url !== lead?.url).slice(0, 6);
-  const groups = groupByCategory(riskItems).slice(0, 5);
+  const groups = groupByCategory(riskItems);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[7fr_5fr] lg:items-start">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
       <div className="flex min-w-0 flex-col gap-4">
         <LeadStory item={lead} />
-        <div className="order-3 lg:order-none"><SecondaryStories items={secondaries} /></div>
+        <div className="order-3 min-w-0 lg:order-none"><SecondaryStories items={secondaries} /></div>
       </div>
-      <div className="order-2 lg:order-none"><RiskDesk groups={groups} /></div>
+      <div className="order-2 min-w-0 lg:order-none"><RiskDesk groups={groups} /></div>
     </div>
   );
 }

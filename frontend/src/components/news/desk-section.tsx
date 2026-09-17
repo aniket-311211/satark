@@ -33,7 +33,7 @@ function Desk({ name, items, tone }: { name: string; items: NewsItem[]; tone: st
       ) : (
         <>
           <article className="mt-3">
-            <a href={lead.url} target="_blank" rel="noreferrer" title={lead.title} className="line-clamp-4 text-[20px] leading-[1.15] font-semibold text-ink [font-stretch:108%] hover:text-signal">
+            <a href={lead.url} target="_blank" rel="noreferrer" title={lead.title} className="line-clamp-6 text-[20px] leading-[1.15] font-semibold text-ink [font-stretch:108%] hover:text-signal">
               {lead.title}
             </a>
             {standfirst(lead.title, lead.summary) && (
@@ -56,9 +56,9 @@ function Desk({ name, items, tone }: { name: string; items: NewsItem[]; tone: st
               <p className="label-caps text-ink-3">In brief</p>
               <ul className="mt-1 divide-y divide-rule/70">
                 {briefs.map((item) => (
-                  <li key={item.url} className="flex items-baseline gap-2 py-1.5">
-                    <a href={item.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-[12.5px] text-ink-2 hover:text-signal" title={item.title}>{item.title}</a>
-                    <span className="shrink-0 text-[11px] text-ink-3"><Dateline published={item.published} fetchedAt={item.fetched_at} /></span>
+                  <li key={item.url} className="py-1.5">
+                    <a href={item.url} target="_blank" rel="noreferrer" className="line-clamp-2 text-[12.5px] leading-snug text-ink-2 hover:text-signal" title={item.title}>{item.title}</a>
+                    <span className="text-[11px] text-ink-3"><Dateline published={item.published} fetchedAt={item.fetched_at} /></span>
                   </li>
                 ))}
               </ul>

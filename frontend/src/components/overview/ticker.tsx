@@ -40,7 +40,7 @@ export function Ticker() {
   const groupShare = Object.keys(GROUPS).map((g) => `${g} ${fmtInt(s.customers_by_group[g] ?? 0)}`).join(" · ");
 
   return (
-    <div className="flex flex-wrap divide-x divide-rule border border-rule bg-panel" role="group" aria-label="Live readings">
+    <div className="flex flex-col divide-y divide-rule sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 border border-rule bg-panel" role="group" aria-label="Live readings">
       <Reading label="Book"><span title={groupShare}><Num className="text-ink">{fmtInt(s.customers)}</Num> customers</span></Reading>
       <Reading label="Lists"><Num className="text-ink">{fmtInt(s.entities)}</Num> entries, <Num>{fmtInt(activeEntries)}</Num> active</Reading>
       <Reading label="Alerts"><Num className="text-ink">{fmtInt(alertsRaised)}</Num> at ≥<Num>{s.alert_threshold}</Num>, <Num className="text-cleared">{fmtInt(autoCleared)}</Num> auto-cleared</Reading>

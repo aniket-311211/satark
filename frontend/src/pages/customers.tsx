@@ -62,7 +62,7 @@ function SummaryStrip({ customers }: { customers: Customer[] }) {
   const orgs = customers.filter((c) => c.kind === "org").length;
   const openCases = customers.filter((c) => (c.open_alerts ?? 0) > 0).length;
   return (
-    <div className="flex flex-wrap divide-x divide-rule border border-rule bg-panel text-[13px] text-ink-2" role="group" aria-label="Book composition">
+    <div className="flex flex-col divide-y divide-rule sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 border border-rule bg-panel text-[13px] text-ink-2" role="group" aria-label="Book composition">
       {groups.map((g) => (
         <div key={g} className="flex items-baseline gap-2 px-3 py-2" title={GROUPS[g].long}>
           <span className="label-caps text-ink-3">Group {g}</span>

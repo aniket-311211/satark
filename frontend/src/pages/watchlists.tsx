@@ -30,7 +30,7 @@ export default function Watchlists() {
 
       {lists.error ? <ErrorState error={lists.error} what="watchlists" /> : !lists.data || !totals ? <LoadingBlock rows={6} /> : (
         <>
-          <div className="flex flex-wrap divide-x divide-rule border border-rule bg-panel text-[13px] text-ink-2" role="group" aria-label="List totals">
+          <div className="flex flex-col divide-y divide-rule sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 border border-rule bg-panel text-[13px] text-ink-2" role="group" aria-label="List totals">
             <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Lists</span><span className="font-mono text-ink">{fmtInt(lists.data.length)}</span></div>
             <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Entries</span><span className="font-mono text-ink">{fmtInt(totals.entities)}</span></div>
             <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Active</span><span><span className="font-mono text-ink">{fmtInt(totals.active)}</span> raise alerts</span></div>

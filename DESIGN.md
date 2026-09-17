@@ -174,11 +174,11 @@ A dark neutral field carrying a full palette of flat signal colours, each with e
 
 ### Hierarchy
 - **Display** (Archivo 700–800, wide caps, 40–72px): only the News desk nameplate "SATARK WIRE" and the "SATARK" wordmark (15px, 0.16em tracking, width 125).
-- **Headline** (600, 26px, width 112, -0.012em): page titles, preceded by the amber function code in mono (OVW, QUE, CASE-033).
+- **Headline** (600, 26px, width 112, -0.012em): page titles. Only a record identifier (CASE-033) may precede one, in amber mono; screens are never labelled with their tab code.
 - **Title** (600, 17px, width 112): section headings and lead story heads (larger on the News desk lead).
 - **Body** (400, 13–14px, 1.5): descriptions, takeaways, table text. Prose stays within 68–80ch.
 - **Label** (600, 11.5px, 0.07em, uppercase, width 78): panel labels, column heads, field names.
-- **Figure** (Martian Mono, 24px ticker, up to 72px for the Open Cases numeral, width 88, tabular with slashed zero): every stat.
+- **Figure** (Martian Mono, 13px in reading lines, up to 72px for the Open Cases numeral, width 88, tabular with slashed zero): every stat.
 - **Data** (Martian Mono, 11–13px): scores, IDs, LEIs, hashes, times, counts in tables.
 
 ### Named Rules
@@ -190,11 +190,12 @@ A dark neutral field carrying a full palette of flat signal colours, each with e
 
 A top command bar (48px) and a bottom status tape (32px) frame a centred page (max 1480px, 24px side padding, 16px on phones).
 
-- **Walls.** Screens compose as 12-column walls, built one of two ways (one per page): a hairline grid (`gap: 1px` over the rule colour, panel-coloured cells) for tickers and summary strips, or separate panels on a 12px gap for charts and tables.
+- **Walls.** Screens compose as 12-column walls of separate panels on a 12px gap.
 - **Page top.** Every page opens with its header and a hairline below it.
-- **Summary strips.** They come before tables.
-- **Phones.** Walls collapse to one column in reading order. Ticker cells become a two-column grid, and wide tables scroll inside their panel, never the page.
-- **Command bar by width.** Function tabs show codes below 1280px and short names from 1280px. They collapse into a left sheet below 1024px. Desk clocks appear from 1536px.
+- **Reading lines.** Summaries are one dense reading line, not rows of stat tiles: a hairline-divided strip of condensed-caps labels with mono figures. They come before tables and never repeat a figure a panel below already shows.
+- **Phones.** Walls collapse to one column in reading order. Data tables become stacked records (the first column as the title, the rest as labelled fields), and wide matrices carry a swipe cue.
+- **News.** Desks are front-page sections side by side under column rules: a lead with its standfirst, two secondaries, and an "In brief" rail.
+- **Command bar by width.** Function tabs show codes below 1280px and short names from 1280px. They collapse into a left sheet below 1024px. Desk clocks appear from 1280px; the search collapses to an icon between 1024 and 1535px.
 
 ## Elevation & Depth
 
@@ -257,15 +258,16 @@ The signature component, a 32px bar pinned to the bottom of every console screen
 - It pauses on hover and stands still under reduced motion.
 
 ### Monitor Wall (Overview)
-- A ticker strip of live counts.
+- A reading line of live figures.
 - An Open Cases numeral with its band split and the awaiting-review count in dashed amber.
 - A screening funnel whose steps each say why the count changed.
 - Identity-evidence verdict bar, alert score histogram with the threshold, group-by-list heatmap on the risk ramp, watchlist board, matching quality and news pulse.
 
 ### Wire Front Page (News desk)
 - A "SATARK WIRE" nameplate with live counts, and one ticker of regulator headlines.
-- A lead story with standfirst, secondary stories, and a risk desk grouping tagged stories by category.
-- Regulator columns in violet, press columns, coverage analytics, the name dossier as clippings, full-text search, and feed health.
+- A lead story with standfirst, secondary stories, and a risk desk grouping stories the keyword rules tagged, labelled as such.
+- Regulator desks in violet and press desks as front-page sections, coverage analytics, the name dossier as clippings, full-text search, and feed health.
+- Every dateline in one format: "17 Sep 2026 · 09:13", with only the time in mono.
 
 ## Do's and Don'ts
 
@@ -273,7 +275,7 @@ The signature component, a 32px bar pinned to the bottom of every console screen
 - **Do** give every figure its context: a split, a threshold, a comparison, or a one-line takeaway computed from live data.
 - **Do** use amber for exactly one primary action per screen, plus attention states.
 - **Do** keep numbers tabular in Martian Mono and words in Archivo.
-- **Do** build walls from hairline grids or 12px-gapped panels, and keep one technique per page.
+- **Do** build walls from 12px-gapped panels, and summarise with one dense reading line rather than rows of stat tiles.
 - **Do** label every chart with an `aria-label` and a text takeaway, and pair every state colour with an icon or word.
 - **Do** limit motion to 150–250ms state transitions, plus the tape (and the News desk ticker).
 
@@ -282,6 +284,7 @@ The signature component, a 32px bar pinned to the bottom of every console screen
 - **Don't** add gradients, glows, glass blur or shadows to panels.
 - **Don't** reuse the match-risk ramp or amber for unrelated categories.
 - **Don't** set names or prose in monospace.
-- **Don't** nest panels, or put a kicker or eyebrow above a heading.
+- **Don't** nest panels, put a kicker or eyebrow above a heading, or prefix a screen title with its tab code.
+- **Don't** clip tables on phones; render stacked records.
 - **Don't** invent metrics or trends: the data holds one seeding day, so there are no time series of cases or alerts.
 - **Don't** use the double-circle mark; it is not Satark's logo. The wordmark holds the slot until the owner supplies one.

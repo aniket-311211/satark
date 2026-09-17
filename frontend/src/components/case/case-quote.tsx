@@ -21,7 +21,7 @@ export function CaseQuote({ detail }: { detail: CaseDetail }) {
   const top = topAlert(detail.alerts);
   const customer = detail.customer;
   return (
-    <div className="flex flex-wrap divide-x divide-rule border-y border-rule" role="group" aria-label="Case summary">
+    <div className="flex flex-col divide-y divide-rule sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 border-y border-rule" role="group" aria-label="Case summary">
       <Field label="Status"><CaseStatusBadge status={detail.status} /></Field>
       {top && <Field label="Top band"><BandBadge band={top.band} /></Field>}
       {top && <Field label="Top score"><span className="font-mono tabular text-ink">{top.score.toFixed(1)}</span></Field>}

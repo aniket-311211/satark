@@ -136,9 +136,9 @@ function SummaryStrip({ open, pending, closed, cleared, stats }: {
     { label: "Possible", value: bandCount("possible"), tone: "text-possible" },
   ];
   return (
-    <div className="flex flex-wrap divide-x divide-rule border border-rule bg-panel text-[13px]" role="group" aria-label="Case counts by band and outcome">
-      <div className="flex items-baseline gap-3 px-3 py-2">
-        <span className="label-caps text-ink-3">Top band, all {fmtInt(total)} cases</span>
+    <div className="flex flex-col divide-y divide-rule sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 border border-rule bg-panel text-[13px]" role="group" aria-label="Case counts by band and outcome">
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-2">
+        <span className="label-caps w-full text-ink-3 sm:w-auto">Top band, all {fmtInt(total)} cases</span>
         {readings.map((r) => (
           <span key={r.label} className={r.tone}><span className="font-mono">{fmtInt(r.value)}</span> {r.label.toLowerCase()}</span>
         ))}
