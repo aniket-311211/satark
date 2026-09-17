@@ -8,6 +8,10 @@ Satark screens a real customer book against five official watchlists and never t
 
 ![Satark landing page](docs/screens/landing.png)
 
+Below the front page is **the benchmark lab**: the accuracy claims above, as four experiments you run yourself.
+
+![The benchmark lab on the landing page](docs/screens/landing-lab.png)
+
 ---
 
 ## What is real here
@@ -116,7 +120,7 @@ The design system is recorded in [DESIGN.md](DESIGN.md).
 
 | Screen | What it does |
 |---|---|
-| **Landing** `/` | One static page on the console's graphite: a translucent figure scrubbed by mouse travel, keyed onto the dark ground with a WebGL shader, the two checks and the real data around it, and "Let's get started", which hands over to the console with a view transition |
+| **Landing** `/` | One static page on the console's graphite: a translucent figure scrubbed by mouse travel, keyed onto the dark ground with a WebGL shader, and "Let's get started", which hands over to the console with a view transition. Below it, **the benchmark lab**: drag the alert threshold across the sweep, pick any of the ten name transforms, move a date of birth until the evidence clears a perfect name match, open any of the 34 labelled cases, then screen a name of your own against the live API |
 | **Overview** | A monitor wall: live counts, open cases by band, a screening funnel that explains each step, identity-evidence verdicts, the alert score histogram, a customer-group × list heatmap, the watchlist board, matching quality and news pulse |
 | **Review queue** | Cases by status with band, score against the threshold, identity verdict and lists hit; state in line form; auto-cleared alerts with the evidence that cleared them |
 | **Case file** | Name match (token alignment drawn as leader lines) and identity evidence side by side, the listing, registry context, maker-checker actions that say why they're blocked, the case's audit chain |

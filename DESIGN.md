@@ -271,6 +271,17 @@ The signature component, a 32px bar pinned to the bottom of every console screen
 - Regulator desks in violet and press desks as front-page sections, coverage analytics, the name dossier as clippings, full-text search, and feed health.
 - Every dateline in one format: "17 Sep 2026 · 09:13", with only the time in mono.
 
+### Benchmark Lab (landing, below the hero)
+
+The landing page extends this world below its figure, on the same graphite ground with a hairline `border-top` at the seam. Its own sheet is `frontend/landing/lab.css`, scoped to `.lab`, and its tokens are these tokens.
+
+- Every claim is an instrument, never a stat tile: a control the visitor moves, its live readout, and one takeaway sentence computed from the same data.
+- Charts are authored SVG in the console's roles: cyan for Satark's series, bone-3 dashed for the fuzzy baseline, amber for the control being dragged, green for cleared and passed, the red-to-sand ramp for bands.
+- Every drag has a keyboard equal: the threshold line pairs with a range input, the chart's `aria-label` restates its values, and every chart is paired with a text takeaway.
+- SVG text is in user units, so a chart that halves on a phone doubles its type there (`.sweep text` 19, `.timeline text` 20 at ≤640px) rather than shrinking below legibility.
+- Panels hold their label strip and a `.meta` line; a full-bleed row list (the transform list) may run edge to edge like a table, and nothing else nests.
+- Numbers keep Martian Mono, words keep Archivo on its width axis, and no control is smaller than a finger on a coarse pointer.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -289,4 +300,5 @@ The signature component, a 32px bar pinned to the bottom of every console screen
 - **Don't** nest panels, put a kicker or eyebrow above a heading, or prefix a screen title with its tab code.
 - **Don't** clip tables on phones; render stacked records.
 - **Don't** invent metrics or trends: the data holds one seeding day, so there are no time series of cases or alerts.
-- **Don't** use the double-circle mark; it is not Satark's logo. The wordmark holds the slot until the owner supplies one.
+- **Don't** redraw the mark: the owner's logo (`/brand/satark-logo.png`, cut from `ssss-clean.png`) is the wordmark everywhere, and it carries the view transition between the landing and the console.
+- **Don't** put a claim on the landing that the visitor cannot check on the page: below the hero, every figure is an instrument with its data behind it.

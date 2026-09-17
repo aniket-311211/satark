@@ -335,3 +335,30 @@ Without WebGL the plain video shows instead.
 **Checked.**
 - 122 backend tests pass, including new tests for the upload parser, the import (dry run writes nothing, a re-upload updates, the audit chain holds) and reverse screening.
 - The import was run end to end in the browser against a copy of the database: 4 rows imported, 2 rejected with reasons, 4 alerts opened, and 1 match auto-cleared by date of birth. The copy was then deleted.
+
+## Step 9: The benchmark lab on the front page
+
+The owner's logo arrived, the ⌘K crash was traced, and the landing page's own claim, "0.953 F1 against 0.572", was still something a visitor had to take on trust. The front page below the figure was replaced with a lab the visitor operates.
+
+**What changed:**
+
+| Area | Change |
+|---|---|
+| Logo | `ssss-clean.png` cut out into `/brand/satark-logo.png`, the mark, the favicon and the apple-touch icon. The wordmark carries the cross-document view transition into the console. |
+| Search | The command dialog crashed on every open: cmdk's input, list and items read their store from a `<Command>` root that `CommandDialog` never rendered. One wrapper in `ui/command.tsx` fixed it. |
+| Wire | The news masthead's headings follow the other screens ("SATARK Wire"). |
+| Landing, below the figure | The four marketing sections gave way to four experiments on Satark's real measurements, then a live matcher. |
+
+**The four experiments.**
+
+1. **Where you put the alert line.** An SVG sweep of precision, recall and F1 from threshold 50 to 99 for both systems, with a threshold line the visitor drags (and a slider for keyboards). The readout turns the numbers into false alarms per 100 alerts and listed people missed per 100.
+2. **The ten ways a name arrives.** Each transform in the benchmark — Devanagari, S/O clauses, initials, dropped middle names, honorifics, abbreviations, reordering, typos — with one real case scored by both systems and recall across all 100 test names of that transform. The typo row is left standing: a plain edit distance beats Satark there, 85 against 70.
+3. **The second check.** The Anand Kumar pair, with the customer's date of birth on a slider. The verdict follows the same rule the API runs: two years apart contradicts and clears the alert, one year is neutral, a different month in the same year is neutral, the same year and month supports.
+4. **The real book.** The funnel from 1,385 customers to 45 cases, and the 34 hand-labelled cases as a grid, each with its score against the threshold and why it is there.
+
+Then "try a name": the form POSTs to `/api/screen` and renders the five best matches with list, score, band and identity verdict. With the API down it falls back to three recorded runs and says so.
+
+**Checked.**
+- No console errors and no horizontal overflow at 1440 and 390; every control exercised in a headless browser (metric switch, threshold drag, transform select, date-of-birth slider, funnel step, case filter and detail, live screen, offline fallback).
+- `impeccable detect` reports only the two clipping findings inherent to the pinned hero frame.
+- The production build bundles the lab's stylesheet and script into the landing entry.
