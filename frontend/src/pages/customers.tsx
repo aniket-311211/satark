@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
+import { Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ImportPanel } from "@/components/customer/import-panel";
 import { GroupTag } from "@/components/satark/badges";
 import { DataTable, type Facet } from "@/components/satark/data-table";
 import { ErrorState, PageHeader, Section } from "@/components/satark/page";
@@ -85,11 +88,20 @@ export default function Customers() {
   const navigate = useNavigate();
   const customers = useQuery(q.customers());
   const items = useMemo(() => customers.data?.items ?? [], [customers.data]);
-  const sources = Object.entries(GROUPS).map(([g, info]) => `${info.long} (Group ${g})`).join("; ");
+  const [params, setParams] = useSearchParams();
+  const importing = params.get("import") === "1";
+  const setImporting = (open: boolean) => setParams((current) => {
+    const next = new URLSearchParams(current);
+    if (open) next.set("import", "1"); else next.delete("import");
+    return next;
+  }, { replace: true });
 
   return (
     <div className="space-y-5">
-      <PageHeader brand title="Customers" description={`${fmtInt(customers.data?.total ?? 0)} counterparties: ${sources}.`} />
+      <PageHeader brand title="Customers"
+        description={`${fmtInt(customers.data?.total ?? 0)} counterparties from public registries (groups A–C) and files you upload (group D). Rows open the profile.`}
+        actions={!importing && <Button onClick={() => setImporting(true)}><Upload aria-hidden /> Import customers</Button>} />
+      {importing && <ImportPanel onClose={() => setImporting(false)} />}
       {customers.error ? <ErrorState error={customers.error} what="customers" /> : (
         <>
           {items.length > 0 && <SummaryStrip customers={items} />}
