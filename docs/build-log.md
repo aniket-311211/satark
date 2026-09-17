@@ -248,3 +248,137 @@ The old frontend was one page of API calls. It's now two surfaces built by Vite 
 | Chart legend swatches pointed at CSS variables that exist only inside the chart | the swatches read the chart config directly |
 
 **Not verified by screenshot:** an *unverified* news event (quote struck through, "not found in source"). With the keyword extractor, the current corpus can't produce one: the quote is the headline, and the full-text search guarantees the subject is present. That path is code-reviewed only. It becomes reachable with the LLM extractor.
+
+## Step 7: Redesign as a surveillance terminal
+
+The first console read as plain, white and generic. The owner asked for:
+- new fonts and colours;
+- more kinds of charts on the Overview;
+- a News desk that reads like a newspaper front page rather than a list;
+- on the landing page: the Satark name, a "Let's get started" button, and no top-left nav or placeholder mark.
+
+**How the direction was chosen.** The redesign ran through the impeccable skill.
+1. A product record came first (`PRODUCT.md`).
+2. Three short questions settled the audience (story pages for skimmers, dense pages for analysts), the News desk form (front page), and scope (the console diverges; the landing only gets the listed fixes).
+3. A seeded direction roll produced the options, and the owner locked **Surveillance Terminal**: the console as an exchange trade-surveillance screen.
+4. The visual system is recorded in [DESIGN.md](../DESIGN.md).
+
+**What changed:**
+
+| Area | Change |
+|---|---|
+| World | Graphite panels on a near-black ground, hairline rules, bone text; flat colour where each hue means one thing (amber attention, cyan navigation, red-to-sand match risk, green cleared, violet regulators); Archivo on its width axis for words, Martian Mono for figures; square 2px corners |
+| Shell | A command bar with numbered function tabs (keys 1–8), London and Mumbai clocks, the demo identity, and a status tape that runs the audit chain along the bottom of every screen |
+| Overview | A monitor wall: live counts; open cases by band; a screening funnel that says why each count changes; identity verdicts; alert score histogram; group × list heatmap; watchlist board; matching quality; news pulse |
+| News desk | A wire-service front page: nameplate, regulator ticker, lead story, risk desk by adverse-media category, regulator and press columns, coverage analytics, name dossier, search, feed health |
+| Working pages | The queue, case file, customers, watchlists, screen, benchmark and audit screens rebuilt densely, with state shown in line form as well as colour |
+| Backend | `/news` and `/news/search` tag each article with the adverse-media keyword category the brief extractor already uses (tested) |
+| Landing | Wordmark and "Let's get started" at top centre, no nav or mark; clicking plays a short exit and hands over through a cross-document view transition, with the wordmark morphing into the console's |
+
+**Built by a swarm.** Five agents worked in parallel from written briefs: landing, overview, news desk, working screens, and the remaining screens. A coordinator owned the tokens, the shell and the shared components, then checked every page by screenshot at 1440 and 390 px before committing.
+
+**Defects found while checking:**
+
+| Defect | Fix |
+|---|---|
+| At 1280 px the function tabs ran into the search box | short tab names and a narrower search below 1536 px |
+| The funnel put "auto-cleared" between "alerts raised" and "open alerts", so its arrows read as nonsense | each step now states why the count changed |
+| The Overview counted 7 risk-tagged stories and the News desk 29 | both count the same loaded windows |
+| SEBI and FCA publish dates don't parse, which broke newest-first sorting | sort falls back to fetch time |
+| The lead story printed an entire article body | clamped to four lines |
+| Nationality wrapped mid-word, and names were set in monospace | words use Archivo; mono only for dates and codes |
+| The news agent removed the manual feed poll to avoid writing during its checks | restored |
+
+`tsc` and `vite build` are clean, 118 backend tests pass, and no route scrolls horizontally at 1440 or 390 px. The design detector flags one intentional case: the landing page clips overflow to hold its single-screen hero.
+
+**Independent finish review.** A fresh reviewer agent, with no memory of the build, judged the screenshots against the request, the direction contract and the craft floor.
+
+- **Round 1: "fix", with eight findings.**
+  1. The News desk sections below the fold still read as lists.
+  2. Datelines came in several formats.
+  3. The desk clocks were hidden at 1440 px.
+  4. Rows of stat tiles repeated figures shown in the panels below.
+  5. Tables clipped on phones.
+  6. Tab codes sat beside page titles, acting as eyebrow labels.
+  7. Some colours and line forms broke the one-meaning rule.
+  8. Two screens counted "strong" cases over different sets.
+- **Round 2: six resolved.** Two fixes were partial, and the round found two regressions (News overflowing on phones, and a risk-desk count that disagreed with the masthead).
+- **After round 2.** Those four were fixed and checked by screenshot, but not re-reviewed: two rounds is the review budget.
+
+## Step 8: Your own customers, a working Lists screen, a seamless front door
+
+After using the redesign, the owner raised five problems:
+- the landing page's copy didn't say what Satark does;
+- its light page jarred against the dark console;
+- the Watchlists page only restated static counts;
+- the ⌘K button in the command bar collapsed into an unlabelled box;
+- the customer upload that had been planned was never built.
+
+**What changed:**
+
+| Area | Change |
+|---|---|
+| Landing | On the console's graphite ground with bone ink. The figure video has a pale backdrop, so a WebGL shader keys it out (details below). The copy now names the two checks, the lists and the book; the decorative moon, ring and dial controls are gone. |
+| Import customers | `POST /customers/import` validates a CSV with a dry run: loose headers are mapped, and bad rows are rejected with line and reason. Importing adds the valid rows as group D, upserted by `customer_id` (or name + date of birth), and screens only those customers. The console panel previews, imports and links each resulting case. |
+| Satark Lists | `GET /entities` browses the 29,574 listings by name, list, status and kind. `GET /entities/{id}/exposure` reverse-screens a listing's name and aliases against the customer book and runs the identity check on each hit. The page turns the lists into selectors, a searchable listing browser, and a record-plus-exposure panel, all addressable by URL. |
+| Branding | Screen titles read "SATARK Overview", "SATARK Queue" and so on. Tabs and the command menu use the same short names. |
+| ⌘K | The button always says "Search" (the full prompt from 1536 px). The desk clocks give way below 1400 px instead of squeezing it. |
+
+**How the landing key works.** The backdrop colour turned out to be almost flat: rgb .924/.873/.907, varying by less than .023 across the frame, while 99.5% of face pixels sit further than .05 from it. The shader:
+- applies a tight colour-distance key;
+- closes the few pale reflections the key punches through (figure on both sides of an axis within 14 px);
+- drops isolated compression specks;
+- darkens half-keyed edges so no fringe rings the silhouette.
+
+Without WebGL the plain video shows instead.
+
+**Checked.**
+- 122 backend tests pass, including new tests for the upload parser, the import (dry run writes nothing, a re-upload updates, the audit chain holds) and reverse screening.
+- The import was run end to end in the browser against a copy of the database: 4 rows imported, 2 rejected with reasons, 4 alerts opened, and 1 match auto-cleared by date of birth. The copy was then deleted.
+
+## Step 9: The benchmark lab on the front page
+
+The owner's logo arrived, the ⌘K crash was traced, and the landing page's own claim, "0.953 F1 against 0.572", was still something a visitor had to take on trust. The front page below the figure was replaced with a lab the visitor operates.
+
+**What changed:**
+
+| Area | Change |
+|---|---|
+| Logo | `ssss-clean.png` cut out into `/brand/satark-logo.png`, the mark, the favicon and the apple-touch icon. The wordmark carries the cross-document view transition into the console. |
+| Search | The command dialog crashed on every open: cmdk's input, list and items read their store from a `<Command>` root that `CommandDialog` never rendered. One wrapper in `ui/command.tsx` fixed it. |
+| Wire | The news masthead's headings follow the other screens ("SATARK Wire"). |
+| Landing, below the figure | The four marketing sections gave way to four experiments on Satark's real measurements, then a live matcher. |
+
+**The four experiments.**
+
+1. **Where you put the alert line.** An SVG sweep of precision, recall and F1 from threshold 50 to 99 for both systems, with a threshold line the visitor drags (and a slider for keyboards). The readout turns the numbers into false alarms per 100 alerts and listed people missed per 100.
+2. **The ten ways a name arrives.** Each transform in the benchmark — Devanagari, S/O clauses, initials, dropped middle names, honorifics, abbreviations, reordering, typos — with one real case scored by both systems and recall across all 100 test names of that transform. The typo row is left standing: a plain edit distance beats Satark there, 85 against 70.
+3. **The second check.** The Anand Kumar pair, with the customer's date of birth on a slider. The verdict follows the same rule the API runs: two years apart contradicts and clears the alert, one year is neutral, a different month in the same year is neutral, the same year and month supports.
+4. **The real book.** The funnel from 1,385 customers to 45 cases, and the 34 hand-labelled cases as a grid, each with its score against the threshold and why it is there.
+
+Then "try a name": the form POSTs to `/api/screen` and renders the five best matches with list, score, band and identity verdict. With the API down it falls back to three recorded runs and says so.
+
+**Checked.**
+- No console errors and no horizontal overflow at 1440 and 390; every control exercised in a headless browser (metric switch, threshold drag, transform select, date-of-birth slider, funnel step, case filter and detail, live screen, offline fallback).
+- `impeccable detect` reports only the two clipping findings inherent to the pinned hero frame.
+- The production build bundles the lab's stylesheet and script into the landing entry.
+
+## Step 10: The documentation a reader can follow
+
+The project was finished and the README still told it in one long page. This step split the record into documents that answer one question each, and recorded the product as it now stands.
+
+**What changed:**
+
+| Document | What it holds |
+|---|---|
+| [README.md](../README.md) | The walkthrough video first, then what is real, how a hit is judged, the results on the real book, the benchmark headline, every screen as a current screenshot, the repository layout, and how to run it |
+| [docs/ARCHITECTURE.md](ARCHITECTURE.md) | Six diagrams: the system, one name through the pipeline, the identity verdict, the case state machine, the data model, the route map. Then a folder-by-folder map of the repository |
+| [docs/BENCHMARKS.md](BENCHMARKS.md) | The method, the full threshold sweep, recall per transform with one real example each, the 34 labelled cases, the latency measurement, and the commands to reproduce all of it |
+| [docs/CHANGELOG.md](CHANGELOG.md) | What changed and why, newest first, with the defects each change closed |
+| [docs/demo/](demo/) | The walkthrough: 3 minutes 46 seconds of video with captions and a score, and 52 stills with an index |
+
+**Checked.**
+- Every screenshot in the README was re-captured from the running console at 1440×900, so the images match the shipped design.
+- Every relative link and image path in the five documents resolves to a file in the repository.
+- Every Mermaid diagram parses with GitHub's supported syntax.
+- The benchmark documents cite the committed run artefacts (`reports/eval.json`, seed 7) rather than a remembered number. Three superseded figures in this log are corrected there, and the correction is stated in the document.

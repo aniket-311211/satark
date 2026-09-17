@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router";
 import { ArrowRight } from "lucide-react";
-import { EmptyState, ErrorState, LoadingBlock, PageHeader } from "@/components/satark/page";
+import { EmptyState, ErrorState, Figure, LoadingBlock, PageHeader, Panel } from "@/components/satark/page";
 import { MatchResult } from "@/components/screen/match-result";
 import { ScreenForm, type ScreenFormValues } from "@/components/screen/screen-form";
 import { api, q } from "@/lib/api";
@@ -58,13 +58,16 @@ export default function Screen() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       <PageHeader
-        title="Screen a name"
+        brand
+        title="Screen"
         description="Both checks, side by side: how the name compares against five watchlists, and whether independent identity evidence supports or contradicts that match."
       />
 
-      <ScreenForm values={values} onChange={setValues} onSubmit={handleSubmit} submitting={mutation.isPending} />
+      <Panel label="Query" meta="⏎ to screen">
+        <ScreenForm values={values} onChange={setValues} onSubmit={handleSubmit} submitting={mutation.isPending} />
+      </Panel>
 
       {mutation.isIdle && (
         <EmptyState title="Nothing screened yet">
@@ -75,10 +78,10 @@ export default function Screen() {
       {mutation.isError && <ErrorState error={mutation.error} what="the screening" />}
 
       {result && (
-        <div className="space-y-8">
-          <div className="border-b border-rule pb-5">
+        <div className="space-y-5">
+          <div className="border-b border-rule pb-4">
             {result.notes.length > 0 && (
-              <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-ink-2">
+              <ol className="mb-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-ink-2">
                 {result.notes.map((n, i) => (
                   <li key={i} className="flex items-center gap-1.5">
                     {i > 0 && <ArrowRight className="size-3 text-ink-3" aria-hidden />}
@@ -87,9 +90,15 @@ export default function Screen() {
                 ))}
               </ol>
             )}
-            <p className="mt-2 text-sm text-ink">Normalised to <span className="font-mono">{result.normalized}</span></p>
-            <p className="mt-1 text-sm text-ink-2">{fmtInt(result.candidates_scored)} candidates scored in {result.latency_ms.toFixed(1)} ms.</p>
-            <p className="mt-1 text-sm text-ink-2">Screening shows matches from 70; alerts start at {threshold}.</p>
+            <div className="grid grid-cols-2 gap-px border border-rule bg-rule sm:grid-cols-4">
+              <div className="bg-panel p-3 sm:col-span-2">
+                <p className="label-caps text-ink-3">Normalised to</p>
+                <p className="mt-1 truncate font-mono text-base text-ink" title={result.normalized}>{result.normalized}</p>
+              </div>
+              <div className="bg-panel p-3"><Figure value={fmtInt(result.candidates_scored)} label="Candidates scored" /></div>
+              <div className="bg-panel p-3"><Figure value={`${result.latency_ms.toFixed(1)} ms`} label="Latency" /></div>
+            </div>
+            <p className="mt-2 text-[13px] text-ink-2">Screening shows matches from 70; alerts start at <span className="font-mono text-ink">{threshold}</span>.</p>
           </div>
 
           {result.matches.length === 0 ? (

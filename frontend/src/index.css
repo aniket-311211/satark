@@ -1,17 +1,22 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/public-sans";
-@import "@fontsource/questrial";
-@import "@fontsource/fragment-mono";
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource-variable/martian-mono";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
     --font-heading: var(--font-display);
-    --font-sans: 'Public Sans Variable', system-ui, sans-serif;
-    --font-display: 'Questrial', 'Public Sans Variable', system-ui, sans-serif;
-    --font-mono: 'Fragment Mono', ui-monospace, monospace;
+    --font-sans: 'Archivo Variable', system-ui, sans-serif;
+    --font-display: 'Archivo Variable', system-ui, sans-serif;
+    --font-mono: 'Martian Mono Variable', ui-monospace, monospace;
+    --color-amber: var(--amber);
+    --color-amber-soft: var(--amber-soft);
+    --color-violet: var(--violet);
+    --color-violet-soft: var(--violet-soft);
+    --color-panel: var(--panel);
+    --color-bar: var(--bar);
     --color-ink: var(--ink);
     --color-paper: var(--paper);
     --color-rule: var(--rule);
@@ -71,43 +76,50 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Hallmark · genre: modern-minimal (operate) · theme: custom — brand world from the landing brief
- * vibe: "rose paper, black ink, hairline pills, stamp-blue" · paper oklch(94.9% 0.0167 337.6) · accent oklch(46% 0.15 262)
- * fonts: Questrial (display, titles only) + Public Sans (UI, data) + Fragment Mono (ids, hashes, scores)
- * axes: light / geometric-sans / cool accent on warm neutrals
+/* Surveillance Terminal: graphite glass, hairline grid, flat functional colour.
+ * Each colour means one thing: amber attention/selection/pending · cyan navigation/links/neutral series ·
+ * red-to-sand match risk bands · green cleared/verified · violet regulators. Never glow, never gradient.
+ * Archivo (width axis) for UI and headlines · Martian Mono for figures, codes and hashes, always tabular.
  */
 :root {
-    /* brand layer: the landing page's rose paper, used for the sidebar */
-    --paper-brand: oklch(94.9% 0.0167 337.6);
-    --paper: oklch(97.4% 0.009 337.6);
-    --surface: oklch(99.2% 0.004 337.6);
-    --sunken: oklch(93.4% 0.013 337.6);
-    --rule: oklch(88.5% 0.013 337.6);
-    --rule-strong: oklch(62% 0.014 337.6);
-    --ink: oklch(21% 0.016 337.6);
-    --ink-2: oklch(42% 0.018 337.6);
-    --ink-3: oklch(51% 0.016 337.6);
-    /* one accent: selection, focus, links, the current nav item */
-    --signal: oklch(46% 0.15 262);
-    --signal-soft: oklch(93.5% 0.032 262);
-    /* risk vocabulary: always paired with an icon and a word, never colour alone */
-    --band-strong: oklch(49% 0.16 25);
-    --band-strong-soft: oklch(94% 0.03 25);
-    --band-probable: oklch(51% 0.11 58);
-    --band-probable-soft: oklch(94.5% 0.035 72);
-    --band-possible: oklch(50% 0.07 105);
-    --band-possible-soft: oklch(94.5% 0.03 105);
-    --cleared: oklch(47% 0.08 185);
-    --cleared-soft: oklch(94% 0.028 185);
+    color-scheme: dark;
+    --bar: oklch(13.2% 0.009 255);          /* command bar and tape */
+    --paper: oklch(16.4% 0.011 255);        /* page ground #0E1116 */
+    --panel: oklch(20.2% 0.013 255);        /* panels #161B22 */
+    --surface: var(--panel);
+    --sunken: oklch(24.6% 0.015 255);       /* hover, raised rows, fills */
+    --paper-brand: var(--bar);
+    --rule: oklch(29.5% 0.017 255);         /* hairlines #262D38 */
+    --rule-strong: oklch(41% 0.02 255);
+    --ink: oklch(91.8% 0.013 85);           /* bone #E8E3D8 */
+    --ink-2: oklch(76% 0.012 85);
+    --ink-3: oklch(64% 0.011 85);
+
+    --signal: oklch(79% 0.1 208);           /* cyan: links, navigation, neutral series */
+    --signal-soft: oklch(30% 0.045 208);
+    --amber: oklch(80% 0.145 72);           /* attention, selection, focus, pending */
+    --amber-soft: oklch(31% 0.055 72);
+    --violet: oklch(76% 0.11 295);          /* regulators */
+    --violet-soft: oklch(29% 0.045 295);
+
+    /* match-risk bands, always with an icon, a word and a line form */
+    --band-strong: oklch(69% 0.2 29);
+    --band-strong-soft: oklch(29% 0.075 29);
+    --band-probable: oklch(78% 0.12 42);
+    --band-probable-soft: oklch(30% 0.05 42);
+    --band-possible: oklch(85% 0.07 95);
+    --band-possible-soft: oklch(30% 0.03 95);
+    --cleared: oklch(81% 0.14 160);
+    --cleared-soft: oklch(29% 0.05 160);
 
     --background: var(--paper);
     --foreground: var(--ink);
-    --card: var(--surface);
+    --card: var(--panel);
     --card-foreground: var(--ink);
-    --popover: var(--surface);
+    --popover: var(--sunken);
     --popover-foreground: var(--ink);
-    --primary: var(--ink);
-    --primary-foreground: var(--surface);
+    --primary: var(--amber);
+    --primary-foreground: var(--bar);
     --secondary: var(--sunken);
     --secondary-foreground: var(--ink);
     --muted: var(--sunken);
@@ -117,44 +129,61 @@
     --destructive: var(--band-strong);
     --border: var(--rule);
     --input: var(--rule-strong);
-    --ring: var(--signal);
-    --chart-1: var(--ink);
-    --chart-2: var(--signal);
+    --ring: var(--amber);
+    --chart-1: var(--signal);
+    --chart-2: var(--amber);
     --chart-3: var(--band-strong);
     --chart-4: var(--cleared);
-    --chart-5: var(--band-probable);
-    --radius: 0.5rem;
-    --sidebar: var(--paper-brand);
+    --chart-5: var(--violet);
+    --radius: 0.125rem;
+    --sidebar: var(--bar);
     --sidebar-foreground: var(--ink);
-    --sidebar-primary: var(--ink);
-    --sidebar-primary-foreground: var(--surface);
-    --sidebar-accent: oklch(90.5% 0.02 337.6);
+    --sidebar-primary: var(--amber);
+    --sidebar-primary-foreground: var(--bar);
+    --sidebar-accent: var(--sunken);
     --sidebar-accent-foreground: var(--ink);
-    --sidebar-border: oklch(86% 0.016 337.6);
-    --sidebar-ring: var(--signal);
+    --sidebar-border: var(--rule);
+    --sidebar-ring: var(--amber);
     --ease-out: cubic-bezier(.16, 1, .3, 1);
 }
 
+@view-transition { navigation: auto; }
 
 @layer base {
     * { @apply border-border outline-ring/50; }
-    html { -webkit-text-size-adjust: 100%; }
+    html { -webkit-text-size-adjust: 100%; background: var(--paper); }
     body {
         @apply bg-background text-foreground font-sans antialiased;
         font-size: 14px;
         line-height: 1.5;
-        font-feature-settings: "ss01";
     }
-    h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.01em; text-wrap: balance; }
-    ::selection { background: var(--signal-soft); color: var(--ink); }
-    :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+    h1, h2, h3 { font-family: var(--font-display); font-weight: 600; font-stretch: 112%; letter-spacing: -0.012em; text-wrap: balance; }
+    ::selection { background: var(--amber); color: var(--bar); }
+    :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
     a { text-underline-offset: 3px; }
+    input, textarea { caret-color: var(--amber); }
     input::placeholder, textarea::placeholder { color: var(--ink-3); }
     * { scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent; }
+    code, kbd, samp { font-family: var(--font-mono); }
 }
+
+@layer utilities {
+    .font-mono { font-stretch: 88%; font-variant-numeric: tabular-nums slashed-zero; }
+}
+
+/* A panel's function label: condensed caps, never monospace costume. */
+@utility label-caps { font-stretch: 78%; font-weight: 600; font-size: 11.5px; letter-spacing: 0.07em; text-transform: uppercase; }
 
 @utility tabular { font-variant-numeric: tabular-nums; }
 
+/* The status tape: audit events run leftward; the list is doubled so the loop is seamless. */
+@keyframes tape { to { translate: -50% 0; } }
+.tape-run { animation: tape 90s linear infinite; }
+.tape-run:hover { animation-play-state: paused; }
+
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 420ms; animation-timing-function: var(--ease-out); }
+
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+    .tape-run { animation: none; }
 }

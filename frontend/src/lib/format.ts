@@ -13,6 +13,7 @@ export const GROUPS: Record<string, { label: string; long: string }> = {
   A: { label: "LSE-issued LEI", long: "Indian entities whose LEI is issued by London Stock Exchange LEI Ltd" },
   B: { label: "UK subsidiary", long: "UK companies with an Indian parent, and their directors (Companies House)" },
   C: { label: "Debarred LEI holder", long: "Companies on NSE's active debarment list that hold an LEI" },
+  D: { label: "Uploaded", long: "Customers an analyst imported from their own file" },
 };
 
 export const BAND_LABEL: Record<Band, string> = { strong: "Strong", probable: "Probable", possible: "Possible", weak: "Weak" };

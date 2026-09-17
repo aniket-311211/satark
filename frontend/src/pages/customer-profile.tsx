@@ -3,11 +3,13 @@ import { Link, useParams } from "react-router";
 import { Newspaper, ScanSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CaseStatusBadge, GroupTag } from "@/components/satark/badges";
-import { EmptyState, ErrorState, LoadingBlock, PageHeader, Section } from "@/components/satark/page";
+import { EmptyState, ErrorState, Figure, LoadingBlock, PageHeader, Panel } from "@/components/satark/page";
 import { KindIcon } from "@/components/customer/registry";
-import { OwnershipSection, RegistryFacts } from "@/components/customer/profile";
+import { OwnershipSection, PeopleSection, RegistryFacts } from "@/components/customer/profile";
 import { q } from "@/lib/api";
 import { fmtInt } from "@/lib/format";
+
+const KIND_LABEL = { person: "Person", org: "Organisation" } as const;
 
 export default function CustomerProfile() {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +18,7 @@ export default function CustomerProfile() {
   if (customer.error) return <ErrorState error={customer.error} what="this customer" />;
   if (!customer.data) {
     return (
-      <div className="space-y-10">
+      <div className="space-y-6">
         <PageHeader title="Customer" />
         <LoadingBlock rows={8} />
       </div>
@@ -30,15 +32,9 @@ export default function CustomerProfile() {
   if (c.details.nationality) screenParams.set("nationality", c.details.nationality);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-5">
       <PageHeader
         title={<span className="flex items-center gap-2.5"><KindIcon kind={c.kind} className="size-6" />{c.name}</span>}
-        description={
-          <span className="flex flex-wrap items-center gap-3">
-            <GroupTag group={c.group} />
-            <span>{fmtInt(openCases)} open case{openCases === 1 ? "" : "s"}</span>
-          </span>
-        }
         actions={
           <>
             <Button asChild variant="outline">
@@ -51,30 +47,47 @@ export default function CustomerProfile() {
         }
       />
 
-      <Section title="Registry facts">
-        <RegistryFacts customer={c} />
-      </Section>
+      {/* Quote strip: the same three facts a reviewer would ask for first. */}
+      <div className="grid grid-cols-1 gap-px border border-rule bg-rule sm:grid-cols-3" aria-label="Customer summary">
+        <div className="bg-panel p-3">
+          <p className="label-caps text-ink-3">Group</p>
+          <p className="mt-1"><GroupTag group={c.group} /></p>
+        </div>
+        <div className="bg-panel p-3">
+          <Figure value={<span className="font-sans text-xl font-semibold">{KIND_LABEL[c.kind]}</span>} label="Kind" />
+        </div>
+        <div className="bg-panel p-3">
+          <Figure value={fmtInt(openCases)} label="Open cases" tone={openCases > 0 ? "text-amber" : "text-ink"} />
+        </div>
+      </div>
 
-      <Section title="Ownership" className="border-t border-rule pt-8">
-        <OwnershipSection customer={c} />
-      </Section>
-
-      <Section title="Cases" className="border-t border-rule pt-8">
-        {c.cases.length === 0 ? (
-          <EmptyState title="No cases yet">Screening this name hasn't raised an alert that opened a case.</EmptyState>
-        ) : (
-          <ul className="divide-y divide-rule rounded-xl border border-rule bg-surface">
-            {c.cases.map((cs) => (
-              <li key={cs.id}>
-                <Link to={`/cases/${cs.id}`} className="flex items-center justify-between gap-3 px-4 py-3 transition-colors duration-150 hover:bg-sunken/70 focus-visible:bg-sunken">
-                  <span className="text-sm text-ink">Case #{cs.id}</span>
-                  <CaseStatusBadge status={cs.status} />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Section>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Panel label="Registry facts" meta={c.details.lei ? "GLEIF" : c.kind === "org" ? "Companies House" : undefined}>
+          <RegistryFacts customer={c} />
+        </Panel>
+        <Panel label="Ownership">
+          <OwnershipSection customer={c} />
+        </Panel>
+        <Panel label="Directors & PSCs" className="lg:col-span-2">
+          <PeopleSection customer={c} />
+        </Panel>
+        <Panel label="Cases" meta={`${fmtInt(c.cases.length)} total`} className="lg:col-span-2" bodyClassName="p-0">
+          {c.cases.length === 0 ? (
+            <EmptyState title="No cases yet">Screening this name hasn't raised an alert that opened a case.</EmptyState>
+          ) : (
+            <ul className="divide-y divide-rule">
+              {c.cases.map((cs) => (
+                <li key={cs.id}>
+                  <Link to={`/cases/${cs.id}`} className="flex items-center justify-between gap-3 px-3 py-2.5 transition-colors duration-150 hover:bg-sunken focus-visible:bg-sunken">
+                    <span className="font-mono text-sm text-ink">Case #{cs.id}</span>
+                    <CaseStatusBadge status={cs.status} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AlertTriangle, ExternalLink, Info, type LucideIcon } from "lucide-react";
+import { AlertTriangle, ArrowRight, ExternalLink, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Facts } from "@/components/satark/page";
 import { KindIcon, countryText, humanize, identifierText, louName } from "@/components/customer/registry";
@@ -15,12 +15,39 @@ const monthYear = (v?: string) => {
   return month ? `${month} ${y}` : v;
 };
 
+/** A registry note in line form: an amber left rule for something worth review, plain ink-2 for context. Never a filled badge. */
 function Note({ tone, icon: Icon, children }: { tone: "warn" | "quiet"; icon: LucideIcon; children: ReactNode }) {
   return (
-    <p className={cn("mt-3 flex items-start gap-2 rounded-lg px-3 py-2 text-[13px]", tone === "warn" ? "bg-probable-soft text-probable" : "bg-sunken text-ink-2")}>
+    <p className={cn(
+      "mt-3 flex items-start gap-2 py-1 pl-3 text-[13px]",
+      tone === "warn" ? "border-l border-amber text-amber" : "border-l border-rule text-ink-2",
+    )}>
       <Icon className="mt-0.5 size-3.5 shrink-0" aria-hidden />
       <span>{children}</span>
     </p>
+  );
+}
+
+/** Parent → child ownership as small connected boxes: ultimate parent, direct parent (when distinct), this entity marked amber. */
+function OwnershipDiagram({ direct, ultimate, name }: { direct?: ParentRef | null; ultimate?: ParentRef | null; name: string }) {
+  const nodes: { label: string; name: string; sub?: string; self?: boolean }[] = [];
+  if (ultimate && ultimate.lei !== direct?.lei) nodes.push({ label: "Ultimate parent", name: ultimate.name, sub: ultimate.country?.toUpperCase() });
+  if (direct) nodes.push({ label: "Direct parent", name: direct.name, sub: direct.country?.toUpperCase() });
+  nodes.push({ label: "This entity", name, self: true });
+  if (nodes.length < 2) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-2" role="img" aria-label={`Ownership chain: ${nodes.map((n) => n.name).join(" owns ")}`}>
+      {nodes.map((n, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <div className={cn("min-w-40 border px-3 py-2", n.self ? "border-amber bg-amber-soft" : "border-rule bg-sunken")}>
+            <p className="label-caps text-ink-3">{n.label}</p>
+            <p className={cn("mt-0.5 text-[13px] [overflow-wrap:anywhere]", n.self ? "text-amber" : "text-ink")}>{n.name}</p>
+            {n.sub && <p className="text-[11px] text-ink-2">{n.sub}</p>}
+          </div>
+          {i < nodes.length - 1 && <ArrowRight className="size-4 shrink-0 text-ink-3" aria-hidden />}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -31,7 +58,7 @@ function AppointmentsList({ appointments }: { appointments: NonNullable<Customer
       <ol className="mt-2 space-y-2 border-l border-rule pl-4 text-[13px]">
         {appointments.map((a, i) => (
           <li key={i} className="relative text-ink">
-            <span className="absolute top-1.5 -left-[21px] size-2 rounded-full border border-ink bg-surface" aria-hidden />
+            <span className="absolute top-1.5 -left-[21px] size-2 rounded-sm border border-ink bg-surface" aria-hidden />
             {humanize(a.officer_role)} <span className="text-ink-2">at</span> {a.company_name}
             <span className="block text-ink-2">Appointed {fmtDate(a.appointed_on)}</span>
           </li>
@@ -87,19 +114,10 @@ export function RegistryFacts({ customer }: { customer: Customer }) {
   );
 }
 
-const parentText = (p?: ParentRef | null): ReactNode =>
-  p && (
-    <span className="flex flex-wrap items-center gap-2">
-      {p.name}
-      {p.country && <span className="text-ink-2">({p.country.toUpperCase()})</span>}
-      <span className="font-mono text-xs text-ink-2">{p.lei}</span>
-    </span>
-  );
-
 function ChildrenTable({ children }: { children: Customer[] }) {
   const label = children[0]?.kind === "person" ? "Directors" : "Subsidiaries";
   return (
-    <div className="mt-5">
+    <div>
       <h4 className="text-sm font-medium text-ink">{label} <span className="font-normal text-ink-2">({children.length})</span></h4>
       <div className="mt-2 overflow-x-auto rounded-xl border border-rule bg-surface">
         <table className="w-full text-left text-[13px]">
@@ -134,7 +152,7 @@ function PscSection({ details }: { details: CustomerDetails }) {
   const statements = details.psc_statements ?? [];
   if (!psc.length && !statements.length) return null;
   return (
-    <div className="mt-5">
+    <div className="mt-5 first:mt-0">
       <h4 className="text-sm font-medium text-ink">People with significant control</h4>
       {psc.length > 0 && (
         <ul className="mt-2 space-y-1.5 text-[13px]">
@@ -155,18 +173,16 @@ function PscSection({ details }: { details: CustomerDetails }) {
   );
 }
 
-/** Parents (registry text plus a link when the parent is itself a customer), children, and PSC — with mismatches flagged as review notes, not findings. */
+/** The ownership diagram (direct/ultimate parent, this entity), the in-book parent link, and the GLEIF-vs-PSC mismatch note. */
 export function OwnershipSection({ customer }: { customer: CustomerProfile }) {
   const d = customer.details;
   const hasParents = Boolean(d.direct_parent || d.ultimate_parent);
+  if (!hasParents && !customer.parent && !d.ownership_conflict?.conflict) {
+    return <p className="text-sm text-ink-2">No parent or ownership data on file for this customer.</p>;
+  }
   return (
     <div>
-      {hasParents && (
-        <Facts items={[
-          ["Direct parent", parentText(d.direct_parent)],
-          ["Ultimate parent", parentText(d.ultimate_parent)],
-        ]} />
-      )}
+      {hasParents && <OwnershipDiagram direct={d.direct_parent} ultimate={d.ultimate_parent} name={customer.name} />}
       {customer.parent && (
         <p className={cn("text-sm", hasParents && "mt-3")}>
           <span className="text-ink-2">In this book: </span>
@@ -174,15 +190,24 @@ export function OwnershipSection({ customer }: { customer: CustomerProfile }) {
         </p>
       )}
       {d.ownership_conflict?.conflict && (
-        <Note tone="quiet" icon={Info}>
-          {d.ownership_conflict.reason ? `${d.ownership_conflict.reason}. ` : ""}This is a registry mismatch to review, not a finding.
+        <Note tone="warn" icon={AlertTriangle}>
+          GLEIF vs PSC mismatch{d.ownership_conflict.reason ? `: ${d.ownership_conflict.reason}` : ""}. A registry mismatch to review, not a finding.
         </Note>
       )}
+    </div>
+  );
+}
+
+/** Directors/subsidiaries and people with significant control, as dense tables — separate from the ownership diagram above. */
+export function PeopleSection({ customer }: { customer: CustomerProfile }) {
+  const d = customer.details;
+  if (!customer.children.length && !d.psc?.length && !d.psc_statements?.length) {
+    return <p className="text-sm text-ink-2">No directors, subsidiaries or PSC data on file for this customer.</p>;
+  }
+  return (
+    <div>
       {customer.children.length > 0 && <ChildrenTable children={customer.children} />}
       <PscSection details={d} />
-      {!hasParents && !customer.parent && !customer.children.length && !d.psc?.length && !d.psc_statements?.length && (
-        <p className="text-sm text-ink-2">No ownership data on file for this customer.</p>
-      )}
     </div>
   );
 }

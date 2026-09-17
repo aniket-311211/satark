@@ -9,7 +9,7 @@ const METRICS: { value: Metric; label: string }[] = [{ value: "f1", label: "F1" 
 const PRODUCTION_THRESHOLD = 80;
 
 const config = {
-  exact: { label: "Exact match", color: "var(--chart-3)" },
+  exact: { label: "Exact match", color: "var(--rule-strong)" },
   rapidfuzz: { label: "RapidFuzz", color: "var(--ink-3)" },
   satark: { label: "Satark", color: "var(--signal)" },
 } satisfies ChartConfig;

@@ -82,6 +82,38 @@ export interface Entity {
   status: "active" | "historical";
   details: { orders?: Order[]; terms?: Term[]; relatives?: { name: string; relationship?: string }[] };
 }
+export interface EntityRow extends Entity {
+  /** Alerts this listing has raised against the book, any status. */
+  alerts: number;
+}
+export interface ExposureMatch {
+  customer: Customer;
+  score: number;
+  band: Band;
+  reasons: string[];
+  listed_as: string;
+  above_threshold: boolean;
+  secondary: Secondary;
+  alert: { id: number; status: AlertStatus; case_id: number | null } | null;
+}
+export interface Exposure {
+  entity: Entity;
+  threshold: number;
+  matches: ExposureMatch[];
+}
+export interface ImportReport {
+  dry_run: boolean;
+  valid: number;
+  rejected: number;
+  errors: { line: number; name: string; reason: string }[];
+  preview: { line: number; name: string; kind: "person" | "org"; birth_date: string; country: string; nationality: string }[];
+  added?: number;
+  updated?: number;
+  screened?: number;
+  alerts?: number;
+  auto_cleared?: number;
+  hits?: { customer: Customer; alerts: number; auto_cleared: number; case_id: number | null }[];
+}
 export interface ParentRef {
   lei: string;
   name: string;
@@ -279,6 +311,8 @@ export interface NewsItem {
   country: string;
   published: string;
   fetched_at: string;
+  /** Adverse-media keyword category, or null when the story carries no risk signal. */
+  category: string | null;
 }
 export interface NewsArticle {
   title: string;
@@ -286,6 +320,7 @@ export interface NewsArticle {
   publisher: string;
   published: string;
   text: string;
+  category: string | null;
 }
 export interface FeedStatus {
   name: string;

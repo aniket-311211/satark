@@ -3,13 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F6EAF2">
-<title>Satark — Every Name Gets a Second Look</title>
+<meta name="theme-color" content="#0E1116">
+<title>Satark · Screen every name, check the evidence</title>
+<meta name="description" content="Satark screens India-linked companies and their directors against sanctions, PEP and debarment lists, then checks identity evidence before a match reaches a reviewer.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&display=block">
+<!-- the console's type, for the lab below the figure: Archivo on its width axis, Martian Mono for every figure -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Martian+Mono:wdth,wght@75..112,400..700&display=swap">
+<link rel="stylesheet" href="/landing/lab.css">
+<link rel="icon" type="image/png" sizes="64x64" href="/brand/favicon-64.png">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
 <style>
-/* Hallmark · macrostructure: master-prompt hero (pinned single screen) · tone: austere/technical · anchor hue: rose paper #F6EAF2 */
+/* Hallmark · macrostructure: master-prompt hero (pinned single screen) · ground: the console's graphite, so the hand-off is seamless */
+@view-transition{navigation:auto}
 html{
   font-size:min(calc(100vw / 1594), calc(100vh / 987), 1.75px);
   -webkit-text-size-adjust:100%;
@@ -18,11 +25,12 @@ html{
   html{font-size:min(calc(100vw / 1594), calc(100dvh / 987), 1.75px)}
 }
 
+@supports (color:oklch(0% 0 0)){:root{--bg:oklch(16.4% 0.011 255);--ink:oklch(91.8% 0.013 85)}}
 :root{
-  --ink:#000000;
-  --bg:#F6EAF2;
-  --hairline:rgba(0,0,0,.55);
-  --glass:rgba(255,255,255,.15);
+  --ink:#E8E3D8;
+  --bg:#0E1116;
+  --hairline:rgba(232,227,216,.42);
+  --glass:rgba(232,227,216,.05);
   --bust-top:80.5rem;
   --bust-zoom:1;
   --bust-nudge-x:0%;
@@ -39,12 +47,12 @@ body{
   background:var(--bg);
   color:var(--ink);
   font-family:'Questrial',system-ui,-apple-system,'Segoe UI',sans-serif;
-  overflow:hidden;
+  overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
   text-rendering:geometricPrecision;
 }
-.stage{position:fixed;inset:0;isolation:isolate}
-:focus-visible{outline:2px solid #000;outline-offset:3px}
+.stage{position:relative;height:100vh;height:100dvh;overflow:hidden;isolation:isolate}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 
 /* anchor frame */
 .pin{position:absolute}
@@ -93,40 +101,43 @@ body{
   transform:scale(var(--bust-zoom)) translate(var(--bust-nudge-x), var(--bust-nudge-y));
   transform-origin:50% 100%;
   display:block;
-  filter:brightness(1.18) saturate(1.22);
-  mix-blend-mode:multiply;
+  filter:saturate(1.12);
 }
+.bust-c{
+  position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;
+  transform:scale(var(--bust-zoom)) translate(var(--bust-nudge-x), var(--bust-nudge-y));
+  transform-origin:50% 100%;
+}
+.bust.keyed .bust-v{opacity:0}
 
-/* masthead */
-.nav{
-  --x:41.7rem; --y:29.0rem;
-  font-size:21.1rem;
-  line-height:27.0rem;
-  letter-spacing:-0.33rem;
-  -webkit-text-stroke:0.323rem var(--bg);paint-order:fill stroke;
+/* masthead: wordmark + entry CTA, top centre, above the figure's head */
+.wordmark{
+  --y:16.0rem;
+  height:max(64rem,40px);width:auto;
+  display:block;
   z-index:3;
+  user-select:none;
+  view-transition-name:satark-wordmark;
 }
-.nav ul{list-style:none;white-space:nowrap}
-.nav .col-b{position:absolute;top:0;left:165.0rem}
-.nav a{color:inherit;text-decoration:none;display:block}
-.nav .lead{-webkit-text-stroke:0.146rem var(--ink);paint-order:stroke fill;letter-spacing:-0.33rem}
-
-.burger{
-  display:none;
-  border-radius:50%;
-  border:1.1rem solid var(--hairline);
-  background:var(--glass);
-  -webkit-backdrop-filter:blur(6rem);backdrop-filter:blur(6rem);
-  place-items:center;
-  z-index:5;
+.cta{
+  --y:max(92rem,68px);
+  display:inline-flex;align-items:center;justify-content:center;
+  height:max(44rem,44px);
+  padding:0 max(26rem,20px);
+  border-radius:999rem;
+  background:var(--ink);
+  color:var(--bg);
+  font-size:17rem;
+  letter-spacing:-0.02em;
+  line-height:1;
+  text-decoration:none;white-space:nowrap;
+  z-index:3;
+  transition:translate .2s ease;
 }
-.burger svg{width:60%;height:60%;display:block;fill:var(--ink)}
-
-.logo{--y:24.0rem; --dx:-0.5rem; width:60rem;height:38rem;z-index:3}
-.moon{--x:115.0rem; --y:35.0rem; width:21rem;height:22rem;z-index:3}
-.mode{--x:44.5rem; --y:26.9rem; width:37.8rem;height:37.8rem;z-index:3}
-.mode svg{width:100%;height:100%;display:block}
-.mode:disabled{cursor:default}
+@media (prefers-reduced-motion:no-preference){
+  .cta:hover{translate:0 -2rem}
+  .cta:active{translate:0 0;scale:.97}
+}
 
 /* headline */
 .headline{
@@ -156,9 +167,9 @@ body{
 /* blurb */
 .blurb{
   --x:32.0rem; --dy:162.5rem;
-  width:400.5rem;
-  font-size:22.66rem;
-  line-height:30.0rem;
+  width:430rem;
+  font-size:25rem;
+  line-height:34rem;
   letter-spacing:0.06rem;
   -webkit-text-stroke:0.189rem var(--bg);paint-order:fill stroke;
   z-index:2;
@@ -171,8 +182,8 @@ body{
   -webkit-text-stroke:0.189rem var(--bg);paint-order:fill stroke;
   z-index:2;
 }
-.note dt{font-size:13rem;line-height:18rem;letter-spacing:0.4rem}
-.note dd{font-size:17rem;line-height:23rem;letter-spacing:0.06rem}
+.note dt{font-size:16rem;line-height:22rem;letter-spacing:0.5rem;opacity:.78}
+.note dd{font-size:22rem;line-height:29rem;letter-spacing:0.06rem}
 .note::before{content:"";position:absolute;top:8.45rem;height:1.1rem;width:var(--lead);background:var(--hairline)}
 .note::after{content:"";position:absolute;top:5rem;width:8rem;height:8rem;border:1.1rem solid var(--ink);border-radius:50%;background:var(--bg)}
 .note-r::before{left:calc(100% + 10rem)}
@@ -180,25 +191,12 @@ body{
 .note-l{text-align:right}
 .note-l::before{right:calc(100% + 10rem)}
 .note-l::after{right:calc(100% + 10rem + var(--lead))}
-.note:nth-child(1){--dx:-452rem;--dy:-296rem;--lead:74rem}
+.note:nth-child(1){--dx:-516rem;--dy:-296rem;--lead:74rem}
 .note:nth-child(2){--dx:148rem;--dy:-322rem;--lead:70rem}
 .note:nth-child(3){--dx:200rem;--dy:-104rem;--lead:92rem}
-.note:nth-child(4){--dx:-702rem;--dy:150rem;--lead:178rem}
-html[data-notes="off"] .note{display:none}
+.note:nth-child(4){--dx:-640rem;--dy:150rem;--lead:178rem}
 
 /* controls */
-.brightness{
-  --x:41.0rem; --y:6.0rem;
-  width:41.6rem;height:41.6rem;
-  border-radius:50%;
-  border:1.1rem solid var(--hairline);
-  background:var(--glass);
-  -webkit-backdrop-filter:blur(6rem);backdrop-filter:blur(6rem);
-  display:grid;place-items:center;
-  color:inherit;text-decoration:none;
-  z-index:3;
-}
-.brightness svg{width:26rem;height:26rem;display:block}
 
 .tags{--x:43.0rem; --y:9.0rem; display:flex;gap:3.0rem;z-index:3}
 .tag{
@@ -209,7 +207,7 @@ html[data-notes="off"] .note{display:none}
   background:var(--glass);
   -webkit-backdrop-filter:blur(6rem);backdrop-filter:blur(6rem);
   display:flex;align-items:center;justify-content:center;
-  font-size:16.6rem;
+  font-size:18.5rem;
   letter-spacing:-0.2rem;
   line-height:1;
   -webkit-text-stroke:0.241rem var(--ink);paint-order:stroke fill;
@@ -222,18 +220,22 @@ html[data-anim] .instruments{display:block;position:absolute;inset:0;pointer-eve
 html[data-anim] .instruments > *{pointer-events:auto}
 
 @media (prefers-reduced-motion:no-preference){
-  .nav a,.tag,.brightness,.mode{transition:opacity .25s ease}
-  .nav a:hover,.tag:hover,.brightness:hover,.mode:not(:disabled):hover{opacity:.62}
+  .tag{transition:opacity .25s ease}
+  .tag:hover{opacity:.62}
 }
+
+/* scroll cue: the one piece of the hero that points below it. The lab below has its own sheet (landing/lab.css). */
+.cue{--x:43rem;--y:max(20rem,16px);display:inline-flex;align-items:center;gap:8px;font-size:max(18rem,15px);color:var(--ink);text-decoration:none;opacity:.85;z-index:3}
+.cue svg{width:14px;height:14px}
+@media (prefers-reduced-motion:no-preference){.cue svg{animation:cue 2.4s ease-in-out infinite}}
+@keyframes cue{0%,100%{translate:0 0}50%{translate:0 4px}}
+@media (max-width:720px){.cue{display:none}}
 
 /* entrance: initial states (no script => no attribute => nothing hidden) */
 html[data-anim] *{transition:none !important}
 html[data-anim="pending"] .bust{opacity:0;scale:1.028;transform-origin:50% 100%;will-change:opacity,scale}
-html[data-anim="pending"] .logo{opacity:0;scale:.9;will-change:opacity,scale}
-html[data-anim="pending"] .nav a,
-html[data-anim="pending"] .burger,
-html[data-anim="pending"] .moon,
-html[data-anim="pending"] .mode{opacity:0;translate:0 -8rem;will-change:opacity,translate}
+html[data-anim="pending"] .wordmark,
+html[data-anim="pending"] .cta{opacity:0;scale:.9;will-change:opacity,scale}
 html[data-anim="pending"] .headline .l1,
 html[data-anim="pending"] .headline .l2{overflow:hidden}
 html[data-anim="pending"] .headline .ln{translate:0 105%;will-change:translate}
@@ -244,28 +246,10 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
   html[data-anim] *{opacity:1 !important;translate:none !important;scale:none !important}
 }
 
-/* A. DENSITY: nav collapses to a burger on touch or narrow widths */
+/* A. DENSITY: larger touch targets on touch or narrow widths */
 @media (pointer:coarse) and (max-width:1600px), (max-width:999px){
-  .burger{display:grid;--x:41rem;--y:24rem;width:56rem;height:56rem;border-width:1.4rem}
-  .moon{--x:132rem;--y:32rem;width:28rem;height:29rem}
-  .mode{--x:43rem;--y:23rem;width:50rem;height:50rem}
-  .nav{
-    --x:41rem;--y:96rem;
-    display:flex;gap:62rem;
-    padding:30rem 38rem 32rem;
-    border:1.4rem solid var(--ink);
-    border-radius:30rem;
-    background:var(--glass);
-    -webkit-backdrop-filter:blur(18rem);backdrop-filter:blur(18rem);
-    font-size:30rem;line-height:40rem;letter-spacing:0;
-    opacity:0;visibility:hidden;translate:0 -12rem;pointer-events:none;
-    z-index:4;
-  }
-  .nav .col-b{position:static;left:auto}
-  .nav .lead{letter-spacing:0}
-  html[data-menu="open"] .nav{opacity:1;visibility:visible;translate:0 0;pointer-events:auto}
-  .brightness{--x:41rem;--y:8rem;width:60rem;height:60rem;border-width:1.4rem}
-  .brightness svg{width:37rem;height:37rem}
+  .wordmark{--y:22rem;height:max(76rem,44px)}
+  .cta{--y:max(110rem,76px);height:max(52rem,48px);padding:0 max(30rem,22px);font-size:22rem}
   .tags{--x:43rem;--y:9rem;gap:6rem}
   .tag{height:52rem;padding:0 23rem;border-radius:26rem;font-size:27rem;border-width:1.6rem}
 }
@@ -274,10 +258,10 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
 @media (min-aspect-ratio:13/10) and (max-aspect-ratio:31/20){
   .headline{font-size:38.4rem;line-height:49.5rem}
   .blurb{width:350rem}
-  .note:nth-child(1){--dx:-520rem;--lead:142rem}
+  .note:nth-child(1){--dx:-584rem;--lead:142rem}
   .note:nth-child(2){--dx:200rem;--dy:-338rem;--lead:122rem}
   .note:nth-child(3){--dx:262rem;--lead:154rem}
-  .note:nth-child(4){--dx:-730rem;--lead:206rem}
+  .note:nth-child(4){--dx:-668rem;--lead:206rem}
 }
 
 /* C. STACK: tablet portrait / phone, reference frame 720 x 1040 */
@@ -288,25 +272,8 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
     --col-x:max(32rem, calc(50% - 336rem));
     --col-w:min(672rem, calc(100% - 64rem));
   }
-  .burger{display:grid;--x:32rem;--y:32rem;width:48rem;height:48rem}
-  .logo{--y:35rem;--dx:0rem;width:70rem;height:44rem}
-  .moon{display:none}
-  .mode{--x:32rem;--y:33rem;width:48rem;height:48rem}
-  .nav{
-    --x:32rem;--y:94rem;
-    display:flex;gap:48rem;
-    padding:24rem 30rem 26rem;
-    border:1.4rem solid var(--ink);
-    border-radius:26rem;
-    background:var(--glass);
-    -webkit-backdrop-filter:blur(18rem);backdrop-filter:blur(18rem);
-    font-size:26rem;line-height:36rem;letter-spacing:0;
-    opacity:0;visibility:hidden;translate:0 -10rem;pointer-events:none;
-    z-index:4;
-  }
-  .nav .col-b{position:static;left:auto}
-  .nav .lead{letter-spacing:0}
-  html[data-menu="open"] .nav{opacity:1;visibility:visible;translate:0 0;pointer-events:auto}
+  .wordmark{--y:28rem;--dx:0rem;height:84rem}
+  .cta{--y:124rem;height:max(48rem,44px);padding:0 max(28rem,20px);font-size:24rem}
   .headline{
     left:var(--col-x);right:auto;
     top:212rem;
@@ -328,8 +295,6 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
     transform:translateX(-50%);
   }
   .note{display:none}
-  .brightness{--x:32rem;--y:32rem;width:52rem;height:52rem;border-width:1.4rem}
-  .brightness svg{width:32rem;height:32rem}
   .tags{--x:32rem;--y:36rem;gap:6rem}
   .tag{height:44rem;padding:0 18rem;border-radius:22rem;font-size:21rem;border-width:1.6rem}
 }
@@ -348,23 +313,12 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
     --fig-h:min(max(300rem, calc(100vh - 350rem)), 112vw);
     --text-top:calc((90rem + 100vh - var(--fig-h)) / 2 - 91rem);
   }
-  .burger{--x:24rem;--y:22rem;width:44px;height:44px;border-width:1px}
-  .burger svg{width:20px;height:20px}
-  .logo{--y:25rem;--dx:0rem;width:48px;height:30px}
-  .moon{display:block;--x:84rem;--y:32rem;width:18px;height:19px}
-  .mode{--x:24rem;--y:22rem;width:36px;height:36px}
-  .nav{
-    --x:24rem;--y:82rem;
-    gap:28px;padding:16px 20px 18px;
-    border-radius:20px;border-width:1px;
-    font-size:16px;line-height:24px;
-  }
+  .wordmark{--y:14rem;--dx:0rem;height:44px}
+  .cta{--y:66px;height:44px;padding:0 18px;font-size:14px}
   .headline{top:var(--text-top);left:24rem;right:24rem;font-size:28px;line-height:34px}
   .headline b{-webkit-text-stroke:1.5px var(--ink)}
   .blurb{top:calc(var(--text-top) + 104rem);left:24rem;right:24rem;width:auto;font-size:16px;line-height:24px}
   .bust{height:var(--fig-h)}
-  .brightness{--x:24rem;--y:24rem;width:44px;height:44px;border-width:1px}
-  .brightness svg{width:22px;height:22px}
   .tags{--x:24rem;--y:24rem;gap:6px}
   .tag{height:36px;padding:0 12px;border-radius:18px;font-size:14px;border-width:1px}
   .tag:nth-child(1),.tag:nth-child(2),.tag:nth-child(3){width:auto}
@@ -395,81 +349,268 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
 </head>
 <body>
 <!-- Deviations from the master prompt, on purpose:
-     1. Nav, tags and the round button link to /app/... (relative): this page is the front door of the Satark console.
-     2. The ring button (.mode) toggles a notes layer of real project figures around the figure; hidden in the stacked layouts. -->
+     1. The ground is the console's graphite and the figure is keyed onto it, so "Let's get started" hands over seamlessly.
+     2. Decorative controls are gone; the notes around the figure are the product's two checks and its real data. -->
 <main class="stage">
+  <img class="wordmark pin pin-tc" src="/brand/satark-logo.png" alt="Satark" width="171" height="64" draggable="false">
+  <a class="cta pin pin-tc" href="/app/">Let's get started</a>
+
   <div class="bust" role="img"
        aria-label="Translucent iridescent figure with light tracing through it, turning to its left">
-    <video class="bust-v" muted playsinline loop preload="auto" disablepictureinpicture
+    <video class="bust-v" muted playsinline loop preload="auto" disablepictureinpicture crossorigin="anonymous"
            tabindex="-1" aria-hidden="true"
            src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/24f3c998-86fb-4f1d-9906-07c7fa740f8a.mp4"></video>
   </div>
 
-  <button class="burger pin pin-tl" type="button" aria-label="Menu" aria-expanded="false" aria-controls="primary-nav">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect x="3" y="8.4" width="18" height="1.7" rx=".85"/>
-      <rect x="3" y="13.9" width="18" height="1.7" rx=".85"/>
-    </svg>
-  </button>
+  <h1 class="headline pin pin-ml"><span class="l1"><span class="ln"><span class="w1">Screen</span> <span class="w2">Every</span> <span class="w3">Name,</span></span></span><span class="l2"><span class="ln"><span class="w4">Check</span> <span class="w5">the</span> <b>Evidence</b></span></span></h1>
 
-  <nav class="nav pin pin-tl" id="primary-nav" aria-label="Primary">
-    <ul class="col-a">
-      <li><a class="lead" href="/app/">Console</a></li>
-      <li><a href="/app/queue">Queue</a></li>
-      <li><a href="/app/customers">Customers</a></li>
-    </ul>
-    <ul class="col-b">
-      <li><a class="lead" href="/app/news">Evidence</a></li>
-      <li><a href="/app/benchmark">Benchmark</a></li>
-      <li><a href="https://github.com/aniket-311211/satark">Source</a></li>
-    </ul>
-  </nav>
-
-  <svg class="logo pin pin-tc" viewBox="0 0 60 38" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Satark">
-    <circle cx="22" cy="19" r="14.5" fill="none" stroke="#000" stroke-width="2.6"/>
-    <circle cx="38" cy="19" r="14.5" fill="none" stroke="#000" stroke-width="2.6"/>
-    <path d="M30 6.907A14.5 14.5 0 0 1 30 31.093A14.5 14.5 0 0 1 30 6.907Z" fill="#000"/>
-  </svg>
-
-  <svg class="moon pin pin-tr" viewBox="0 0 21 22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M9.71 20.24 C12.47 19.82 14.94 18.02 16.40 15.36 C17.01 14.25 17.16 13.82 17.37 12.50 C17.53 11.50 17.53 10.75 17.37 9.75 C17.17 8.49 16.93 7.71 16.57 7.16 C16.40 6.89 16.16 6.48 16.05 6.27 C15.94 6.05 15.58 5.54 15.25 5.12 C13.81 3.35 11.91 2.23 11.63 3.02 C11.56 3.22 11.64 3.42 12.19 4.54 C12.91 6.00 13.00 6.40 13.00 8.12 C13.00 9.45 12.89 10.00 12.39 11.35 C12.04 12.27 11.81 12.74 11.37 13.38 C10.35 14.90 8.83 16.25 7.23 17.05 C6.28 17.53 5.73 17.67 4.75 17.67 C3.52 17.67 3.17 17.82 3.17 18.36 C3.17 18.88 3.88 19.31 5.71 19.87 C7.44 20.41 8.11 20.48 9.71 20.24 Z" fill="#000" fill-rule="evenodd"/>
-  </svg>
-
-  <button class="mode pin pin-tr" type="button" aria-pressed="true" aria-label="Show project details">
-    <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#000" fill-rule="evenodd"
-            d="M19 .25A18.75 18.75 0 1 1 19 37.75 18.75 18.75 0 1 1 19 .25Z
-               M19 13A6 6 0 1 0 19 25 6 6 0 1 0 19 13Z"/>
-    </svg>
-  </button>
-
-  <h1 class="headline pin pin-ml"><span class="l1"><span class="ln"><span class="w1">Every</span> <span class="w2">Name</span> <span class="w3">Gets</span></span></span><span class="l2"><span class="ln"><span class="w4">a</span> <span class="w5">Second</span> <b>Look</b></span></span></h1>
-
-  <p class="blurb pin pin-mr">Satark screens companies and directors against five official watchlists, then weighs the <b>evidence</b> before anyone is flagged.</p>
+  <p class="blurb pin pin-mr">Satark checks Indian companies and their directors against sanctions, PEP and debarment lists, and uses date of birth to clear <b>false matches</b> before they reach a reviewer.</p>
 
   <aside class="notes" aria-label="Project details">
     <dl>
-      <div class="note note-r pin pin-mc"><dt>Name match</dt><dd>100 · a perfect string match</dd></div>
-      <div class="note note-l pin pin-mc"><dt>Identity evidence</dt><dd>born 19 years apart · auto-cleared</dd></div>
-      <div class="note note-l pin pin-mc"><dt>Five official lists</dt><dd>29,574 entries · 9,400 revoked</dd></div>
-      <div class="note note-r pin pin-mc"><dt>Real customer book</dt><dd>1,385 from GLEIF + Companies House</dd></div>
+      <div class="note note-r pin pin-mc"><dt>Check 1 · Name match</dt><dd>Indian names, scored 0–100</dd></div>
+      <div class="note note-l pin pin-mc"><dt>Check 2 · Identity</dt><dd>Date of birth confirms or clears it</dd></div>
+      <div class="note note-l pin pin-mc"><dt>Watchlists</dt><dd>29,574 entries on 5 lists</dd></div>
+      <div class="note note-r pin pin-mc"><dt>Customer book</dt><dd>1,385 real customers</dd></div>
     </dl>
   </aside>
 
   <div class="instruments">
-    <a class="brightness pin pin-bl" href="/app/" aria-label="Open the Satark console">
-      <svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="13" cy="13" r="7.5" fill="none" stroke="#000" stroke-width="2"/>
-        <g fill="#000"><circle cx="13.000" cy="1.200" r="1.3"/><circle cx="18.900" cy="2.781" r="1.3"/><circle cx="23.219" cy="7.100" r="1.3"/><circle cx="24.800" cy="13.000" r="1.3"/><circle cx="23.219" cy="18.900" r="1.3"/><circle cx="18.900" cy="23.219" r="1.3"/><circle cx="13.000" cy="24.800" r="1.3"/><circle cx="7.100" cy="23.219" r="1.3"/><circle cx="2.781" cy="18.900" r="1.3"/><circle cx="1.200" cy="13.000" r="1.3"/><circle cx="2.781" cy="7.100" r="1.3"/><circle cx="7.100" cy="2.781" r="1.3"/></g>
-      </svg>
-    </a>
     <div class="tags pin pin-br">
       <a class="tag" href="/app/lists">Sanctions</a>
       <a class="tag" href="/app/lists">PEPs</a>
       <a class="tag" href="/app/lists">Debarments</a>
     </div>
   </div>
+
+  <a class="cue pin pin-bl" href="#lab">Run the benchmark
+    <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1v11M2 7l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+  </a>
 </main>
+
+<!-- The benchmark lab: the console's own instrument world, with Satark's real numbers to handle. -->
+<div class="lab" id="lab">
+  <header class="lab-wrap lab-head">
+    <h2><span class="brand">Satark</span>Don't take the accuracy on trust. Run it.</h2>
+    <p>Everything below is Satark's own measured behaviour on real lists and a real customer book: the held-out benchmark of 1,000 names, the ten ways an Indian name arrives misspelt, the identity rule that clears a perfect name match, and what the matcher did to 1,385 live customers. Drag, switch and type: nothing here is a mock-up.</p>
+    <div class="reading">
+      <div><span class="caps">Watchlists</span><span class="mono">29,574</span></div>
+      <div><span class="caps">Held-out names</span><span class="mono">1,000</span></div>
+      <div><span class="caps">Satark F1</span><span class="mono">0.953</span></div>
+      <div><span class="caps">Fuzzy F1</span><span class="mono">0.572</span></div>
+      <div><span class="caps">Real cases passed</span><span class="mono">34/34</span></div>
+      <div><span class="caps">Median screen</span><span class="mono">3.1 ms</span></div>
+    </div>
+  </header>
+
+  <section class="lab-wrap lab-section" aria-labelledby="x1-h">
+    <h3 class="x-title" id="x1-h">1 · Where you put the alert line</h3>
+    <p class="x-sub">Every screening system draws one line: the score at or above which a name becomes somebody's work. Move it and watch what each system does with the same 1,000 held-out names.</p>
+    <div class="xp xp-threshold">
+      <div class="panel">
+        <div class="panel-head">
+          <span class="caps">Sweep</span>
+          <span class="meta"><span id="metric-name">F1</span> against the alert threshold</span>
+          <span class="end">
+            <span class="seg">
+              <button type="button" data-metric="f1" aria-pressed="true">F1</button>
+              <button type="button" data-metric="precision" aria-pressed="false">Precision</button>
+              <button type="button" data-metric="recall" aria-pressed="false">Recall</button>
+            </span>
+          </span>
+        </div>
+        <div class="panel-body">
+          <p class="legend"><span><i></i>Satark</span><span><i class="f"></i>Fuzzy baseline (RapidFuzz)</span><span>Drag the amber line across the chart.</span></p>
+          <svg class="sweep" id="sweep" viewBox="0 0 800 340" role="img" aria-label="F1 against the alert threshold."></svg>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="caps">Readout</span><span class="meta">at the threshold you chose</span></div>
+        <div class="panel-body">
+          <p class="readout-big"><span class="mono" id="thr-value">80</span><span>alert at this score or above</span></p>
+          <label class="field-label" for="thr-range"><span>Alert threshold</span><span class="mono">50–99</span></label>
+          <input id="thr-range" type="range" min="50" max="99" step="1" value="80">
+          <table class="compare">
+            <thead><tr><th>Measure</th><th class="s">Satark</th><th class="f">Fuzzy</th></tr></thead>
+            <tbody>
+              <tr><td>Precision</td><td class="mono s" id="s-p">—</td><td class="mono f" id="f-p">—</td></tr>
+              <tr><td>Recall</td><td class="mono s" id="s-r">—</td><td class="mono f" id="f-r">—</td></tr>
+              <tr><td>F1</td><td class="mono s" id="s-f1">—</td><td class="mono f" id="f-f1">—</td></tr>
+            </tbody>
+          </table>
+          <div class="plain">
+            <div class="plain-row">
+              <p class="field-label"><span>False alarms per 100 alerts</span></p>
+              <div class="duo">
+                <div id="fa-s"><span>Satark</span><span class="track"><span class="fill s"></span></span><span class="mono">—</span></div>
+                <div id="fa-f"><span>Fuzzy</span><span class="track"><span class="fill f"></span></span><span class="mono">—</span></div>
+              </div>
+            </div>
+            <div class="plain-row">
+              <p class="field-label"><span>Listed people missed, per 100</span></p>
+              <div class="duo">
+                <div id="miss-s"><span>Satark</span><span class="track"><span class="fill s"></span></span><span class="mono">—</span></div>
+                <div id="miss-f"><span>Fuzzy</span><span class="track"><span class="fill f"></span></span><span class="mono">—</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="takeaway" id="thr-takeaway"></p>
+  </section>
+
+  <section class="lab-wrap lab-section" aria-labelledby="x2-h">
+    <h3 class="x-title" id="x2-h">2 · The ten ways a name arrives</h3>
+    <p class="x-sub">A customer file rarely spells a name the way a sanctions list does. The benchmark builds each of these transforms from the real listings, then asks both systems to find the person again. Pick one.</p>
+    <div class="xp xp-variants">
+      <div class="panel">
+        <div class="panel-head"><span class="caps">Transform</span><span class="meta">Satark's recall, 100 names each</span></div>
+        <ul class="variants" id="variants"></ul>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="caps">One real case</span><span class="meta">from the same benchmark run</span></div>
+        <div class="panel-body">
+          <div class="morph">
+            <div><p class="caps">What the file says</p><p class="name" id="morph-query">—</p></div>
+            <p class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
+            <div><p class="caps">What the list says</p><p class="name" id="morph-listed">—</p></div>
+          </div>
+          <div class="gauges">
+            <div class="gauge" id="g-s"><span class="who">Satark</span><span class="track"><span class="fill s"></span><span class="tick" style="left:80%"></span></span><span class="out"></span></div>
+            <div class="gauge" id="g-f"><span class="who">Fuzzy baseline</span><span class="track"><span class="fill f"></span><span class="tick" style="left:80%"></span></span><span class="out"></span></div>
+          </div>
+          <p class="field-label" style="margin-top:6px"><span>The amber line is the threshold Satark ships at, <span class="mono">80</span>: at or above it, a name becomes a case.</span></p>
+          <p class="field-label" style="margin-top:18px"><span>Caught in 100, every transform</span><span class="mono">Satark · fuzzy</span></p>
+          <div class="recall-grid" id="recall-grid"></div>
+          <p class="takeaway" id="variant-takeaway"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lab-wrap lab-section" aria-labelledby="x3-h">
+    <h3 class="x-title" id="x3-h">3 · The second check, which clears people</h3>
+    <p class="x-sub">A perfect name match is not a person. Satark screens the name, then asks what the evidence says. Move your customer's date of birth and watch the same 100-point match change hands.</p>
+    <div class="xp xp-identity">
+      <div class="panel">
+        <div class="panel-head"><span class="caps">The two records</span><span class="meta">a real pair from the book</span></div>
+        <div class="panel-body">
+          <div class="records">
+            <div class="record"><p class="caps">Your customer</p><p class="name">KUMAR, Anand, Dr</p><p>Director of the UK subsidiary of an Indian group, from Companies House.</p></div>
+            <p class="namescore"><span class="mono">100</span><span class="band strong">Strong</span><span>name match, both directions</span></p>
+            <div class="record"><p class="caps">On a watchlist</p><p class="name">Anand Kumar</p><p>Member of the Lok Sabha, Parliament of India, via OpenSanctions. Born 7 August 1974.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="caps">Identity check</span><span class="meta">the date-of-birth rule, as the console runs it</span></div>
+        <div class="panel-body">
+          <div class="dob-controls">
+            <div>
+              <label class="field-label" for="dob-year"><span>Your customer was born</span><span class="mono" id="dob-year-out">1955</span></label>
+              <input id="dob-year" type="range" min="1940" max="2005" step="1" value="1955">
+            </div>
+            <div>
+              <label class="field-label" for="dob-month"><span>Month</span></label>
+              <select id="dob-month">
+                <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                <option value="7">July</option><option value="8">August</option><option value="9" selected>September</option>
+                <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+              </select>
+            </div>
+          </div>
+          <p class="legend"><span><i></i>Your customer</span><span><i class="r"></i>The listed person</span></p>
+          <svg class="timeline" id="timeline" viewBox="0 0 700 92" role="img"></svg>
+          <p class="verdict contradicted" id="verdict"><span class="v-icon" id="v-icon"></span><span class="v-word" id="v-word">—</span><span class="v-why" id="v-why"></span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lab-wrap lab-section" aria-labelledby="x4-h">
+    <h3 class="x-title" id="x4-h">4 · What it did to a real book</h3>
+    <p class="x-sub">Not a demo set: 1,385 companies and directors from GLEIF and Companies House, screened against all five lists. Hover the funnel for what happened at each step, and open any of the 34 hand-labelled cases.</p>
+    <div class="xp xp-book">
+      <div class="panel">
+        <div class="panel-head"><span class="caps">Last full screening</span><span class="meta">every customer, every active listing</span></div>
+        <div class="panel-body">
+          <ul class="funnel" id="funnel"></ul>
+          <p class="funnel-note" id="funnel-note"></p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <span class="caps">34 labelled cases</span>
+          <span class="end">
+            <span class="seg">
+              <button type="button" data-cases="all" aria-pressed="true">All</button>
+              <button type="button" data-cases="match" aria-pressed="false">Should match</button>
+              <button type="button" data-cases="no_match" aria-pressed="false">Shouldn't</button>
+            </span>
+          </span>
+        </div>
+        <div class="panel-body">
+          <div class="cases" id="cases"></div>
+          <div class="case-detail" id="case-detail"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lab-wrap lab-section" aria-labelledby="try-h">
+    <h3 class="x-title" id="try-h">Now screen a name of your own</h3>
+    <p class="x-sub">This is the console's matcher, not a search box: it normalises what you type, scores it against all 29,574 listings, and runs the identity check if you give it a date of birth.</p>
+    <form class="cmd" id="try">
+      <span class="prompt" aria-hidden="true">&gt;</span>
+      <input id="try-name" type="text" autocomplete="off" spellcheck="false" placeholder="A name, in any spelling or script" aria-label="Name to screen">
+      <select id="try-kind" aria-label="Person or company">
+        <option value="">Person or company</option>
+        <option value="person">Person</option>
+        <option value="organization">Company</option>
+      </select>
+      <input id="try-dob" class="dob" type="text" autocomplete="off" placeholder="Born, 1974-08" aria-label="Date of birth, optional">
+      <button id="try-go" type="submit">Screen</button>
+    </form>
+    <p class="presets"><span>Or take one of these:</span>
+      <button type="button" data-preset="राजीव संघवी">राजीव संघवी</button>
+      <button type="button" data-preset="KUMAR, Anand">KUMAR, Anand, born 1955-09</button>
+      <button type="button" data-preset="Hafiz Muhammad Saeed">Hafiz Muhammad Saeed</button>
+    </p>
+    <div class="results" id="results" aria-live="polite"></div>
+  </section>
+
+  <section class="lab-wrap lab-section" aria-labelledby="screens-h">
+    <h3 class="x-title" id="screens-h">Eight screens, one job each</h3>
+    <p class="x-sub">The console is a keyboard instrument: press a screen's number to jump to it, or ⌘K to search from anywhere.</p>
+    <nav class="screens-grid">
+      <a href="/app/"><span class="k"><span class="mono">1</span><b>Overview</b></span><p>What's screened, what's open, and what the evidence said, on one wall of charts.</p><span class="fig"><span class="mono">50</span> alerts raised</span></a>
+      <a href="/app/queue"><span class="k"><span class="mono">2</span><b>Queue</b></span><p>Every case waiting for a decision, strongest match first.</p><span class="fig"><span class="mono">45</span> cases open</span></a>
+      <a href="/app/customers"><span class="k"><span class="mono">3</span><b>Customers</b></span><p>The book, and your own CSV screened on upload.</p><span class="fig"><span class="mono">1,385</span> customers</span></a>
+      <a href="/app/lists"><span class="k"><span class="mono">4</span><b>Lists</b></span><p>Search any listing and see who in your book it touches.</p><span class="fig"><span class="mono">29,574</span> entries on 5 lists</span></a>
+      <a href="/app/news"><span class="k"><span class="mono">5</span><b>Wire</b></span><p>Regulator orders and business press, with the risk stories pulled to the front.</p><span class="fig v"><span class="mono">10</span> regulator and press feeds</span></a>
+      <a href="/app/screen"><span class="k"><span class="mono">6</span><b>Screen</b></span><p>Any name, any script, with both checks and the reasons behind them.</p><span class="fig"><span class="mono">3.1 ms</span> median screen</span></a>
+      <a href="/app/benchmark"><span class="k"><span class="mono">7</span><b>Benchmark</b></span><p>The measurements on this page, re-run against the fuzzy baseline.</p><span class="fig"><span class="mono">0.953</span> F1, against <span class="mono">0.572</span></span></a>
+      <a href="/app/audit"><span class="k"><span class="mono">8</span><b>Audit</b></span><p>Every decision in a chain you can verify in one click.</p><span class="fig"><span class="mono">SHA-256</span> hash chain</span></a>
+    </nav>
+  </section>
+
+  <section class="lab-wrap lab-section">
+    <div class="closebar">
+      <h3>The lab is the product. Go and use it.</h3>
+      <div class="acts">
+        <a class="lbtn primary" href="/app/">Open the console</a>
+        <a class="lbtn" href="/app/screen">Screen a name</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="lab-wrap lab-foot">
+    Satark is an independent portfolio project, not affiliated with any exchange, regulator or data vendor. Matches are leads for a human reviewer, never findings.
+    Watchlist data © <a href="https://www.opensanctions.org">OpenSanctions</a> (CC BY-NC 4.0). Benchmark numbers from <span class="mono">satark eval</span>, seed 7, recorded in the build log. <a href="https://github.com/aniket-311211/satark">Source code</a>.
+  </footer>
+</div>
 <script>
 /* entrance timeline */
 (function(){
@@ -485,10 +626,10 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
   function run(){
     var drop=[{opacity:0,translate:'0 -8rem'},{opacity:1,translate:'0 0'}];
     var rise12=[{opacity:0,translate:'0 12rem'},{opacity:1,translate:'0 0'}];
+    var pop=[{opacity:0,scale:'.9'},{opacity:1,scale:'1'}];
     tween(document.querySelector('.bust'),[{opacity:0,scale:'1.028'},{opacity:1,scale:'1'}],1250,50,HERO);
-    tween(document.querySelector('.logo'),[{opacity:0,scale:'.9'},{opacity:1,scale:'1'}],550,300,HERO);
-    all('.nav a').forEach(function(el,i){tween(el,drop,500,380+i*40,UI);});
-    all('.burger,.moon,.mode').forEach(function(el,i){tween(el,drop,500,440+i*60,UI);});
+    tween(document.querySelector('.wordmark'),pop,550,300,HERO);
+    tween(document.querySelector('.cta'),pop,550,360,HERO);
     all('.headline .ln').forEach(function(el,i){tween(el,[{translate:'0 105%'},{translate:'0 0'}],660,580+i*110,TYPE);});
     tween(document.querySelector('.blurb'),rise12,620,920,UI);
     tween(document.querySelector('.instruments'),rise12,620,1060,UI);
@@ -512,34 +653,103 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
   setTimeout(go,400);
 })();
 
-/* mobile menu */
+/* console transition: authored exit, then hand off to the cross-document view transition */
 (function(){
-  var d=document.documentElement,burger=document.querySelector('.burger'),nav=document.getElementById('primary-nav');
-  if(!burger||!nav)return;
-  function set(open){
-    if(open)d.setAttribute('data-menu','open');else d.removeAttribute('data-menu');
-    burger.setAttribute('aria-expanded',open?'true':'false');
+  var cta=document.querySelector('.cta');
+  if(!cta)return;
+  var EASE='cubic-bezier(.16,1,.3,1)',DUR=520;
+  var exitTweens=[],navigated=false;
+  function reduced(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){return false;}}
+  function navigate(){if(navigated)return;navigated=true;location.href='/app/';}
+  function playExit(){
+    var bust=document.querySelector('.bust');
+    var drift=[].slice.call(document.querySelectorAll('.headline,.blurb,.note,.instruments'));
+    if(bust)exitTweens.push(bust.animate(
+      [{opacity:1,scale:'1'},{opacity:0,scale:'1.05'}],
+      {duration:DUR,easing:EASE,fill:'forwards'}));
+    drift.forEach(function(el,i){
+      exitTweens.push(el.animate(
+        [{opacity:1,translate:'0 0'},{opacity:0,translate:'0 -10rem'}],
+        {duration:DUR,delay:Math.min(i*15,60),easing:EASE,fill:'forwards'}));
+    });
+    Promise.all(exitTweens.map(function(t){return t.finished.catch(function(){});})).then(navigate);
+    setTimeout(navigate,DUR+200);
   }
-  burger.addEventListener('click',function(e){e.stopPropagation();set(d.getAttribute('data-menu')!=='open');});
-  document.addEventListener('click',function(e){if(d.getAttribute('data-menu')==='open'&&!nav.contains(e.target))set(false);});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&d.getAttribute('data-menu')==='open'){set(false);burger.focus();}});
-  nav.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('a'))set(false);});
+  cta.addEventListener('click',function(e){
+    if(e.defaultPrevented||e.button===1||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+    if(!('animate' in Element.prototype)||reduced())return;
+    e.preventDefault();
+    playExit();
+  });
+  window.addEventListener('pageshow',function(e){
+    if(!e.persisted)return;
+    exitTweens.forEach(function(t){try{t.cancel();}catch(err){}});
+    exitTweens=[];
+    navigated=false;
+  });
 })();
 
-/* notes toggle: the ring button shows or hides the project figures; inert where the stacked layouts hide them */
+/* the figure on graphite: a WebGL key lifts the video's light backdrop, so the figure keeps its own colour on the dark ground.
+   Without WebGL (or if the frame can't be read) the plain video shows instead. */
 (function(){
-  var d=document.documentElement,btn=document.querySelector('.mode');
-  if(!btn)return;
-  var stacked;
-  try{stacked=matchMedia('(max-aspect-ratio:13/10), (max-width:899px)');}catch(e){}
-  function sync(){btn.disabled=!!(stacked&&stacked.matches);}
-  if(stacked){stacked.addEventListener?stacked.addEventListener('change',sync):stacked.addListener(sync);}
-  sync();
-  btn.addEventListener('click',function(){
-    var hide=d.getAttribute('data-notes')!=='off';
-    if(hide)d.setAttribute('data-notes','off');else d.removeAttribute('data-notes');
-    btn.setAttribute('aria-pressed',hide?'false':'true');
-  });
+  var bust=document.querySelector('.bust'),v=document.querySelector('.bust-v');
+  if(!bust||!v)return;
+  var c=document.createElement('canvas');
+  c.className='bust-c';c.setAttribute('aria-hidden','true');
+  var gl=c.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false});
+  if(!gl)return;
+  function shader(type,src){var s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
+  var prog=gl.createProgram();
+  gl.attachShader(prog,shader(gl.VERTEX_SHADER,'attribute vec2 p;varying vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}'));
+  gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,[
+    'precision mediump float;varying vec2 uv;uniform sampler2D t;uniform vec2 k;uniform vec2 px;',
+    // the backdrop is one flat pink-grey (sampled rgb .924/.873/.907; corners vary by < .023), so a tight key lifts it
+    'const vec3 B=vec3(.924,.873,.907);',
+    'float key(vec2 q){return smoothstep(.052,.1,distance(texture2D(t,q).rgb,B));}',
+    // along one axis: is there figure on both sides (a hole), and is there figure on either side (not a lone speck)?
+    'vec2 axis(vec2 q,vec2 d){vec2 r1=d*px*6.,r2=d*px*14.;',
+    '  float a=max(key(q+r1),key(q+r2)),b=max(key(q-r1),key(q-r2));return vec2(min(a,b),max(a,b));}',
+    'void main(){vec2 q=(uv-.5)*k+.5;vec3 c=texture2D(t,q).rgb;float a=key(q);',
+    '  vec2 h=vec2(0.);vec2 s;',
+    '  s=axis(q,vec2(1.,0.));h=max(h,s);s=axis(q,vec2(0.,1.));h=max(h,s);',
+    '  s=axis(q,vec2(.707,.707));h=max(h,s);s=axis(q,vec2(.707,-.707));h=max(h,s);',
+    // close pale reflections the key punched through, then drop isolated compression specks
+    '  a=min(max(a,h.x),h.y);',
+    '  float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,1.12);',
+    // squaring the colour weight darkens the half-keyed edge, so no pale fringe rings the silhouette
+    '  gl_FragColor=vec4(c*a*a,a);}'
+  ].join('\n')));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS))return;
+  gl.useProgram(prog);
+  var buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  var loc=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  var tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);
+  [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(function(w){gl.texParameteri(gl.TEXTURE_2D,w,gl.CLAMP_TO_EDGE);});
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  var kLoc=gl.getUniformLocation(prog,'k'),pxLoc=gl.getUniformLocation(prog,'px'),failed=false;
+  bust.appendChild(c);
+  function fail(){failed=true;bust.classList.remove('keyed');if(c.parentNode)c.parentNode.removeChild(c);}
+  function draw(){
+    if(failed||v.readyState<2||!v.videoWidth)return;
+    var r=bust.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+    var w=Math.max(1,Math.round(r.width*dpr)),h=Math.max(1,Math.round(r.height*dpr));
+    if(c.width!==w||c.height!==h){c.width=w;c.height=h;gl.viewport(0,0,w,h);}
+    var s=Math.max(r.width/v.videoWidth,r.height/v.videoHeight);  // object-fit: cover
+    gl.uniform2f(kLoc,r.width/(v.videoWidth*s),r.height/(v.videoHeight*s));
+    gl.uniform2f(pxLoc,1/v.videoWidth,1/v.videoHeight);
+    try{gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,v);}catch(e){fail();return;}
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    bust.classList.add('keyed');
+  }
+  function onFrame(){draw();v.requestVideoFrameCallback(onFrame);}
+  function loop(){draw();if(!v.paused)requestAnimationFrame(loop);}
+  if(v.requestVideoFrameCallback)v.requestVideoFrameCallback(onFrame);
+  ['loadeddata','seeked'].forEach(function(ev){v.addEventListener(ev,draw);});
+  v.addEventListener('play',function(){if(!v.requestVideoFrameCallback)loop();});
+  window.addEventListener('resize',draw);
+  draw();
 })();
 
 /* the figure's turn: mouse-scrub video */
@@ -590,5 +800,6 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
   document.addEventListener('visibilitychange',reset);
 })();
 </script>
+<script type="module" src="/landing/lab.js"></script>
 </body>
 </html>

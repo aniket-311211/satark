@@ -43,14 +43,14 @@ export function ScreenForm({ values, onChange, onSubmit, submitting }: {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         <div className="space-y-1.5 sm:col-span-2 lg:col-span-2">
-          <Label htmlFor="screen-name">Name</Label>
+          <Label htmlFor="screen-name" className="label-caps text-ink-3">Name</Label>
           <Input id="screen-name" value={values.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. KUMAR, Anand"
             aria-invalid={!!error} aria-describedby={error ? "screen-name-error" : undefined} required />
           {error && <p id="screen-name-error" className="text-xs text-strong">{error}</p>}
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="screen-kind">Kind</Label>
+          <Label htmlFor="screen-kind" className="label-caps text-ink-3">Kind</Label>
           <Select value={values.kind || "any"} onValueChange={(v) => set("kind", v === "any" ? "" : (v as "person" | "org"))}>
             <SelectTrigger id="screen-kind" className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -60,19 +60,19 @@ export function ScreenForm({ values, onChange, onSubmit, submitting }: {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="screen-dob">Date of birth</Label>
-          <Input id="screen-dob" value={values.birth_date} onChange={(e) => set("birth_date", e.target.value)} placeholder="YYYY-MM-DD or YYYY-MM" />
+          <Label htmlFor="screen-dob" className="label-caps text-ink-3">Date of birth</Label>
+          <Input id="screen-dob" value={values.birth_date} onChange={(e) => set("birth_date", e.target.value)} placeholder="YYYY-MM-DD or YYYY-MM" className="font-mono" />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="screen-nationality">Nationality</Label>
+          <Label htmlFor="screen-nationality" className="label-caps text-ink-3">Nationality</Label>
           <Input id="screen-nationality" value={values.nationality} onChange={(e) => set("nationality", e.target.value)} placeholder="e.g. British" />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="screen-country">Country (ISO-2)</Label>
+          <Label htmlFor="screen-country" className="label-caps text-ink-3">Country (ISO-2)</Label>
           <Input id="screen-country" value={values.country} onChange={(e) => set("country", e.target.value.toUpperCase().slice(0, 2))}
-            placeholder="IN" maxLength={2} />
+            placeholder="IN" maxLength={2} className="font-mono uppercase" />
         </div>
       </div>
 

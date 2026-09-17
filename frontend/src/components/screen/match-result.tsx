@@ -15,8 +15,9 @@ export function MatchResult({ match, queryName, threshold }: { match: Match; que
   return (
     <li className="border-b border-rule py-6 first:pt-0 last:border-0">
       {match.status === "historical" && (
-        <p className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-sunken px-2.5 py-1 text-xs font-medium text-ink-2">
-          Historical listing: would not raise an alert
+        <p className="mb-3 flex items-center gap-1.5 text-xs text-ink-3">
+          <span aria-hidden className="h-1.5 w-4 self-end bg-ink-3" />
+          <span className="text-ink-2">Historical listing</span>: it would not raise an alert
         </p>
       )}
       <div className="grid gap-4 md:grid-cols-2">

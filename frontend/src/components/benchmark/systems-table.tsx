@@ -19,7 +19,7 @@ export function MethodLine({ report }: { report: EvalReport }) {
 
 export function SystemsTable({ report }: { report: EvalReport }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-rule bg-surface">
+    <div className="overflow-x-auto">
       <Table className="tabular">
         <TableHeader>
           <TableRow className="border-rule hover:bg-transparent">
@@ -39,7 +39,12 @@ export function SystemsTable({ report }: { report: EvalReport }) {
             const satark = key === "satark";
             return (
               <TableRow key={key} className={cn("border-rule", satark && "font-medium")}>
-                <TableCell className="py-3 text-ink">{SYSTEM_LABEL[key]}</TableCell>
+                <TableCell className="py-3 text-ink">
+                  <span className="flex items-center gap-2">
+                    {satark && <span className="size-1.5 shrink-0 bg-amber" aria-hidden />}
+                    {SYSTEM_LABEL[key]}
+                  </span>
+                </TableCell>
                 <TableCell className="py-3 text-right font-mono text-ink">{s.threshold}</TableCell>
                 <TableCell className="py-3 text-right font-mono text-ink">{pct(s.precision)}</TableCell>
                 <TableCell className="py-3 text-right font-mono text-ink">{pct(s.recall)}</TableCell>

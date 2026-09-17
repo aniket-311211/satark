@@ -52,8 +52,8 @@ export function RegistryStatus({ details }: { details: CustomerDetails }) {
     <span className="flex flex-wrap items-center gap-1">
       {flags.map((f) => (
         <span key={f.label} className={cn(
-          "inline-flex h-6 items-center gap-1 whitespace-nowrap rounded-full px-2.5 text-xs",
-          f.tone === "warn" ? "bg-probable-soft font-medium text-probable" : f.tone === "quiet" ? "bg-sunken text-ink-2" : "text-ink-2",
+          "inline-flex h-6 items-center gap-1 whitespace-nowrap rounded-sm px-2.5 text-xs",
+          f.tone === "warn" ? "bg-amber-soft font-medium text-amber" : f.tone === "quiet" ? "bg-sunken text-ink-2" : "text-ink-2",
         )}>
           {f.tone === "warn" && <AlertTriangle className="size-3.5" aria-hidden />}
           {f.label}
