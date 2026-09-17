@@ -125,7 +125,9 @@ components:
 
 The console is modelled on the screens trade-surveillance and market-data desks live in. Every name is an instrument, and every hit prints like a quote with its evidence on the tape beside it. Graphite glass panels sit on a near-black ground, divided by hairlines. The look is set by flat functional colour and tabular figures, never by decoration. The scene that set it: an analyst on a bank's financial-crime desk works a queue across a full shift, on two monitors under office strip lights.
 
-There are two speeds on one grammar. The story screens (Overview, News desk) are monitor walls: many small, dense panels that orient a skimming reviewer in seconds. The working screens (Review queue, Case file, Customers, Audit) are dense tables and side-by-side checks that reward focus. The landing page at `/` is a separate, pinned world (the rose-paper iridescent figure). The console deliberately does not share it, and the two meet only through a view-transition morph of the wordmark.
+The static landing page at `/` keeps its own figure-and-pins composition but stands on the same graphite ground with bone ink, and its video figure is keyed onto that ground, so entering the console never flashes from light to dark.
+
+There are two speeds on one grammar. The story screens (Overview, News desk) are monitor walls: many small, dense panels that orient a skimming reviewer in seconds. The working screens (Review queue, Case file, Customers, Audit) are dense tables and side-by-side checks that reward focus. The landing page and the console meet through a view-transition morph of the wordmark.
 
 The owner rejected the previous look as plain, white and generic. Paper-white grounds, soft cards and a single decorative accent are the anti-reference.
 
@@ -174,7 +176,7 @@ A dark neutral field carrying a full palette of flat signal colours, each with e
 
 ### Hierarchy
 - **Display** (Archivo 700–800, wide caps, 40–72px): only the News desk nameplate "SATARK WIRE" and the "SATARK" wordmark (15px, 0.16em tracking, width 125).
-- **Headline** (600, 26px, width 112, -0.012em): page titles. Only a record identifier (CASE-033) may precede one, in amber mono; screens are never labelled with their tab code.
+- **Headline** (600, 26px, width 112, -0.012em): page titles. A screen's title is branded: "SATARK" in the wordmark's face (800, wide caps, 0.1em tracking) and then the screen name ("SATARK Queue"). A record page is not branded; a record identifier (CASE-033) may precede its title in amber mono. Screens are never labelled with their tab code.
 - **Title** (600, 17px, width 112): section headings and lead story heads (larger on the News desk lead).
 - **Body** (400, 13–14px, 1.5): descriptions, takeaways, table text. Prose stays within 68–80ch.
 - **Label** (600, 11.5px, 0.07em, uppercase, width 78): panel labels, column heads, field names.

@@ -304,3 +304,34 @@ The first console read as plain, white and generic. The owner asked for:
   8. Two screens counted "strong" cases over different sets.
 - **Round 2: six resolved.** Two fixes were partial, and the round found two regressions (News overflowing on phones, and a risk-desk count that disagreed with the masthead).
 - **After round 2.** Those four were fixed and checked by screenshot, but not re-reviewed: two rounds is the review budget.
+
+## Step 8: Your own customers, a working Lists screen, a seamless front door
+
+After using the redesign, the owner raised five problems:
+- the landing page's copy didn't say what Satark does;
+- its light page jarred against the dark console;
+- the Watchlists page only restated static counts;
+- the ⌘K button in the command bar collapsed into an unlabelled box;
+- the customer upload that had been planned was never built.
+
+**What changed:**
+
+| Area | Change |
+|---|---|
+| Landing | On the console's graphite ground with bone ink. The figure video has a pale backdrop, so a WebGL shader keys it out (details below). The copy now names the two checks, the lists and the book; the decorative moon, ring and dial controls are gone. |
+| Import customers | `POST /customers/import` validates a CSV with a dry run: loose headers are mapped, and bad rows are rejected with line and reason. Importing adds the valid rows as group D, upserted by `customer_id` (or name + date of birth), and screens only those customers. The console panel previews, imports and links each resulting case. |
+| Satark Lists | `GET /entities` browses the 29,574 listings by name, list, status and kind. `GET /entities/{id}/exposure` reverse-screens a listing's name and aliases against the customer book and runs the identity check on each hit. The page turns the lists into selectors, a searchable listing browser, and a record-plus-exposure panel, all addressable by URL. |
+| Branding | Screen titles read "SATARK Overview", "SATARK Queue" and so on. Tabs and the command menu use the same short names. |
+| ⌘K | The button always says "Search" (the full prompt from 1536 px). The desk clocks give way below 1400 px instead of squeezing it. |
+
+**How the landing key works.** The backdrop colour turned out to be almost flat: rgb .924/.873/.907, varying by less than .023 across the frame, while 99.5% of face pixels sit further than .05 from it. The shader:
+- applies a tight colour-distance key;
+- closes the few pale reflections the key punches through (figure on both sides of an axis within 14 px);
+- drops isolated compression specks;
+- darkens half-keyed edges so no fringe rings the silhouette.
+
+Without WebGL the plain video shows instead.
+
+**Checked.**
+- 122 backend tests pass, including new tests for the upload parser, the import (dry run writes nothing, a re-upload updates, the audit chain holds) and reverse screening.
+- The import was run end to end in the browser against a copy of the database: 4 rows imported, 2 rejected with reasons, 4 alerts opened, and 1 match auto-cleared by date of birth. The copy was then deleted.

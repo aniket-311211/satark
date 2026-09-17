@@ -15,7 +15,7 @@ Satark screens a real customer book against five official watchlists and never t
 | | Source | Size |
 |---|---|---|
 | **Watchlists** | OpenSanctions full exports of NSE/SEBI debarments, Parliament of India, MHA UAPA bans, UN Security Council, UK Sanctions List | 29,574 entries; 9,400 NSE entries are *historical* (revoked or expired orders) and don't alert |
-| **Customer book** | **A**: the 840 Indian entities whose LEIs are issued by London Stock Exchange LEI Ltd (GLEIF) · **B**: 114 UK subsidiaries of Indian groups with their 400 current directors (GLEIF Golden Copy + Companies House) · **C**: 31 companies on NSE's active debarment list that hold an LEI | 1,385 customers |
+| **Customer book** | **A**: the 840 Indian entities whose LEIs are issued by London Stock Exchange LEI Ltd (GLEIF) · **B**: 114 UK subsidiaries of Indian groups with their 400 current directors (GLEIF Golden Copy + Companies House) · **C**: 31 companies on NSE's active debarment list that hold an LEI · **D**: your own CSV, uploaded in the console and screened on import | 1,385 customers + uploads |
 | **News** | An owned full-text index of 10 regulator and publisher feeds (SEBI, RBI, FCA, NCA, The Hindu, BusinessLine, Indian Express, Mint, Times of India, NDTV Profit) | searched locally, no call limits |
 
 Nothing in the book is synthetic. The old Faker book survives only as `satark seed --synthetic`, next to the benchmark.
@@ -110,17 +110,21 @@ The design system is recorded in [DESIGN.md](DESIGN.md).
 
 ![Satark case file](docs/screens/case-file.png)
 
+![Satark lists with reverse screening](docs/screens/lists.png)
+
 ![Satark news desk](docs/screens/news-desk.png)
 
 | Screen | What it does |
 |---|---|
-| **Landing** `/` | One static page: a translucent figure scrubbed by mouse travel, the project's real numbers around it, and "Let's get started", which hands over to the console with a view transition |
+| **Landing** `/` | One static page on the console's graphite: a translucent figure scrubbed by mouse travel, keyed onto the dark ground with a WebGL shader, the two checks and the real data around it, and "Let's get started", which hands over to the console with a view transition |
 | **Overview** | A monitor wall: live counts, open cases by band, a screening funnel that explains each step, identity-evidence verdicts, the alert score histogram, a customer-group × list heatmap, the watchlist board, matching quality and news pulse |
 | **Review queue** | Cases by status with band, score against the threshold, identity verdict and lists hit; state in line form; auto-cleared alerts with the evidence that cleared them |
 | **Case file** | Name match (token alignment drawn as leader lines) and identity evidence side by side, the listing, registry context, maker-checker actions that say why they're blocked, the case's audit chain |
-| **Customers** | All 1,385 with group, kind and registry status; profiles with an ownership diagram, the GLEIF-vs-PSC mismatch, directors and cases |
-| **News desk** | A wire-service front page: a lead story, a risk desk of adverse-media categories, regulator and press columns, coverage analytics, and a name dossier that shows each event inside its source with four grounding checks |
-| **Watchlists · Screen · Benchmark · Audit** | List board with active vs historical; screen any name through both checks; threshold sweeps and the 34 real cases; chain verification and events by action |
+| **Customers** | All 1,385 with group, kind and registry status; profiles with an ownership diagram, the GLEIF-vs-PSC mismatch, directors and cases. **Import customers** checks your own CSV row by row (rejects with line and reason), then adds the valid rows as group D and screens them |
+| **Lists** | Search all 29,574 listings by name, list, status and kind; open a record as the authority published it; **reverse screening** shows who in the book the listing matches, with the identity check and any open case |
+| **Wire** (news) | A wire-service front page: a lead story, a keyword-tagged risk desk, regulator and press desks, coverage analytics, and a name dossier that shows each event inside its source with four grounding checks |
+| **Screen · Benchmark · Audit** | Screen any name through both checks; threshold sweeps and the 34 real cases; chain verification and events by action |
+| **⌘K** | The command menu: find a customer, screen any name, import a file, or jump to a screen |
 
 ## Run it
 
@@ -138,6 +142,8 @@ make eval-real   # the 34 real labelled cases
 ```
 
 Rebuilding the customer book from source is optional: the committed snapshots are enough. `make book` re-fetches GLEIF, and for group B it needs a free Companies House key in `.env` as `SATARK_COMPANIES_HOUSE_KEY`. Director details are personal data, so they're cached locally in `data/cache/` and never committed.
+
+To screen your own customers, open **Satark Customers → Import customers**, or `POST /customers/import` with `{"csv": "...", "dry_run": true}` first. Columns are `name` (required), `kind`, `date_of_birth`, `nationality`, `country`, `customer_id`; `GET /customers/import/template` returns a sample file. Re-uploading a `customer_id` updates that customer rather than duplicating it.
 
 The full stack (Postgres, Redis Streams worker, nginx) runs with `docker compose up --build -d`, then `docker compose exec api satark seed`.
 
