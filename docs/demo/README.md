@@ -2,11 +2,11 @@
 
 | File | Length | Size | What it is |
 |---|---|---:|---|
-| [`satark-highlight.mp4`](satark-highlight.mp4) | 45 s | 2.0 MB | The cut: the threshold drag, the identity check clearing a perfect name match, a live screen, the four-eyes refusal and approval, the verified audit chain |
-| [`satark-walkthrough.mp4`](satark-walkthrough.mp4) | 3 min 46 s | 8.7 MB | The whole product: the benchmark lab, then all eight console screens |
+| [`satark-demo.mp4`](satark-demo.mp4) | 1 min 17 s | 4.4 MB | The demo: the front page, then all eight console screens in order, one feature at a time |
+| [`satark-walkthrough.mp4`](satark-walkthrough.mp4) | 3 min 46 s | 8.7 MB | The long form, with the four-eyes decision and a live CSV import in full |
 | [`threshold.gif`](threshold.gif) | 12 s | 1.5 MB | The looping still the README opens with |
 
-Both videos are 1280×720 with on-screen captions and a synthesised score. Each one stays under GitHub's 10 MB limit for playing a file in the browser, so a reader can watch either without downloading it.
+Both videos are 1280×720 with on-screen captions and a synthesised score: a fast 120 BPM bed under the demo, a slower one under the walkthrough. Both play in the browser at [aniket-311211.github.io/satark](https://aniket-311211.github.io/satark/).
 
 The run is scripted with Playwright (`Discover → Rehearse → Record`): a cursor overlay, a caption bar, and a still saved at every beat. It runs against a **copy of the database**, so the maker-checker decision and the CSV import in the video are real writes — nothing in it is a mock-up. The only cut is the hand-off from the landing page to the console: headless Chrome freezes on the cross-document view transition, so it is recorded as a cut rather than the sweep you get in a real browser.
 

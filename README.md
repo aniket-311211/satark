@@ -10,14 +10,11 @@ Satark screens a real customer book against five official watchlists, and it nev
 
 ## Watch it run
 
-[![The benchmark lab: drag the alert threshold and watch both systems move](docs/demo/threshold.gif)](https://aniket-311211.github.io/satark/)
+[![Satark: the benchmark lab on the front page](docs/demo/threshold.gif)](https://aniket-311211.github.io/satark/)
 
-### ▶ [Play both videos here](https://aniket-311211.github.io/satark/)
+[![Play the demo](https://img.shields.io/badge/Play_the_demo-F0A94A?style=for-the-badge&labelColor=0E1116)](https://aniket-311211.github.io/satark/)
 
-- **The 45-second cut** — the threshold drag, the identity check clearing a perfect name match, a live screen, the four-eyes refusal and approval, and the audit chain.
-- **The full 4-minute walkthrough** — the benchmark lab, then all eight console screens.
-
-GitHub does not play a video stored in a repository, so both sit on a page that does: **[aniket-311211.github.io/satark](https://aniket-311211.github.io/satark/)**. The files themselves are [`docs/demo/satark-highlight.mp4`](docs/demo/satark-highlight.mp4) and [`docs/demo/satark-walkthrough.mp4`](docs/demo/satark-walkthrough.mp4), and both carry sound and captions. The walkthrough covers a case decided under the four-eyes rule, a CSV imported and screened live, reverse screening from a listing back into the book, and the audit chain re-verified with the new decision in it. The run is against a copy of the database, so the decision and the import in the video are real writes, not mock-ups. [Every beat as a still.](docs/demo/)
+The 80-second demo takes the front page and all eight console screens in order. The full 4-minute walkthrough is on the same page.
 
 ---
 
