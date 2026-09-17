@@ -188,17 +188,19 @@ def create_app(service: Satark | None = None) -> FastAPI:
 
     @app.get("/news")
     def news(request: Request, limit: int = Query(60, le=500), kind: str = ""):
+        from .media.extract import classify
         from .media.feeds import recent
 
-        return recent(news_db(request), limit=limit, kind=kind)
+        return [{**item, "category": classify(f"{item['title']} {item['summary']}")} for item in recent(news_db(request), limit=limit, kind=kind)]
 
     @app.get("/news/search")
     def news_search(request: Request, q: str = Query(min_length=2, max_length=200), limit: int = Query(20, le=100)):
         from dataclasses import asdict as as_dict
 
+        from .media.extract import classify
         from .media.feeds import search
 
-        return [as_dict(a) for a in search(news_db(request), q, limit)]
+        return [{**as_dict(a), "category": classify(f"{a.title} {a.text}")} for a in search(news_db(request), q, limit)]
 
     @app.get("/news/feeds")
     def news_feeds(request: Request):

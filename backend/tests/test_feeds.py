@@ -110,3 +110,18 @@ def test_all_punctuation_subject_returns_empty_without_raising(tmp_path):
     assert search(db, "...") == []
     assert search(db, "()") == []
     assert search(db, "M/s. (India) & Co.") is not None
+
+
+def test_news_endpoint_tags_each_article_with_its_risk_category(service, tmp_path):
+    from fastapi.testclient import TestClient
+
+    from satark.api import create_app
+
+    service.settings.data_dir = tmp_path
+    (tmp_path / "cache").mkdir()
+    poll(tmp_path / "cache" / "news.db", feeds=(FEED_A,), fetch=fake_fetch({FEED_A.url: (200, {}, RSS_FEED.encode())}))
+    with TestClient(create_app(service)) as client:
+        recent = {item["title"]: item["category"] for item in client.get("/news").json()}
+        found = client.get("/news/search", params={"q": "Sanghvi"}).json()
+    assert recent == {"SEBI bars Rajiv Sanghvi from securities market for two years": "market_abuse", "Rajiv Kapoor opens new cafe in Pune": None}
+    assert found[0]["category"] == "market_abuse"
