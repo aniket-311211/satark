@@ -98,17 +98,29 @@ RapidFuzz wins on typos because Satark only accepts close phonetic keys; looseni
 
 ## The console
 
+The console is styled as a trade-surveillance terminal:
+- graphite panels, with flat colour where each hue means one thing (amber for attention, cyan for navigation, red to sand for match risk, green for cleared, violet for regulators);
+- Archivo for words and Martian Mono for figures;
+- numbered function tabs (keys 1–8);
+- a status tape running the audit chain along the bottom.
+
+The design system is recorded in [DESIGN.md](DESIGN.md).
+
+![Satark overview](docs/screens/overview.png)
+
 ![Satark case file](docs/screens/case-file.png)
+
+![Satark news desk](docs/screens/news-desk.png)
 
 | Screen | What it does |
 |---|---|
-| **Landing** `/` | One static page: a translucent figure scrubbed by mouse travel, with the project's real numbers around it |
-| **Overview** | Screening sieve by group, watchlist active vs historical, the matching-quality snapshot |
-| **Review queue** | Cases by status with band, identity verdict and lists hit, plus auto-cleared alerts |
-| **Case file** | Name match and Identity evidence side by side, the listing with its SEBI/NSE order documents, maker-checker actions, the case's audit chain |
-| **Customers** | All 1,385 with registry status, ownership, PSCs and cases |
-| **News desk** | A subject brief that shows each extracted event inside its source headline with four grounding checks; a wire that leads with regulator orders, with full-text search; feed health |
-| **Benchmark · Audit · ⌘K screen** | Threshold sweeps and the 34 real cases; chain verification; screen any name with both checks |
+| **Landing** `/` | One static page: a translucent figure scrubbed by mouse travel, the project's real numbers around it, and "Let's get started", which hands over to the console with a view transition |
+| **Overview** | A monitor wall: live counts, open cases by band, a screening funnel that explains each step, identity-evidence verdicts, the alert score histogram, a customer-group × list heatmap, the watchlist board, matching quality and news pulse |
+| **Review queue** | Cases by status with band, score against the threshold, identity verdict and lists hit; state in line form; auto-cleared alerts with the evidence that cleared them |
+| **Case file** | Name match (token alignment drawn as leader lines) and identity evidence side by side, the listing, registry context, maker-checker actions that say why they're blocked, the case's audit chain |
+| **Customers** | All 1,385 with group, kind and registry status; profiles with an ownership diagram, the GLEIF-vs-PSC mismatch, directors and cases |
+| **News desk** | A wire-service front page: a lead story, a risk desk of adverse-media categories, regulator and press columns, coverage analytics, and a name dossier that shows each event inside its source with four grounding checks |
+| **Watchlists · Screen · Benchmark · Audit** | List board with active vs historical; screen any name through both checks; threshold sweeps and the 34 real cases; chain verification and events by action |
 
 ## Run it
 
@@ -149,4 +161,4 @@ The full stack (Postgres, Redis Streams worker, nginx) runs with `docker compose
 
 ## Stack
 
-Python 3.12 · FastAPI · SQLAlchemy 2 · SQLite / PostgreSQL · Redis Streams · RapidFuzz · LangGraph · SQLite FTS5 · MCP · Prometheus · React 19 · TypeScript · Vite · Tailwind v4 · shadcn/ui · TanStack Query & Table · Recharts · GitHub Actions · pytest
+Python 3.12 · FastAPI · SQLAlchemy 2 · SQLite / PostgreSQL · Redis Streams · RapidFuzz · LangGraph · SQLite FTS5 · MCP · Prometheus · React 19 · TypeScript · Vite (multi-page, cross-document view transitions) · Tailwind v4 · shadcn/ui · TanStack Query & Table · Recharts · GitHub Actions · pytest

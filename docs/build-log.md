@@ -248,3 +248,45 @@ The old frontend was one page of API calls. It's now two surfaces built by Vite 
 | Chart legend swatches pointed at CSS variables that exist only inside the chart | the swatches read the chart config directly |
 
 **Not verified by screenshot:** an *unverified* news event (quote struck through, "not found in source"). With the keyword extractor, the current corpus can't produce one: the quote is the headline, and the full-text search guarantees the subject is present. That path is code-reviewed only. It becomes reachable with the LLM extractor.
+
+## Step 7: Redesign as a surveillance terminal
+
+The first console read as plain, white and generic. The owner asked for:
+- new fonts and colours;
+- more kinds of charts on the Overview;
+- a News desk that reads like a newspaper front page rather than a list;
+- on the landing page: the Satark name, a "Let's get started" button, and no top-left nav or placeholder mark.
+
+**How the direction was chosen.** The redesign ran through the impeccable skill.
+1. A product record came first (`PRODUCT.md`).
+2. Three short questions settled the audience (story pages for skimmers, dense pages for analysts), the News desk form (front page), and scope (the console diverges; the landing only gets the listed fixes).
+3. A seeded direction roll produced the options, and the owner locked **Surveillance Terminal**: the console as an exchange trade-surveillance screen.
+4. The visual system is recorded in [DESIGN.md](../DESIGN.md).
+
+**What changed:**
+
+| Area | Change |
+|---|---|
+| World | Graphite panels on a near-black ground, hairline rules, bone text; flat colour where each hue means one thing (amber attention, cyan navigation, red-to-sand match risk, green cleared, violet regulators); Archivo on its width axis for words, Martian Mono for figures; square 2px corners |
+| Shell | A command bar with numbered function tabs (keys 1–8), London and Mumbai clocks, the demo identity, and a status tape that runs the audit chain along the bottom of every screen |
+| Overview | A monitor wall: live counts; open cases by band; a screening funnel that says why each count changes; identity verdicts; alert score histogram; group × list heatmap; watchlist board; matching quality; news pulse |
+| News desk | A wire-service front page: nameplate, regulator ticker, lead story, risk desk by adverse-media category, regulator and press columns, coverage analytics, name dossier, search, feed health |
+| Working pages | The queue, case file, customers, watchlists, screen, benchmark and audit screens rebuilt densely, with state shown in line form as well as colour |
+| Backend | `/news` and `/news/search` tag each article with the adverse-media keyword category the brief extractor already uses (tested) |
+| Landing | Wordmark and "Let's get started" at top centre, no nav or mark; clicking plays a short exit and hands over through a cross-document view transition, with the wordmark morphing into the console's |
+
+**Built by a swarm.** Five agents worked in parallel from written briefs: landing, overview, news desk, working screens, and the remaining screens. A coordinator owned the tokens, the shell and the shared components, then checked every page by screenshot at 1440 and 390 px before committing.
+
+**Defects found while checking:**
+
+| Defect | Fix |
+|---|---|
+| At 1280 px the function tabs ran into the search box | short tab names and a narrower search below 1536 px |
+| The funnel put "auto-cleared" between "alerts raised" and "open alerts", so its arrows read as nonsense | each step now states why the count changed |
+| The Overview counted 7 risk-tagged stories and the News desk 29 | both count the same loaded windows |
+| SEBI and FCA publish dates don't parse, which broke newest-first sorting | sort falls back to fetch time |
+| The lead story printed an entire article body | clamped to four lines |
+| Nationality wrapped mid-word, and names were set in monospace | words use Archivo; mono only for dates and codes |
+| The news agent removed the manual feed poll to avoid writing during its checks | restored |
+
+`tsc` and `vite build` are clean, 118 backend tests pass, and no route scrolls horizontally at 1440 or 390 px. The design detector flags one intentional case: the landing page clips overflow to hold its single-screen hero.
