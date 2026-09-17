@@ -180,13 +180,13 @@ digest = hashlib.sha256(body.encode()).hexdigest()
 
 `prev` is the current head hash, and the genesis hash is 64 zeros. `Satark.audit` reads the head from
 the single `audit_head` row, then moves it with a compare-and-set update on `WHERE id = 1 AND hash =
-prev`. A concurrent writer updates 0 rows and gets an `AuditConflict`, which the API returns as 409.
-Two processes cannot fork the chain.
+prev`. A concurrent writer updates 0 rows and gets an `AuditConflict`, which the API returns as 409,
+so two processes cannot fork the chain.
 
-`GET /audit/verify` calls `Satark.verify_audit`. It walks the events in id order and checks three
-things: each `prev_hash` links to the previous hash, each recomputed digest equals the stored hash, and
-the head equals the last hash. It returns `{"ok": true, "events": n, "head": h}` or `{"ok": false,
-"events": n, "broken_at": id, "reason": "..."}`. The Audit screen shows that result.
+`GET /audit/verify` calls `Satark.verify_audit`, which walks the events in id order and checks three
+things: each `prev_hash` links to the previous hash, each recomputed digest equals the stored hash,
+and the head equals the last hash. It returns `{"ok": true, "events": n, "head": h}`, or `{"ok":
+false, "events": n, "broken_at": id, "reason": "..."}`. The Audit screen shows that result.
 
 ## 5. Data model
 
@@ -356,7 +356,8 @@ satark/
 │   ├── Dockerfile           python:3.12-slim, copies data and reports, runs satark serve
 │   └── pyproject.toml       dependencies, the satark entry point, pytest and ruff settings
 ├── data/
-│   ├── book/                the customer book: group_a, group_b_companies, group_c as gzipped JSONL
+│   ├── book/                the committed book: group_a 840, group_b_companies 114, group_c 31 rows.
+│   │                        The 400 group B officers are personal data and live in data/cache/
 │   ├── eval/                real_cases.csv, the 34 labelled real pairs
 │   └── snapshot/            the 5 watchlists as gzipped JSONL, 29,574 rows in total
 ├── docs/
@@ -411,9 +412,6 @@ satark/
 | `down` | Runs `docker compose down`. |
 | `mcp-config` | Prints the MCP server JSON block for a client configuration file. |
 
-`satark eval --gate` fails when precision falls below 0.93, recall below 0.90 or F1 below 0.92. CI runs
-both gates on every push and pull request.
-
 ### Environment variables
 
 `backend/satark/config.py` reads these through pydantic-settings, with the prefix `SATARK_` and an
@@ -432,9 +430,7 @@ optional `.env` file.
 | `SATARK_COMPANIES_HOUSE_KEY` | empty | Only needed to rebuild group B of the book. |
 | `SATARK_CORS_ORIGINS` | the two localhost:5173 origins | A comma-separated allowlist. |
 | `SATARK_MEDIA_MAX_ITEMS` | `12` | The headline limit for one media brief. |
-
-`frontend/vite.config.ts` reads `SATARK_API` and proxies `/api` to it. The default is
-`http://127.0.0.1:8000`.
+| `SATARK_API` | `http://127.0.0.1:8000` | Read by `frontend/vite.config.ts` for the `/api` proxy. |
 
 ### Docker compose services
 
@@ -449,4 +445,5 @@ optional `.env` file.
 
 The API exposes `/health` and `/metrics`. `backend/satark/metrics.py` defines the screening latency
 histogram, the screening, alert, decision and delta counters, the active-entity gauge and the media
-counter.
+counter. `satark eval --gate` fails when precision falls below 0.93, recall below 0.90 or F1 below
+0.92, and CI runs both gates on every push and pull request.

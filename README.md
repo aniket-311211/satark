@@ -28,6 +28,8 @@ It covers the benchmark lab on the front page, then all eight console screens: a
 
 Nothing in the book is invented. The old synthetic book survives only as `satark seed --synthetic`, next to the benchmark.
 
+Director records are personal data, so the 400 Companies House officer rows stay in `data/cache/` and are never committed. A fresh clone seeds **985 customers**: 840 in group A, the 114 group B companies, and 31 in group C. `make book` with a free Companies House key rebuilds the directors and takes the book to 1,385. Every figure on this page is from the full book.
+
 ## How a hit is judged
 
 ```mermaid
@@ -216,7 +218,7 @@ make eval        # the benchmark and its quality gate
 make eval-real   # the 34 real labelled cases
 ```
 
-Rebuilding the book from source is optional, because the snapshots are committed. `make book` re-fetches GLEIF, and group B needs a free Companies House key in `.env` as `SATARK_COMPANIES_HOUSE_KEY`. Director details are personal data, so they stay in `data/cache/` and are never committed.
+The watchlists and the companies are committed, so `make seed` needs no network and no keys. It loads 985 customers. To add the 400 directors, put a free Companies House key in `.env` as `SATARK_COMPANIES_HOUSE_KEY` and run `make book`, which re-fetches GLEIF and Companies House and takes the book to 1,385.
 
 To screen your own customers, open **Satark Customers → Import customers**, or `POST /customers/import` with `{"csv": "...", "dry_run": true}` first. Columns are `name` (required), `kind`, `date_of_birth`, `nationality`, `country` and `customer_id`. `GET /customers/import/template` returns a sample file. Re-uploading a `customer_id` updates that customer instead of duplicating it.
 
