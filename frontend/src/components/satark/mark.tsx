@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils";
 
-/** The Satark mark: two overlapping checks (name match, identity evidence); the lens where both agree is filled. */
-export function Mark({ className, title = "Satark" }: { className?: string; title?: string }) {
+/**
+ * Satark's wordmark. The owner will supply a logo file: swap it in here and every screen follows.
+ * The view-transition name lets the landing page's wordmark morph into this one.
+ */
+export function Wordmark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 60 38" className={cn("h-6 w-auto", className)} role="img" aria-label={title}>
-      <circle cx="22" cy="19" r="14.5" fill="none" stroke="currentColor" strokeWidth="2.6" />
-      <circle cx="38" cy="19" r="14.5" fill="none" stroke="currentColor" strokeWidth="2.6" />
-      <path d="M30 6.907A14.5 14.5 0 0 1 30 31.093A14.5 14.5 0 0 1 30 6.907Z" fill="currentColor" />
-    </svg>
+    <span className={cn("font-display text-[15px] leading-none font-extrabold tracking-[0.16em] text-ink uppercase [font-stretch:125%] [view-transition-name:satark-wordmark]", className)}>
+      Satark
+    </span>
   );
 }

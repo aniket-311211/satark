@@ -3,7 +3,7 @@ import { ALERT_STATUS_LABEL, BAND_LABEL, CASE_STATUS_LABEL, GROUPS, LISTS, RESUL
 import type { AlertStatus, Band, CaseStatus, CheckResult, Verdict } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const chip = "inline-flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-xs font-medium leading-none";
+const chip = "inline-flex h-[22px] shrink-0 items-center gap-1 whitespace-nowrap rounded-sm px-1.5 text-[12px] font-medium leading-none";
 
 const BAND_STYLE: Record<Band, { icon: LucideIcon; className: string }> = {
   strong: { icon: SignalHigh, className: "bg-strong-soft text-strong" },
@@ -60,8 +60,8 @@ export function CheckResultMark({ result }: { result: CheckResult }) {
 
 const CASE_TONE: Record<CaseStatus, string> = {
   open: "border border-rule-strong text-ink",
-  pending_approval: "bg-signal-soft text-signal",
-  closed: "bg-sunken text-ink-2",
+  pending_approval: "border border-dashed border-amber text-amber",
+  closed: "bg-sunken text-ink-2 line-through decoration-ink-3",
 };
 export const CaseStatusBadge = ({ status }: { status: CaseStatus }) => <span className={cn(chip, CASE_TONE[status])}>{CASE_STATUS_LABEL[status]}</span>;
 
@@ -69,7 +69,7 @@ const ALERT_TONE: Record<AlertStatus, string> = {
   open: "border border-rule-strong text-ink",
   confirmed: "bg-strong-soft text-strong",
   discarded: "bg-sunken text-ink-2",
-  auto_cleared: "bg-cleared-soft text-cleared",
+  auto_cleared: "border border-cleared/50 text-cleared",
 };
 export const AlertStatusBadge = ({ status }: { status: AlertStatus }) => <span className={cn(chip, ALERT_TONE[status])}>{ALERT_STATUS_LABEL[status]}</span>;
 
@@ -86,7 +86,7 @@ export function GroupTag({ group, withLabel = true }: { group: string; withLabel
   if (!group) return <span className="text-ink-3">—</span>;
   return (
     <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-ink-2" title={GROUPS[group]?.long}>
-      <span className="grid size-5 place-items-center rounded-full bg-ink font-mono text-[11px] text-surface">{group}</span>
+      <span className="grid size-5 place-items-center rounded-sm border border-signal/60 font-mono text-[11px] text-signal">{group}</span>
       {withLabel && GROUPS[group]?.label}
     </span>
   );

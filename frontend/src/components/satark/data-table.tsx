@@ -62,7 +62,7 @@ export function DataTable<T>({
           <span className="sr-only">{searchPlaceholder}</span>
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" aria-hidden />
           <Input value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder={searchPlaceholder}
-            className="h-9 rounded-full border-rule-strong bg-surface pl-9" />
+            className="h-8 rounded-sm border-rule bg-panel pl-9" />
         </label>
         {facets.map((facet) => {
           const column = table.getColumn(facet.columnId);
@@ -73,8 +73,8 @@ export function DataTable<T>({
               {[{ value: "", label: "All" }, ...facet.options].map((option) => (
                 <button key={option.value || "all"} type="button" aria-pressed={active === option.value}
                   onClick={() => { column?.setFilterValue(option.value || undefined); table.setPageIndex(0); }}
-                  className={cn("h-7 cursor-pointer rounded-full border px-2.5 text-xs transition-colors duration-150",
-                    active === option.value ? "border-ink bg-ink text-surface" : "border-rule-strong bg-surface text-ink hover:bg-sunken")}>
+                  className={cn("h-7 cursor-pointer rounded-sm border px-2.5 text-xs transition-colors duration-150",
+                    active === option.value ? "border-amber bg-amber-soft text-amber" : "border-rule bg-panel text-ink-2 hover:border-rule-strong hover:text-ink")}>
                   {option.label}
                 </button>
               ))}

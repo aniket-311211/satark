@@ -31,7 +31,7 @@ function AppointmentsList({ appointments }: { appointments: NonNullable<Customer
       <ol className="mt-2 space-y-2 border-l border-rule pl-4 text-[13px]">
         {appointments.map((a, i) => (
           <li key={i} className="relative text-ink">
-            <span className="absolute top-1.5 -left-[21px] size-2 rounded-full border border-ink bg-surface" aria-hidden />
+            <span className="absolute top-1.5 -left-[21px] size-2 rounded-sm border border-ink bg-surface" aria-hidden />
             {humanize(a.officer_role)} <span className="text-ink-2">at</span> {a.company_name}
             <span className="block text-ink-2">Appointed {fmtDate(a.appointed_on)}</span>
           </li>

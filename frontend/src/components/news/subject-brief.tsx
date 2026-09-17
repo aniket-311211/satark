@@ -52,7 +52,7 @@ function EventClipping({ event }: { event: MediaEvent }) {
           {inPlace ? <>{inPlace.pre}<mark className="rounded bg-cleared-soft px-0.5 text-ink">{inPlace.match}</mark>{inPlace.post}</> : event.headline}
         </h3>
         {!event.verified && (
-          <span className="inline-flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-sunken px-2.5 text-xs font-medium text-ink-2">
+          <span className="inline-flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm bg-sunken px-2.5 text-xs font-medium text-ink-2">
             <X className="size-3.5" aria-hidden /> Unverified
           </span>
         )}
@@ -129,7 +129,7 @@ export function SubjectBrief({ quickPicks }: { quickPicks: string[] }) {
       <form onSubmit={(e) => { e.preventDefault(); run(subject); }} className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="brief-subject">Subject</Label>
-          <Input id="brief-subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Company or person name" className="h-9 w-72 rounded-full border-rule-strong bg-surface" />
+          <Input id="brief-subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Company or person name" className="h-9 w-72 rounded-sm border-rule-strong bg-surface" />
         </div>
         <Button type="submit" disabled={!subject.trim() || brief.isPending}>
           {running ? <Loader2 className="animate-spin" aria-hidden /> : null}
@@ -148,7 +148,7 @@ export function SubjectBrief({ quickPicks }: { quickPicks: string[] }) {
           <span className="text-xs text-ink-2">Quick picks</span>
           {quickPicks.map((name) => (
             <button key={name} type="button" onClick={() => { setSubject(name); run(name); }}
-              className="h-7 cursor-pointer rounded-full border border-rule-strong bg-surface px-2.5 text-xs text-ink transition-colors duration-150 hover:bg-sunken">
+              className="h-7 cursor-pointer rounded-sm border border-rule-strong bg-surface px-2.5 text-xs text-ink transition-colors duration-150 hover:bg-sunken">
               {name}
             </button>
           ))}

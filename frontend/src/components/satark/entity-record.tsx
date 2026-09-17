@@ -20,7 +20,7 @@ export function EntityRecord({ entity, className }: { entity: Entity; className?
     <section aria-label={`Listing: ${entity.name}`} className={cn("min-w-0", className)}>
       <div className="flex flex-wrap items-center gap-2">
         <ListTag source={entity.source} />
-        <span className={cn("inline-flex h-6 items-center rounded-full px-2.5 text-xs font-medium", entity.status === "active" ? "bg-strong-soft text-strong" : "bg-sunken text-ink-2")}>
+        <span className={cn("inline-flex h-6 items-center rounded-sm px-2.5 text-xs font-medium", entity.status === "active" ? "bg-strong-soft text-strong" : "bg-sunken text-ink-2")}>
           {entity.status === "active" ? "Active listing" : "Historical listing"}
         </span>
       </div>
@@ -39,10 +39,10 @@ export function EntityRecord({ entity, className }: { entity: Entity; className?
           <ol className="mt-2 space-y-2 border-l border-rule pl-4">
             {orders.map((o, i) => (
               <li key={i} className="relative text-[13px]">
-                <span className="absolute top-1.5 -left-[21px] size-2 rounded-full border border-ink bg-surface" aria-hidden />
+                <span className="absolute top-1.5 -left-[21px] size-2 rounded-sm border border-ink bg-surface" aria-hidden />
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="tabular text-ink">{fmtDate(o.date)}</span>
-                  {o.status && <span className={cn("inline-flex h-5 items-center rounded-full px-2 text-[11px] font-medium", ORDER_TONE[o.status])}>{o.status}</span>}
+                  {o.status && <span className={cn("inline-flex h-5 items-center rounded-sm px-2 text-[11px] font-medium", ORDER_TONE[o.status])}>{o.status}</span>}
                   {o.duration && <span className="text-ink-2">{o.duration}</span>}
                   {o.source_url && (
                     <a href={o.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-signal underline">
@@ -75,7 +75,7 @@ export function EntityRecord({ entity, className }: { entity: Entity; className?
           <h4 className="text-sm font-medium text-ink">Relatives listed</h4>
           <ul className="mt-2 flex flex-wrap gap-1.5 text-[13px]">
             {relatives.map((r, i) => (
-              <li key={i} className="rounded-full border border-rule px-2.5 py-0.5 text-ink">{r.name}{r.relationship && <span className="text-ink-2"> · {r.relationship}</span>}</li>
+              <li key={i} className="rounded-sm border border-rule px-2.5 py-0.5 text-ink">{r.name}{r.relationship && <span className="text-ink-2"> · {r.relationship}</span>}</li>
             ))}
           </ul>
         </div>

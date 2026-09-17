@@ -33,7 +33,7 @@ export function NameMatchPanel({ score, band, matchedName, customerName, reasons
       {pairs && pairs.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Token alignment">
           {pairs.map((p, i) => (
-            <li key={i} className="flex items-center gap-1.5 rounded-full border border-rule px-2.5 py-1 font-mono text-xs text-ink">
+            <li key={i} className="flex items-center gap-1.5 rounded-sm border border-rule px-2.5 py-1 font-mono text-xs text-ink">
               {p.query}
               <ArrowRight className="size-3 text-ink-3" aria-hidden />
               {p.listed}

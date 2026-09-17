@@ -99,7 +99,7 @@ export function NewsWire() {
         <label className="relative w-full sm:w-80">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" aria-hidden />
           <Input id="news-search" value={term} onChange={(e) => setTerm(e.target.value)} placeholder="e.g. sanctions, insider trading"
-            className="h-9 rounded-full border-rule-strong bg-surface pl-9" />
+            className="h-9 rounded-sm border-rule-strong bg-surface pl-9" />
         </label>
       </div>
       {!searching && (

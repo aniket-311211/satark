@@ -279,6 +279,8 @@ export interface NewsItem {
   country: string;
   published: string;
   fetched_at: string;
+  /** Adverse-media keyword category, or null when the story carries no risk signal. */
+  category: string | null;
 }
 export interface NewsArticle {
   title: string;
@@ -286,6 +288,7 @@ export interface NewsArticle {
   publisher: string;
   published: string;
   text: string;
+  category: string | null;
 }
 export interface FeedStatus {
   name: string;
