@@ -43,16 +43,16 @@ function highlightQuote(headline: string, quote: string) {
   return { pre: headline.slice(0, idx), match: headline.slice(idx, idx + quote.length), post: headline.slice(idx + quote.length) };
 }
 
-function EventClipping({ event }: { event: MediaEvent }) {
+function Clipping({ event }: { event: MediaEvent }) {
   const inPlace = event.checks.quote_in_source ? highlightQuote(event.headline, event.quote) : null;
   return (
-    <article className="border-b border-rule py-4 first:pt-0 last:border-b-0">
+    <article className="border border-rule bg-panel p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h3 className="min-w-0 flex-1 text-[15px] leading-snug text-ink [overflow-wrap:anywhere]">
-          {inPlace ? <>{inPlace.pre}<mark className="rounded bg-cleared-soft px-0.5 text-ink">{inPlace.match}</mark>{inPlace.post}</> : event.headline}
+          {inPlace ? <>{inPlace.pre}<mark className="bg-cleared-soft px-0.5 text-ink">{inPlace.match}</mark>{inPlace.post}</> : event.headline}
         </h3>
         {!event.verified && (
-          <span className="inline-flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm bg-sunken px-2.5 text-xs font-medium text-ink-2">
+          <span className="inline-flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap bg-sunken px-2.5 text-xs font-medium text-ink-2">
             <X className="size-3.5" aria-hidden /> Unverified
           </span>
         )}
@@ -70,7 +70,7 @@ function EventClipping({ event }: { event: MediaEvent }) {
         <span aria-hidden>·</span>
         <span>{fmtDate(event.published_at)}</span>
         <span aria-hidden>·</span>
-        <span>{titleCase(event.category)}</span>
+        <span className="label-caps border border-rule-strong px-1 py-0.5">{titleCase(event.category)}</span>
         <span aria-hidden>·</span>
         <a href={event.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-signal underline underline-offset-4 hover:decoration-2">
           Source <ExternalLink className="size-3" aria-hidden />
@@ -80,6 +80,22 @@ function EventClipping({ event }: { event: MediaEvent }) {
       <VerificationRail checks={event.checks} />
       <p className="mt-2 text-[11px] text-ink-3">via {event.extractor}</p>
     </article>
+  );
+}
+
+function CategoryMix({ events }: { events: MediaEvent[] }) {
+  const counts = new Map<string, number>();
+  for (const e of events) counts.set(e.category, (counts.get(e.category) ?? 0) + 1);
+  const rows = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return (
+    <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1.5" aria-label="Category mix">
+      {rows.map(([category, n]) => (
+        <li key={category} className="inline-flex items-center gap-1.5 text-xs text-ink-2">
+          <span className="label-caps border border-rule-strong px-1 py-0.5">{titleCase(category)}</span>
+          <span className="font-mono text-ink-3">×{n}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -99,7 +115,7 @@ function GroundingEmptyState({ brief }: { brief: MediaBrief }) {
   );
 }
 
-export function SubjectBrief({ quickPicks }: { quickPicks: string[] }) {
+export function Dossier({ quickPicks }: { quickPicks: string[] }) {
   const [params, setParams] = useSearchParams();
   const [subject, setSubject] = useState(params.get("subject") ?? "");
   const ranInitial = useRef(false);
@@ -125,11 +141,11 @@ export function SubjectBrief({ quickPicks }: { quickPicks: string[] }) {
   const lastSubject = brief.data?.subject;
 
   return (
-    <div>
+    <div id="dossier">
       <form onSubmit={(e) => { e.preventDefault(); run(subject); }} className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="brief-subject">Subject</Label>
-          <Input id="brief-subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Company or person name" className="h-9 w-72 rounded-sm border-rule-strong bg-surface" />
+          <Label htmlFor="dossier-subject">Subject</Label>
+          <Input id="dossier-subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Company or person name" className="h-9 w-72 border-rule-strong bg-panel" />
         </div>
         <Button type="submit" disabled={!subject.trim() || brief.isPending}>
           {running ? <Loader2 className="animate-spin" aria-hidden /> : null}
@@ -148,7 +164,7 @@ export function SubjectBrief({ quickPicks }: { quickPicks: string[] }) {
           <span className="text-xs text-ink-2">Quick picks</span>
           {quickPicks.map((name) => (
             <button key={name} type="button" onClick={() => { setSubject(name); run(name); }}
-              className="h-7 cursor-pointer rounded-sm border border-rule-strong bg-surface px-2.5 text-xs text-ink transition-colors duration-150 hover:bg-sunken">
+              className="h-7 cursor-pointer border border-rule-strong bg-panel px-2.5 text-xs text-ink transition-colors duration-150 hover:bg-sunken">
               {name}
             </button>
           ))}
@@ -166,7 +182,10 @@ export function SubjectBrief({ quickPicks }: { quickPicks: string[] }) {
                 extracted by {brief.data.extractor}{brief.data.cached && " (cached)"}
                 {brief.data.trace.length > 0 && <> — {brief.data.trace.join(" → ")}</>}.
               </p>
-              <div>{brief.data.events.map((ev) => <EventClipping key={ev.id} event={ev} />)}</div>
+              <CategoryMix events={brief.data.events} />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {brief.data.events.map((ev) => <Clipping key={ev.id} event={ev} />)}
+              </div>
             </>
           )
         )}

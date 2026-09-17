@@ -9,15 +9,19 @@ import { fmtInt, titleCase } from "@/lib/format";
 /** Where the owned index stands: regulator versus press reach, and which stories carry an adverse-media tag. */
 export function NewsPulse() {
   const feeds = useQuery(q.feeds());
-  const news = useQuery(q.news());
-  if (feeds.error || news.error) return <ErrorState error={feeds.error ?? news.error} what="news pulse" />;
-  if (!feeds.data || !news.data) return <LoadingBlock rows={4} />;
+  // Same two windows the News desk loads, so both screens count the same tagged stories.
+  const regulatorNews = useQuery(q.news("regulator"));
+  const pressNews = useQuery(q.news("publisher"));
+  const error = feeds.error ?? regulatorNews.error ?? pressNews.error;
+  if (error) return <ErrorState error={error} what="news pulse" />;
+  if (!feeds.data || !regulatorNews.data || !pressNews.data) return <LoadingBlock rows={4} />;
 
   const regulator = feeds.data.filter((f) => f.kind === "regulator").reduce((n, f) => n + f.articles, 0);
   const publisher = feeds.data.filter((f) => f.kind === "publisher").reduce((n, f) => n + f.articles, 0);
   const total = regulator + publisher || 1;
 
-  const tagged = news.data.filter((n) => n.category);
+  const loaded = [...regulatorNews.data, ...pressNews.data];
+  const tagged = loaded.filter((n) => n.category);
   const byCategory = new Map<string, number>();
   for (const n of tagged) byCategory.set(n.category!, (byCategory.get(n.category!) ?? 0) + 1);
   const categories = [...byCategory.entries()].sort((a, b) => b[1] - a[1]);
@@ -48,8 +52,8 @@ export function NewsPulse() {
       )}
 
       <Takeaway>
-        {fmtInt(total)} articles indexed across {feeds.data.length} feeds, {fmtInt(regulator)} regulator and {fmtInt(publisher)} press. Of the {fmtInt(news.data.length)} most
-        recently indexed, {fmtInt(tagged.length)} carry a risk tag{categories[0] && <> — mostly {titleCase(categories[0][0])}</>}.
+        {fmtInt(total)} articles indexed across {feeds.data.length} feeds, {fmtInt(regulator)} regulator and {fmtInt(publisher)} press. Of the {fmtInt(loaded.length)} most
+        recent, {fmtInt(tagged.length)} carry a risk tag{categories[0] && <> — mostly {titleCase(categories[0][0])}</>}.
       </Takeaway>
       <Link to="/news" className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] text-signal underline decoration-rule-strong underline-offset-4 hover:decoration-signal">
         Open the News desk <ArrowRight className="size-3.5" aria-hidden />
