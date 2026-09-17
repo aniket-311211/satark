@@ -19,3 +19,5 @@ data/cache/
 .agents/
 skills-lock.json
 .impeccable/
+agentdb.rvf
+agentdb.rvf.lock

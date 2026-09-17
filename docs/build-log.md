@@ -362,3 +362,23 @@ Then "try a name": the form POSTs to `/api/screen` and renders the five best mat
 - No console errors and no horizontal overflow at 1440 and 390; every control exercised in a headless browser (metric switch, threshold drag, transform select, date-of-birth slider, funnel step, case filter and detail, live screen, offline fallback).
 - `impeccable detect` reports only the two clipping findings inherent to the pinned hero frame.
 - The production build bundles the lab's stylesheet and script into the landing entry.
+
+## Step 10: The documentation a reader can follow
+
+The project was finished and the README still told it in one long page. This step split the record into documents that answer one question each, and recorded the product as it now stands.
+
+**What changed:**
+
+| Document | What it holds |
+|---|---|
+| [README.md](../README.md) | The walkthrough video first, then what is real, how a hit is judged, the results on the real book, the benchmark headline, every screen as a current screenshot, the repository layout, and how to run it |
+| [docs/ARCHITECTURE.md](ARCHITECTURE.md) | Six diagrams: the system, one name through the pipeline, the identity verdict, the case state machine, the data model, the route map. Then a folder-by-folder map of the repository |
+| [docs/BENCHMARKS.md](BENCHMARKS.md) | The method, the full threshold sweep, recall per transform with one real example each, the 34 labelled cases, the latency measurement, and the commands to reproduce all of it |
+| [docs/CHANGELOG.md](CHANGELOG.md) | What changed and why, newest first, with the defects each change closed |
+| [docs/demo/](demo/) | The walkthrough: 3 minutes 46 seconds of video with captions and a score, and 52 stills with an index |
+
+**Checked.**
+- Every screenshot in the README was re-captured from the running console at 1440×900, so the images match the shipped design.
+- Every relative link and image path in the five documents resolves to a file in the repository.
+- Every Mermaid diagram parses with GitHub's supported syntax.
+- The benchmark documents cite the committed run artefacts (`reports/eval.json`, seed 7) rather than a remembered number. Three superseded figures in this log are corrected there, and the correction is stated in the document.
