@@ -240,4 +240,4 @@ The full stack runs with `docker compose up --build -d`, then `docker compose ex
 
 Python 3.12 · FastAPI · SQLAlchemy 2 · SQLite and PostgreSQL · Redis Streams · RapidFuzz · LangGraph · SQLite FTS5 · MCP · Prometheus · React 19 · TypeScript · Vite, multi-page with cross-document view transitions · Tailwind v4 · shadcn/ui · TanStack Query and Table · Recharts · GitHub Actions · pytest
 
-**Documentation:** [EXPLAINED](docs/EXPLAINED.md) — the whole project in plain words · [ARCHITECTURE](docs/ARCHITECTURE.md) · [BENCHMARKS](docs/BENCHMARKS.md) · [CHANGELOG](docs/CHANGELOG.md) · [build log](docs/build-log.md) · [DESIGN](DESIGN.md) · [PRODUCT](PRODUCT.md) · [walkthrough](docs/demo/)
+**Documentation:** [ARCHITECTURE](docs/ARCHITECTURE.md) · [BENCHMARKS](docs/BENCHMARKS.md) · [CHANGELOG](docs/CHANGELOG.md) · [build log](docs/build-log.md) · [DESIGN](DESIGN.md) · [PRODUCT](PRODUCT.md) · [walkthrough](docs/demo/)
