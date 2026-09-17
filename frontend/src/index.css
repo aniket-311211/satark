@@ -12,6 +12,9 @@
     --font-sans: 'Public Sans Variable', system-ui, sans-serif;
     --font-display: 'Questrial', 'Public Sans Variable', system-ui, sans-serif;
     --font-mono: 'Fragment Mono', ui-monospace, monospace;
+    --color-ink: var(--ink);
+    --color-paper: var(--paper);
+    --color-rule: var(--rule);
     --color-paper-brand: var(--paper-brand);
     --color-surface: var(--surface);
     --color-sunken: var(--sunken);

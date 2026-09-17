@@ -50,7 +50,7 @@ export function EntityRecord({ entity, className }: { entity: Entity; className?
                     </a>
                   )}
                 </div>
-                {o.description && <p className="mt-0.5 text-ink-2 [overflow-wrap:anywhere]">{o.description}</p>}
+                {o.description && <p className="mt-0.5 text-ink-2 [overflow-wrap:anywhere]">{o.description}{o.description.length >= 200 && "…"}</p>}
               </li>
             ))}
           </ol>
