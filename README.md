@@ -12,6 +12,8 @@ Below the front page is **the benchmark lab**: the accuracy claims above, as fou
 
 ![The benchmark lab on the landing page](docs/screens/landing-lab.png)
 
+**[Watch the 4-minute walkthrough](docs/demo/satark-walkthrough.mp4)** — the lab, then all eight console screens, with a case decided under the four-eyes rule and a CSV imported and screened live. [Every beat as a still.](docs/demo/)
+
 ---
 
 ## What is real here
