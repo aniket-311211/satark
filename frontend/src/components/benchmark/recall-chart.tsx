@@ -38,10 +38,10 @@ export function RecallChart({ report }: { report: EvalReport }) {
           )} />} />
           <ChartLegend content={<ChartLegendContent className="flex-wrap justify-start gap-x-4" />} verticalAlign="top" align="left" />
           <Bar dataKey="satark" fill="var(--color-satark)" radius={2}>
-            <LabelList dataKey="satark" position="right" formatter={(v: unknown) => pctLabel(Number(v))} className="fill-ink font-mono text-[10px]" />
+            <LabelList dataKey="satark" position="right" formatter={(v: unknown) => pctLabel(Number(v))} className="fill-ink font-mono text-[11px]" />
           </Bar>
           <Bar dataKey="rapidfuzz" fill="var(--color-rapidfuzz)" radius={2}>
-            <LabelList dataKey="rapidfuzz" position="right" formatter={(v: unknown) => pctLabel(Number(v))} className="fill-ink-2 font-mono text-[10px]" />
+            <LabelList dataKey="rapidfuzz" position="right" formatter={(v: unknown) => pctLabel(Number(v))} className="fill-ink-2 font-mono text-[11px]" />
           </Bar>
         </BarChart>
       </ChartContainer>
