@@ -393,6 +393,38 @@ class Satark:
             session.commit()
         return {"rows": len(rows), "added": added, "updated": updated}
 
+    def import_upload(self, csv_text: str, actor: str = "analyst", dry_run: bool = False) -> dict:
+        """An analyst's own customer file: validate it, then (unless dry_run) upsert the rows and screen just those customers."""
+        from .upload import parse_customer_csv
+
+        rows, errors = parse_customer_csv(csv_text)
+        preview = [{k: row[k] for k in ("line", "name", "kind", "birth_date", "country")} | {"nationality": row["details"].get("nationality", "")}
+                   for row in rows[:25]]
+        report = {"dry_run": dry_run, "valid": len(rows), "rejected": len(errors), "errors": errors, "preview": preview}
+        if dry_run or not rows:
+            return report
+        stored = self.import_book(rows, actor=actor)
+        screened = []
+        with self.Session() as session:
+            customers = session.scalars(select(Customer).where(Customer.external_id.in_([r["external_id"] for r in rows]))).all()
+            for customer in customers:
+                result = self.screen(customer.name, kind=customer.kind, trigger="upload", limit=ALERT_SCAN_LIMIT)
+                raised = self._raise_alerts(session, customer, result, "upload")
+                screened.append((customer, raised))
+            opened = sum(a.status == "open" for _, raised in screened for a in raised)
+            cleared = sum(a.status == "auto_cleared" for _, raised in screened for a in raised)
+            self.audit(session, actor, "upload.screened", "customers", customers=len(customers), alerts=opened, auto_cleared=cleared)
+            session.commit()
+            hits = []
+            for customer, raised in screened:
+                if not raised:
+                    continue
+                case = session.scalar(select(Case).where(Case.customer_id == customer.id, Case.status != "closed"))
+                hits.append({"customer": customer_dict(customer), "alerts": sum(a.status == "open" for a in raised),
+                             "auto_cleared": sum(a.status == "auto_cleared" for a in raised), "case_id": case.id if case else None})
+        return report | {"added": stored["added"], "updated": stored["updated"], "screened": len(screened),
+                         "alerts": opened, "auto_cleared": cleared, "hits": hits}
+
     def rescreen_all(self, actor: str = "system", trigger: str = "batch") -> dict:
         raised = []
         with self.Session() as session:
@@ -594,6 +626,54 @@ class Satark:
         with self.Session() as session:
             entity = session.get(WatchlistEntity, entity_id)
             return entity_dict(entity) if entity else None
+
+    def entities(self, q: str = "", source: str = "", status: str = "", kind: str = "", limit: int = 50, offset: int = 0) -> dict:
+        """Browse the listings behind every alert: name search plus list, status and kind filters."""
+        with self.Session() as session:
+            conditions = [WatchlistEntity.active.is_(True)]
+            if q:
+                conditions.append(WatchlistEntity.name.ilike(f"%{q.strip()}%"))
+            if source:
+                conditions.append(WatchlistEntity.source == source)
+            if status:
+                conditions.append(WatchlistEntity.status == status)
+            if kind:
+                conditions.append(WatchlistEntity.schema == "Person" if kind == "person" else WatchlistEntity.schema != "Person")
+            total = session.scalar(select(func.count()).select_from(WatchlistEntity).where(*conditions))
+            rows = session.scalars(select(WatchlistEntity).where(*conditions).order_by(WatchlistEntity.name).limit(limit).offset(offset)).all()
+            alerted = dict(session.execute(
+                select(Alert.entity_id, func.count()).where(Alert.entity_id.in_([r.id for r in rows])).group_by(Alert.entity_id)
+            ).all())
+            return {"total": total, "items": [{**entity_dict(r), "alerts": alerted.get(r.id, 0)} for r in rows]}
+
+    def exposure(self, entity_id: str) -> dict | None:
+        """Reverse screening: which customers in the book match this listing, and what the identity evidence says."""
+        with self.Session() as session:
+            entity = session.get(WatchlistEntity, entity_id)
+            if entity is None:
+                return None
+            customers = {c.id: c for c in session.scalars(select(Customer))}
+            # ponytail: the customer index is rebuilt per request (1.4k names, a few ms); cache it if the book grows past ~50k
+            index = MatchIndex([Record(id=str(c.id), name=c.name, schema="Person" if c.kind == "person" else "Organization",
+                                       dataset="book", source="book") for c in customers.values()])
+            kind = "person" if entity.schema == "Person" else "org"
+            best: dict[str, tuple] = {}
+            for listed_name in dict.fromkeys([entity.name, *(entity.aliases or [])]):
+                for match in index.screen(listed_name, kind=kind, limit=25, min_score=70).matches:
+                    if match.entity_id not in best or match.score > best[match.entity_id][0].score:
+                        best[match.entity_id] = (match, listed_name)
+            alerts = {a.customer_id: a for a in session.scalars(select(Alert).where(Alert.entity_id == entity_id))}
+            items = []
+            for customer_id, (match, listed_name) in sorted(best.items(), key=lambda kv: -kv[1][0].score):
+                customer = customers[int(customer_id)]
+                alert = alerts.get(customer.id)
+                items.append({
+                    "customer": customer_dict(customer), "score": match.score, "band": match.band, "reasons": match.reasons,
+                    "listed_as": listed_name, "above_threshold": match.score >= self.settings.alert_threshold,
+                    "secondary": secondary_check(customer_evidence(customer), entity_evidence(entity)),
+                    "alert": {"id": alert.id, "status": alert.status, "case_id": alert.case_id} if alert else None,
+                })
+            return {"entity": entity_dict(entity), "threshold": self.settings.alert_threshold, "matches": items}
 
     def audit_log(self, limit: int = 100) -> list[dict]:
         with self.Session() as session:

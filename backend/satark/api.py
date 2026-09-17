@@ -33,6 +33,11 @@ class CustomerRequest(BaseModel):
     segment: str = "retail"
 
 
+class UploadRequest(BaseModel):
+    csv: str = Field(min_length=1, max_length=2_000_000)
+    dry_run: bool = False
+
+
 class ProposalRequest(BaseModel):
     decision: Literal["confirmed", "discarded"]
     note: str = Field(min_length=10, max_length=2000)
@@ -88,6 +93,18 @@ def create_app(service: Satark | None = None) -> FastAPI:
         result = core(request).screen(body.name, kind=body.kind, limit=body.limit, min_score=body.min_score, evidence=evidence)
         return screen_dict(result)
 
+    @app.get("/entities")
+    def entities(request: Request, q: str = Query("", max_length=200), source: str = "", status: Literal["", "active", "historical"] = "",
+                 kind: Literal["", "person", "org"] = "", limit: int = Query(50, ge=1, le=200), offset: int = Query(0, ge=0)):
+        return core(request).entities(q=q, source=source, status=status, kind=kind, limit=limit, offset=offset)
+
+    @app.get("/entities/{entity_id}/exposure")
+    def exposure(entity_id: str, request: Request):
+        found = core(request).exposure(entity_id)
+        if not found:
+            raise HTTPException(404, f"No watchlist entity with id {entity_id}")
+        return found
+
     @app.get("/entities/{entity_id}")
     def entity(entity_id: str, request: Request):
         found = core(request).entity(entity_id)
@@ -128,6 +145,16 @@ def create_app(service: Satark | None = None) -> FastAPI:
         if not found:
             raise HTTPException(404, f"No customer {customer_id}")
         return found
+
+    @app.get("/customers/import/template", response_class=Response)
+    def import_template():
+        from .upload import TEMPLATE
+
+        return Response(TEMPLATE, media_type="text/csv", headers={"Content-Disposition": 'attachment; filename="satark-customers-template.csv"'})
+
+    @app.post("/customers/import")
+    def import_customers(body: UploadRequest, request: Request, x_satark_user: str = Header("analyst")):
+        return core(request).import_upload(body.csv, actor=x_satark_user, dry_run=body.dry_run)
 
     @app.post("/customers/rescreen")
     def rescreen(request: Request):
