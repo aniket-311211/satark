@@ -10,11 +10,12 @@ Satark screens a real customer book against five official watchlists, and it nev
 
 ## Watch it run
 
-[![The benchmark lab: drag the alert threshold and watch both systems move](docs/demo/threshold.gif)](docs/demo/satark-walkthrough.mp4)
+[![The benchmark lab: drag the alert threshold and watch both systems move](docs/demo/threshold.gif)](docs/demo/satark-highlight.mp4)
 
-**▶ [The 4-minute walkthrough, with sound](docs/demo/satark-walkthrough.mp4)** · 1280×720 · captions on every step
+**▶ [The 45-second cut](docs/demo/satark-highlight.mp4)** — the threshold drag, the identity check clearing a perfect name match, a live screen, the four-eyes refusal and approval, and the audit chain.
+**▶ [The full 4-minute walkthrough](docs/demo/satark-walkthrough.mp4)** — the benchmark lab, then all eight console screens.
 
-It covers the benchmark lab on the front page, then all eight console screens: a case decided under the four-eyes rule, a CSV imported and screened live, reverse screening from a listing back into the book, and the audit chain re-verified with the new decision in it. The run is against a copy of the database, so the decision and the import in the video are real writes, not mock-ups. [Every beat as a still.](docs/demo/)
+Both play in the browser, with sound and captions. The walkthrough covers a case decided under the four-eyes rule, a CSV imported and screened live, reverse screening from a listing back into the book, and the audit chain re-verified with the new decision in it. The run is against a copy of the database, so the decision and the import in the video are real writes, not mock-ups. [Every beat as a still.](docs/demo/)
 
 ---
 
