@@ -4,8 +4,8 @@ import { ScanSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ListTag } from "@/components/satark/badges";
-import { ErrorState, Figure, LoadingBlock, PageHeader, Panel } from "@/components/satark/page";
-import { ListComposition } from "@/components/overview/list-composition";
+import { ErrorState, LoadingBlock, PageHeader, Panel } from "@/components/satark/page";
+import { WatchlistBoard } from "@/components/overview/watchlist-board";
 import { q } from "@/lib/api";
 import { fmtInt, fmtTime } from "@/lib/format";
 
@@ -19,7 +19,6 @@ export default function Watchlists() {
   return (
     <div className="space-y-5">
       <PageHeader
-        code="LST"
         title="Watchlists"
         description="Five official lists, ingested from the full OpenSanctions records. Revoked, expired and out-of-office entries stay searchable but never raise alerts."
         actions={
@@ -31,15 +30,28 @@ export default function Watchlists() {
 
       {lists.error ? <ErrorState error={lists.error} what="watchlists" /> : !lists.data || !totals ? <LoadingBlock rows={6} /> : (
         <>
-          <div className="grid grid-cols-2 gap-px border border-rule bg-rule sm:grid-cols-4">
-            <div className="bg-panel p-3"><Figure value={fmtInt(lists.data.length)} label="Lists" /></div>
-            <div className="bg-panel p-3"><Figure value={fmtInt(totals.entities)} label="Total entries" /></div>
-            <div className="bg-panel p-3"><Figure value={fmtInt(totals.active)} label="Active" sub="Raise alerts" /></div>
-            <div className="bg-panel p-3"><Figure value={fmtInt(totals.historical)} label="Historical" sub={`${pctOf(totals.historical, totals.entities)} of all entries`} /></div>
+          <div className="flex flex-wrap divide-x divide-rule border border-rule bg-panel text-[13px] text-ink-2" role="group" aria-label="List totals">
+            <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Lists</span><span className="font-mono text-ink">{fmtInt(lists.data.length)}</span></div>
+            <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Entries</span><span className="font-mono text-ink">{fmtInt(totals.entities)}</span></div>
+            <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Active</span><span><span className="font-mono text-ink">{fmtInt(totals.active)}</span> raise alerts</span></div>
+            <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Historical</span><span><span className="font-mono text-ink-3">{fmtInt(totals.historical)}</span> {pctOf(totals.historical, totals.entities)} of entries, never alert</span></div>
           </div>
 
           <Panel label="List board" meta={`${fmtInt(lists.data.length)} authorities`} bodyClassName="p-0">
-            <div className="overflow-x-auto">
+            <ul className="divide-y divide-rule md:hidden">
+              {lists.data.map((l) => (
+                <li key={l.key} className="p-3">
+                  <div className="flex items-center gap-2"><ListTag source={l.key} /><span className="text-ink">{l.label}</span></div>
+                  <p className="mt-1 text-[13px] text-ink-2">{l.authority}</p>
+                  <dl className="mt-2 grid grid-cols-3 gap-2 text-[13px]">
+                    <div><dt className="label-caps text-ink-3">Entries</dt><dd className="font-mono text-ink">{fmtInt(l.entities)}</dd></div>
+                    <div><dt className="label-caps text-ink-3">Active</dt><dd className="font-mono text-ink">{fmtInt(l.active)}</dd></div>
+                    <div><dt className="label-caps text-ink-3">Historical</dt><dd><span className="font-mono text-ink-3">{fmtInt(l.historical)}</span> <span className="text-xs text-ink-2">{pctOf(l.historical, l.entities)}</span></dd></div>
+                  </dl>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden overflow-x-auto md:block">
               <Table className="tabular">
                 <TableHeader>
                   <TableRow className="border-rule hover:bg-transparent">
@@ -95,12 +107,8 @@ export default function Watchlists() {
           </Panel>
 
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-            <Panel label="Active vs historical" meta="Absolute counts per list">
-              <ListComposition lists={lists.data} mode="count" />
-              <p className="mt-2 text-[13px] text-ink-2">
-                {pctOf(totals.historical, totals.entities)} of all {fmtInt(totals.entities)} entries are historical, almost all of them revoked NSE
-                debarments and former members of Parliament.
-              </p>
+            <Panel label="Active vs historical" meta="Full height active, half height historical">
+              <WatchlistBoard />
             </Panel>
             <Panel label="Why an entry goes historical">
               <ul className="space-y-3 text-sm text-ink-2">

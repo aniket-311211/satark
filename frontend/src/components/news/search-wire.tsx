@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EmptyState, LoadingBlock } from "@/components/satark/page";
 import { q } from "@/lib/api";
-import { fmtDate } from "@/lib/format";
+import { Dateline } from "./dateline";
 import type { NewsArticle } from "@/lib/types";
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -58,7 +58,7 @@ export function SearchWire() {
                 <a href={a.url} target="_blank" rel="noreferrer" className="block text-[14px] text-ink [overflow-wrap:anywhere] hover:text-signal">
                   {highlightTerms(a.title, terms)}
                 </a>
-                <p className="mt-1 text-xs text-ink-2">{a.publisher} · {fmtDate(a.published)}</p>
+                <p className="mt-1 text-xs text-ink-2">{a.publisher} · <Dateline published={a.published} fetchedAt="" /></p>
                 <p className="mt-1 line-clamp-2 text-[13px] text-ink-2">{highlightTerms(a.text, terms)}</p>
               </li>
             ))}

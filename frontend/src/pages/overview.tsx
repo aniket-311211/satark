@@ -12,7 +12,7 @@ import { NewsPulse } from "@/components/overview/news-pulse";
 export default function Overview() {
   return (
     <div>
-      <PageHeader code="OVW" title="Overview" description="The book right now: what's screened, what's open, and what the evidence says. Every figure below is live." />
+      <PageHeader title="Overview" description="The book right now: what's screened, what's open, and what the evidence says. Every figure below is live." />
 
       <div className="grid grid-cols-12 gap-3">
         <div className="order-4 col-span-12 md:order-none">

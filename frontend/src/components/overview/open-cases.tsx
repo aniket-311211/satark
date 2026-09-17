@@ -27,7 +27,6 @@ export function OpenCases() {
   return (
     <div className="flex h-full flex-col">
       <p className="font-mono text-6xl leading-none text-ink">{fmtInt(total)}</p>
-      <p className="label-caps mt-1 text-ink-3">Open cases</p>
 
       <div className="mt-4">
         <div
@@ -45,6 +44,7 @@ export function OpenCases() {
               <Num className={BAND_TEXT[c.band]}>{fmtInt(c.count)}</Num> {BAND_LABEL[c.band]}
             </li>
           ))}
+          <li className="text-ink-3">top band of each open case</li>
         </ul>
       </div>
 

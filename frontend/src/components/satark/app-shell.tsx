@@ -63,7 +63,7 @@ function IdentitySwitch({ compact = false }: { compact?: boolean }) {
   const { user, setUser } = useIdentity();
   return (
     <Select value={user} onValueChange={(v) => setUser(v as DemoUserId)}>
-      <SelectTrigger aria-label="Acting as (demo identity)" className={cn("h-8 gap-2 border-rule bg-transparent text-[13px]", compact ? "w-full" : "w-auto")}>
+      <SelectTrigger aria-label="Acting as (demo identity)" className={cn("h-8 gap-2 border-rule bg-transparent text-[13px]", compact ? "w-full" : "w-auto [&_[data-slot=select-value]_span]:hidden")}>
         <span className="label-caps text-ink-3">As</span>
         <SelectValue />
       </SelectTrigger>
@@ -87,7 +87,7 @@ function Clocks() {
   }, []);
   const time = (zone: string) => now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: zone });
   return (
-    <div className="hidden items-center gap-3 font-mono text-[11px] text-ink-2 2xl:flex" aria-label="Desk clocks">
+    <div className="hidden items-center gap-3 font-mono text-[11px] text-ink-2 xl:flex" aria-label="Desk clocks">
       <span><span className="text-ink-3">LON</span> {time("Europe/London")}</span>
       <span><span className="text-ink-3">MUM</span> {time("Asia/Kolkata")}</span>
     </div>
@@ -123,7 +123,7 @@ function Tape() {
             {[...events, ...events].map((e, i) => (
               <span key={i}>
                 <span className="text-ink-3">{new Date(e.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</span>{" "}
-                <span className="text-amber">{e.action}</span> {e.target} <span className="text-ink-3">by {e.actor}</span>
+                <span className="text-ink">{e.action}</span> {e.target} <span className="text-ink-3">by {e.actor}</span>
               </span>
             ))}
           </div>
@@ -155,9 +155,9 @@ export function AppShell() {
         </div>
         <div className="ml-auto flex min-w-0 items-center gap-3 px-3 md:px-4">
           <button type="button" onClick={() => setCommandOpen(true)} aria-label="Screen a name or find a customer"
-            className="flex h-8 w-full min-w-0 cursor-pointer items-center gap-2 border border-rule bg-paper px-2.5 text-[13px] text-ink-3 transition-colors duration-150 hover:border-rule-strong hover:text-ink-2 sm:w-52 lg:w-40 2xl:w-64">
+            className="flex h-8 w-full min-w-0 cursor-pointer items-center gap-2 border border-rule bg-paper px-2.5 text-[13px] text-ink-3 transition-colors duration-150 hover:border-rule-strong hover:text-ink-2 sm:w-52 lg:w-auto 2xl:w-64">
             <Search className="size-3.5 shrink-0" aria-hidden />
-            <span className="truncate">Screen a name…</span>
+            <span className="truncate lg:hidden 2xl:inline">Screen a name…</span>
             <kbd className="ml-auto hidden border border-rule px-1 text-[10.5px] text-ink-2 sm:inline">⌘K</kbd>
           </button>
           <Clocks />

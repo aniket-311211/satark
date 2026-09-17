@@ -45,7 +45,7 @@ const columns: ColumnDef<AuditEntry>[] = [
   { id: "at", accessorKey: "at", header: "Time", sortDescFirst: true,
     cell: ({ getValue }) => <span className="whitespace-nowrap font-mono tabular text-ink-2">{fmtTime(getValue<string>())}</span> },
   { id: "actor", accessorKey: "actor", header: "Actor", cell: ({ getValue }) => <span className="text-ink">{getValue<string>()}</span> },
-  { id: "action", accessorKey: "action", header: "Action", cell: ({ getValue }) => <span className="font-mono text-xs text-amber">{getValue<string>()}</span> },
+  { id: "action", accessorKey: "action", header: "Action", cell: ({ getValue }) => <span className="font-mono text-xs text-ink">{getValue<string>()}</span> },
   { id: "target", accessorKey: "target", header: "Target", cell: ({ getValue }) => <TargetCell target={getValue<string>()} /> },
   { id: "detail", accessorFn: (r) => JSON.stringify(r.detail), header: "Detail", enableSorting: false,
     cell: ({ row }) => <DetailCell detail={row.original.detail} /> },
@@ -116,7 +116,7 @@ export default function Audit() {
   const audit = useQuery(q.audit());
   return (
     <div className="space-y-6">
-      <PageHeader code="AUD" title="Audit trail" description="Every case decision and news/media action, hash-chained so a change to history is detectable." />
+      <PageHeader title="Audit trail" description="Every case decision and news/media action, hash-chained so a change to history is detectable." />
       <VerifyBanner />
       {audit.data && <ActionBreakdown entries={audit.data} />}
       <Section title="Events">

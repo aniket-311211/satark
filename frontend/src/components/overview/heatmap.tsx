@@ -31,6 +31,7 @@ export function GroupListHeatmap() {
 
   return (
     <div>
+      <p className="mb-1.5 text-right text-[11.5px] text-ink-3 sm:hidden" aria-hidden>Swipe for every list and totals →</p>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[420px] border-collapse text-[12.5px]" aria-label="Alert count by customer group and watchlist">
           <caption className="sr-only">Alert counts for each customer group against each of the five watchlists, with row and column totals.</caption>

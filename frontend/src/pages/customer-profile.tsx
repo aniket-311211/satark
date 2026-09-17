@@ -19,7 +19,7 @@ export default function CustomerProfile() {
   if (!customer.data) {
     return (
       <div className="space-y-6">
-        <PageHeader code="CUS" title="Customer" />
+        <PageHeader title="Customer" />
         <LoadingBlock rows={8} />
       </div>
     );
@@ -34,7 +34,6 @@ export default function CustomerProfile() {
   return (
     <div className="space-y-5">
       <PageHeader
-        code="CUS"
         title={<span className="flex items-center gap-2.5"><KindIcon kind={c.kind} className="size-6" />{c.name}</span>}
         actions={
           <>

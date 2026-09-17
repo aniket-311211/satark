@@ -22,9 +22,10 @@ export function WatchlistBoard() {
               <span className="min-w-0 truncate text-ink" title={l.label}>{l.label}</span>
               <span className="shrink-0 text-ink-3"><Num className="text-ink-2">{fmtInt(l.active)}</Num> active · <Num className="text-ink-3">{fmtInt(l.historical)}</Num> historical</span>
             </div>
-            <div className="mt-1 flex h-2.5 w-full overflow-hidden bg-sunken" aria-hidden>
+            {/* Line form: active entries run full height, historical ones half height. */}
+            <div className="mt-1 flex h-2.5 w-full items-end overflow-hidden border-b border-rule" aria-hidden>
               <div className="h-full bg-signal" style={{ width: `${(l.active / max) * 100}%` }} />
-              <div className="h-full bg-ink-3" style={{ width: `${(l.historical / max) * 100}%` }} />
+              <div className="h-1/2 bg-ink-3" style={{ width: `${(l.historical / max) * 100}%` }} />
             </div>
           </li>
         ))}

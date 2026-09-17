@@ -61,7 +61,7 @@ export function CheckResultMark({ result }: { result: CheckResult }) {
 const CASE_TONE: Record<CaseStatus, string> = {
   open: "border border-rule-strong text-ink",
   pending_approval: "border border-dashed border-amber text-amber",
-  closed: "bg-sunken text-ink-2 line-through decoration-ink-3",
+  closed: "bg-sunken text-ink-2",
 };
 export const CaseStatusBadge = ({ status }: { status: CaseStatus }) => <span className={cn(chip, CASE_TONE[status])}>{CASE_STATUS_LABEL[status]}</span>;
 
@@ -71,7 +71,13 @@ const ALERT_TONE: Record<AlertStatus, string> = {
   discarded: "bg-sunken text-ink-2",
   auto_cleared: "border border-cleared/50 text-cleared",
 };
-export const AlertStatusBadge = ({ status }: { status: AlertStatus }) => <span className={cn(chip, ALERT_TONE[status])}>{ALERT_STATUS_LABEL[status]}</span>;
+/** Cleared alerts carry the line form for cleared: a check, in green. */
+export const AlertStatusBadge = ({ status }: { status: AlertStatus }) => (
+  <span className={cn(chip, ALERT_TONE[status])}>
+    {status === "auto_cleared" && <ShieldCheck className="size-3.5" aria-hidden />}
+    {ALERT_STATUS_LABEL[status]}
+  </span>
+);
 
 export function ListTag({ source, className }: { source: string; className?: string }) {
   const list = LISTS[source];

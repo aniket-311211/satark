@@ -6,7 +6,6 @@ export default function NotFound() {
   return (
     <div className="space-y-6">
       <PageHeader
-        code="ERR"
         title="No such function"
         description="This address doesn't map to a function on the console. Pick one from the tabs below, or press its number key."
       />

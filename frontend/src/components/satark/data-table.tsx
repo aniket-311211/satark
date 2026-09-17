@@ -84,9 +84,49 @@ export function DataTable<T>({
         {toolbar && <div className="ml-auto flex items-center gap-2">{toolbar}</div>}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-rule bg-surface">
+      {/* Phones: each row becomes a stacked record (first column as its title, the rest as labelled fields), never a clipped table. */}
+      <ul className="divide-y divide-rule border border-rule bg-panel md:hidden" aria-busy={loading || undefined}>
+        {loading ? (
+          Array.from({ length: 4 }, (_, i) => <li key={i} className="p-3"><Skeleton className="h-10 w-full rounded-none bg-sunken" /></li>)
+        ) : rows.length === 0 ? (
+          <li><EmptyState title={emptyTitle}>{emptyHint}</EmptyState></li>
+        ) : rows.map((row) => {
+          const [first, ...rest] = row.getVisibleCells();
+          const body = (
+            <>
+              <div className="min-w-0 text-[14px] text-ink [overflow-wrap:anywhere]">{flexRender(first.column.columnDef.cell, first.getContext())}</div>
+              {rest.length > 0 && (
+                <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2">
+                  {rest.map((cell) => {
+                    const header = cell.column.columnDef.header;
+                    return (
+                      <div key={cell.id} className="min-w-0">
+                        {typeof header === "string" && header && <dt className="label-caps text-ink-3">{header}</dt>}
+                        <dd className="mt-0.5 min-w-0 text-[13px]">{flexRender(cell.column.columnDef.cell, cell.getContext())}</dd>
+                      </div>
+                    );
+                  })}
+                </dl>
+              )}
+            </>
+          );
+          return (
+            <li key={row.id}>
+              {onRowClick ? (
+                <div role="link" tabIndex={0} aria-label={rowLabel?.(row.original)} onClick={() => onRowClick(row.original)}
+                  onKeyDown={(e) => { if (e.key === "Enter") onRowClick(row.original); }}
+                  className="block cursor-pointer p-3 transition-colors duration-150 hover:bg-sunken focus-visible:bg-sunken">
+                  {body}
+                </div>
+              ) : <div className="p-3">{body}</div>}
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="hidden overflow-x-auto border border-rule bg-panel md:block">
         <Table className="tabular">
-          <TableHeader className="sticky top-0 z-10 bg-surface">
+          <TableHeader className="sticky top-0 z-10 bg-panel">
             {table.getHeaderGroups().map((group) => (
               <TableRow key={group.id} className="border-rule hover:bg-transparent">
                 {group.headers.map((header) => {

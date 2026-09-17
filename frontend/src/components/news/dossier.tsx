@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EmptyState, ErrorState, LoadingBlock } from "@/components/satark/page";
 import { api, q } from "@/lib/api";
-import { fmtDate, titleCase } from "@/lib/format";
+import { titleCase } from "@/lib/format";
+import { Dateline } from "./dateline";
 import type { MediaBrief, MediaEvent } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -68,7 +69,7 @@ function Clipping({ event }: { event: MediaEvent }) {
       <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-ink-2">
         <span>{event.publisher}</span>
         <span aria-hidden>·</span>
-        <span>{fmtDate(event.published_at)}</span>
+        <Dateline published={event.published_at} fetchedAt="" />
         <span aria-hidden>·</span>
         <span className="label-caps border border-rule-strong px-1 py-0.5">{titleCase(event.category)}</span>
         <span aria-hidden>·</span>

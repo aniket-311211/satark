@@ -60,7 +60,6 @@ export default function Screen() {
   return (
     <div className="space-y-5">
       <PageHeader
-        code="SCR"
         title="Screen a name"
         description="Both checks, side by side: how the name compares against five watchlists, and whether independent identity evidence supports or contradicts that match."
       />

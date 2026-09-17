@@ -12,7 +12,7 @@ export default function Benchmark() {
 
   return (
     <div className="space-y-5">
-      <PageHeader code="BMK" title="Benchmark" description="How the matcher performs on synthetic variants and on real labelled cases drawn from live data." />
+      <PageHeader title="Benchmark" description="How the matcher performs on synthetic variants and on real labelled cases drawn from live data." />
 
       {report.error ? <ErrorState error={report.error} what="the benchmark report" /> : !report.data ? <LoadingBlock rows={3} /> : (
         <>

@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router";
 import { GroupTag } from "@/components/satark/badges";
 import { DataTable, type Facet } from "@/components/satark/data-table";
-import { ErrorState, Figure, PageHeader, Section } from "@/components/satark/page";
+import { ErrorState, PageHeader, Section } from "@/components/satark/page";
 import { KindIcon, RegistryStatus, countryText, identifierText } from "@/components/customer/registry";
 import { q } from "@/lib/api";
 import { GROUPS, fmtDate, fmtInt } from "@/lib/format";
@@ -62,17 +62,20 @@ function SummaryStrip({ customers }: { customers: Customer[] }) {
   const orgs = customers.filter((c) => c.kind === "org").length;
   const openCases = customers.filter((c) => (c.open_alerts ?? 0) > 0).length;
   return (
-    <div className="grid grid-cols-2 gap-px border border-rule bg-rule sm:grid-cols-3 lg:grid-cols-5">
+    <div className="flex flex-wrap divide-x divide-rule border border-rule bg-panel text-[13px] text-ink-2" role="group" aria-label="Book composition">
       {groups.map((g) => (
-        <div key={g} className="bg-panel p-3" title={GROUPS[g].long}>
-          <Figure value={fmtInt(byGroup[g])} label={`Group ${g}`} sub={GROUPS[g].label} />
+        <div key={g} className="flex items-baseline gap-2 px-3 py-2" title={GROUPS[g].long}>
+          <span className="label-caps text-ink-3">Group {g}</span>
+          <span><span className="font-mono text-ink">{fmtInt(byGroup[g])}</span> {GROUPS[g].label}</span>
         </div>
       ))}
-      <div className="bg-panel p-3">
-        <Figure value={`${fmtInt(persons)} / ${fmtInt(orgs)}`} label="Persons / orgs" sub="Directors and officers vs LEI-holding entities" />
+      <div className="flex items-baseline gap-2 px-3 py-2">
+        <span className="label-caps text-ink-3">Kind</span>
+        <span><span className="font-mono text-ink">{fmtInt(persons)}</span> people · <span className="font-mono text-ink">{fmtInt(orgs)}</span> organisations</span>
       </div>
-      <div className="bg-panel p-3">
-        <Figure value={fmtInt(openCases)} label="With open cases" tone="text-amber" sub={`Of ${fmtInt(customers.length)} customers`} />
+      <div className="flex items-baseline gap-2 px-3 py-2 text-amber">
+        <span className="label-caps">With open cases</span>
+        <span><span className="font-mono">{fmtInt(openCases)}</span> <span className="text-ink-2">of {fmtInt(customers.length)}</span></span>
       </div>
     </div>
   );
@@ -86,7 +89,7 @@ export default function Customers() {
 
   return (
     <div className="space-y-5">
-      <PageHeader code="CUS" title="Customers" description={`${fmtInt(customers.data?.total ?? 0)} counterparties from three sources: ${sources}.`} />
+      <PageHeader title="Customers" description={`${fmtInt(customers.data?.total ?? 0)} counterparties from three sources: ${sources}.`} />
       {customers.error ? <ErrorState error={customers.error} what="customers" /> : (
         <>
           {items.length > 0 && <SummaryStrip customers={items} />}

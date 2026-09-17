@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertStatusBadge, BandBadge, CaseStatusBadge, GroupTag, ListTag, VerdictBadge } from "@/components/satark/badges";
 import { ScoreMeter } from "@/components/satark/score";
 import { DataTable, type Facet } from "@/components/satark/data-table";
-import { ErrorState, Figure, LoadingBlock, PageHeader } from "@/components/satark/page";
+import { ErrorState, LoadingBlock, PageHeader } from "@/components/satark/page";
 import { q } from "@/lib/api";
 import { BAND_LABEL, GROUPS, fmtDate, fmtInt } from "@/lib/format";
 import type { Alert, Band, CaseRow, CaseStatus, Stats, Verdict } from "@/lib/types";
@@ -130,20 +130,27 @@ function SummaryStrip({ open, pending, closed, cleared, stats }: {
   const bandCount = (b: Band) => all.filter((c) => c.top_band === b).length;
   const totalAlerts = stats.data ? Object.values(stats.data.alerts_by_status).reduce((a, b) => a + b, 0) : 0;
   const share = (n: number, of: number) => (of > 0 ? `${Math.round((n / of) * 100)}% of ${fmtInt(of)}` : undefined);
-  const tiles: { label: string; value: number; tone: string; sub?: string; edge?: string }[] = [
-    { label: "Strong", value: bandCount("strong"), tone: "text-strong", sub: total ? `${share(bandCount("strong"), total)} cases` : undefined },
-    { label: "Probable", value: bandCount("probable"), tone: "text-probable", sub: total ? `${share(bandCount("probable"), total)} cases` : undefined },
-    { label: "Possible", value: bandCount("possible"), tone: "text-possible", sub: total ? `${share(bandCount("possible"), total)} cases` : undefined },
-    { label: "Awaiting review", value: pending.length, tone: "text-amber", sub: total ? `${share(pending.length, total)} cases` : undefined, edge: "border-t-2 border-dashed border-amber" },
-    { label: "Auto-cleared", value: cleared, tone: "text-cleared", sub: totalAlerts ? `${share(cleared, totalAlerts)} alerts` : undefined, edge: "border-t-2 border-cleared" },
+  const readings: { label: string; value: number; tone: string; sub?: string }[] = [
+    { label: "Strong", value: bandCount("strong"), tone: "text-strong" },
+    { label: "Probable", value: bandCount("probable"), tone: "text-probable" },
+    { label: "Possible", value: bandCount("possible"), tone: "text-possible" },
   ];
   return (
-    <div className="grid grid-cols-2 gap-px border border-rule bg-rule sm:grid-cols-3 lg:grid-cols-5" role="group" aria-label="Case counts by band and outcome">
-      {tiles.map((t, i) => (
-        <div key={t.label} className={cn("bg-panel p-3", t.edge, i === tiles.length - 1 && "col-span-2 sm:col-span-1")}>
-          <Figure value={fmtInt(t.value)} label={t.label} tone={t.tone} sub={t.sub} />
-        </div>
-      ))}
+    <div className="flex flex-wrap divide-x divide-rule border border-rule bg-panel text-[13px]" role="group" aria-label="Case counts by band and outcome">
+      <div className="flex items-baseline gap-3 px-3 py-2">
+        <span className="label-caps text-ink-3">Top band, all {fmtInt(total)} cases</span>
+        {readings.map((r) => (
+          <span key={r.label} className={r.tone}><span className="font-mono">{fmtInt(r.value)}</span> {r.label.toLowerCase()}</span>
+        ))}
+      </div>
+      <div className="flex items-baseline gap-2 border-t-2 border-dashed border-t-amber px-3 py-2 text-amber">
+        <span className="label-caps">Awaiting review</span>
+        <span><span className="font-mono">{fmtInt(pending.length)}</span> {total ? <span className="text-ink-2">({share(pending.length, total)} cases)</span> : null}</span>
+      </div>
+      <div className="flex items-baseline gap-2 border-t-2 border-t-cleared px-3 py-2 text-cleared">
+        <span className="label-caps">Auto-cleared</span>
+        <span><span className="font-mono">{fmtInt(cleared)}</span> {totalAlerts ? <span className="text-ink-2">({share(cleared, totalAlerts)} alerts)</span> : null}</span>
+      </div>
     </div>
   );
 }
@@ -168,7 +175,6 @@ export default function Queue() {
   return (
     <div className="space-y-6">
       <PageHeader
-        code="QUE"
         title="Review queue"
         description="One case per customer. An analyst proposes a decision with a rationale; a different reviewer approves it. Name matches cleared by independent identity evidence are listed separately, never deleted."
       />
@@ -178,7 +184,7 @@ export default function Queue() {
       )}
 
       <Tabs value={view} onValueChange={(v) => setParams(v === "open" ? {} : { view: v }, { replace: true })}>
-        <TabsList variant="line" className="h-auto flex-wrap justify-start gap-x-5 border-b border-rule pb-1" aria-label="Queue views">
+        <TabsList variant="line" className="h-auto w-full justify-start gap-x-5 overflow-x-auto border-b border-rule pb-1" aria-label="Queue views">
           {VIEWS.map((v) => {
             const active = v.value === view;
             return (

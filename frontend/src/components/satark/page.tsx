@@ -3,7 +3,7 @@ import { AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-/** Screen header: function code, title, one line of purpose, actions on the right. */
+/** Screen header: title, one line of purpose, actions on the right. `code` is for record identifiers (CASE-033), never a screen label. */
 export function PageHeader({ title, description, actions, code }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; code?: string }) {
   return (
     <header className="mb-5 flex flex-col gap-3 border-b border-rule pb-4 md:flex-row md:items-end md:justify-between">
@@ -60,7 +60,7 @@ export function Panel({ label, meta, actions, children, className, bodyClassName
       {(label || actions || meta) && (
         <div className="flex min-h-9 items-center gap-3 border-b border-rule px-3">
           {label && <h2 className="label-caps min-w-0 truncate text-ink-2">{label}</h2>}
-          {meta && <span className="min-w-0 truncate font-mono text-[11px] text-ink-3">{meta}</span>}
+          {meta && <span className="min-w-0 truncate text-[12px] text-ink-3">{meta}</span>}
           {actions && <div className="ml-auto flex shrink-0 items-center gap-2">{actions}</div>}
         </div>
       )}
