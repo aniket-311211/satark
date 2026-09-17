@@ -212,3 +212,39 @@ The synthetic benchmark is unchanged (it has no dates of birth): dev threshold 7
 | The term-age check could run for organisations | minor | not applied to organisations |
 
 The regression test fails with either service fix reverted and passes with both. After the fixes: 117 tests pass, the real book still screens to 48 open and 2 auto-cleared, the real-case gate is 34/34, and the audit chain verifies.
+
+## Step 6 — The console and the landing page
+
+The old frontend was one page of API calls. It's now two surfaces built by Vite as a multi-page app: a static landing page at `/`, and the analyst console at `/app/`.
+
+**Landing.** One HTML file, no framework. A translucent figure (a video) scrubs forwards and backwards with mouse travel, gated so it only seeks when the change is big enough to show. The numbers pinned around it are the project's own measurements: 29,574 list entries, 9,400 revoked, 1,385 customers, and a name score of 100 cleared by a 19-year birth-date gap.
+
+**Console.** React 19, TypeScript, Tailwind v4 with shadcn/ui, TanStack Query for server state and TanStack Table for every list, Recharts for charts, and lazy routes so charts load only on the pages that draw them.
+
+| Page | What it shows |
+|---|---|
+| Overview | Alerts per 100 customers by group, what the identity check did with them, active vs historical entries per list |
+| Review queue | Cases with band, identity verdict and lists hit; auto-cleared alerts in their own tab |
+| Case file | Check 1 and Check 2 side by side for each alert, the listing, maker-checker actions under the demo identity, the case's own audit events |
+| Customers / profile | The 1,385-row book with group and kind facets; registry facts, ownership with the GLEIF-vs-PSC mismatch called out, directors, cases |
+| Screen a name | Any name, with optional date of birth and nationality, through both checks |
+| News desk | Subject brief (the event's quote marked inside its headline, four grounding checks), a regulator-first wire with full-text search, feed health |
+| Benchmark | Systems table, threshold sweep, recall per name transform, the misses, the 34 real cases |
+| Audit trail | Chain verification and every event |
+
+**Design rules.** One accent colour (stamp blue) used for links and selection. Risk bands and verdicts always carry an icon and a word, never colour alone. Tabular figures for every number. No cards around sections, no gradients, no emoji.
+
+**Checked by screenshot** at 390 px and 1440 px for every route. No horizontal page scroll and no console errors (the only error is a missing favicon). `tsc` and `vite build` are clean. The console bundle is 138 kB gzipped, and the chart chunk (104 kB gzipped) loads only on chart pages.
+
+**Defects found while checking:**
+
+| Defect | Fix |
+|---|---|
+| Chips and active filters were invisible: `ink`, `paper` and `rule` had no Tailwind colour tokens | tokens added and every colour class audited |
+| A data field named `transform` leaked into Recharts' SVG `transform` attribute | field renamed |
+| The exact-match sweep has one point (threshold 100), which crashed the chart caption | the caption explains exact's fixed operating point |
+| The news wire rendered 300 items (about 20,000 px) and opened on general business stories | capped at 40, with a filter that opens on regulator orders |
+| On phones the top-bar search didn't shrink, and the Watchlists authority column collapsed to one letter per line | `min-w-0` on the search; a minimum width so the table scrolls |
+| Chart legend swatches pointed at CSS variables that exist only inside the chart | the swatches read the chart config directly |
+
+**Not verified by screenshot:** an *unverified* news event (quote struck through, "not found in source"). With the keyword extractor, the current corpus can't produce one: the quote is the headline, and the full-text search guarantees the subject is present. That path is code-reviewed only. It becomes reachable with the LLM extractor.
