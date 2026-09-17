@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Satark · The walkthrough</title>
+<meta name="description" content="A recorded walkthrough of Satark: India-first counterparty screening on real public data.">
+<meta name="theme-color" content="#0E1116">
+<link rel="icon" type="image/png" href="favicon-64.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Martian+Mono:wdth,wght@75..112,400..700&display=swap">
+<style>
+  :root{
+    --ground:oklch(16.4% 0.011 255); --panel:oklch(20.2% 0.013 255); --rule:oklch(29.5% 0.017 255);
+    --ink:oklch(91.8% 0.013 85); --ink-2:oklch(76% 0.012 85); --ink-3:oklch(64% 0.011 85);
+    --amber:oklch(80% 0.145 72); --cyan:oklch(79% 0.1 208);
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--ground);color:var(--ink);font-family:Archivo,system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'Martian Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums slashed-zero}
+  .caps{font-stretch:78%;font-weight:600;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  header{padding:64px 0 24px}
+  h1{font-weight:700;font-stretch:112%;font-size:clamp(30px,4vw,46px);line-height:1.05;letter-spacing:-0.012em}
+  h1 .brand{font-weight:800;font-stretch:125%;letter-spacing:.08em;text-transform:uppercase;margin-right:.3em}
+  header p{margin-top:12px;max-width:72ch;font-size:17px;color:var(--ink-2)}
+  .reading{margin-top:22px;display:flex;flex-wrap:wrap;border:1px solid var(--rule);background:var(--panel)}
+  .reading div{display:flex;align-items:baseline;gap:8px;padding:10px 14px;border-right:1px solid var(--rule);font-size:13.5px;color:var(--ink-2)}
+  .reading div:last-child{border-right:0}
+  section{padding:26px 0}
+  .panel{border:1px solid var(--rule);background:var(--panel)}
+  .panel-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;padding:10px 14px;border-bottom:1px solid var(--rule)}
+  .panel-head .meta{font-size:12.5px;color:var(--ink-3)}
+  video{display:block;width:100%;height:auto;background:#000}
+  .body{padding:14px 16px;font-size:14.5px;color:var(--ink-2)}
+  .body b{font-weight:500;color:var(--ink)}
+  .links{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 64px}
+  a.btn{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 18px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid var(--rule);color:var(--ink);border-radius:2px}
+  a.btn:hover{background:oklch(24.6% 0.015 255)}
+  a.btn.primary{background:var(--amber);border-color:var(--amber);color:oklch(13.2% 0.009 255)}
+  a{color:var(--cyan)}
+  footer{padding:22px 0 48px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-3)}
+  @media (max-width:640px){.reading{flex-direction:column}.reading div{border-right:0;border-bottom:1px solid var(--rule)}}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1><span class="brand">Satark</span>The walkthrough</h1>
+  <p>Counterparty screening for India-linked companies and the people behind them, on real public data. Both recordings run against the real system. The decision and the import in them are real writes, not mock-ups.</p>
+  <div class="reading">
+    <div><span class="caps">Watchlists</span><span class="mono">29,574</span></div>
+    <div><span class="caps">Customers</span><span class="mono">1,385</span></div>
+    <div><span class="caps">Satark F1</span><span class="mono">0.953</span></div>
+    <div><span class="caps">Fuzzy F1</span><span class="mono">0.572</span></div>
+    <div><span class="caps">Real cases passed</span><span class="mono">34/34</span></div>
+  </div>
+</header>
+
+<section class="wrap">
+  <div class="panel">
+    <div class="panel-head"><span class="caps">The cut</span><span class="meta">45 seconds · sound on</span></div>
+    <video controls preload="metadata" playsinline poster="demo/stills/05-lab-threshold-80.png">
+      <source src="demo/satark-highlight.mp4" type="video/mp4">
+      Your browser cannot play this file. <a href="demo/satark-highlight.mp4">Download it instead.</a>
+    </video>
+    <p class="body">The alert line dragged across the sweep, the identity check clearing a <b>perfect 100-point name match</b>, a live screen against the API, an analyst's proposal <b>refused by the four-eyes rule</b>, a second reviewer closing the case, and the audit chain verified.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="panel">
+    <div class="panel-head"><span class="caps">The whole product</span><span class="meta">3 minutes 46 seconds · captions on every step</span></div>
+    <video controls preload="none" playsinline poster="screens/overview.png">
+      <source src="demo/satark-walkthrough.mp4" type="video/mp4">
+      Your browser cannot play this file. <a href="demo/satark-walkthrough.mp4">Download it instead.</a>
+    </video>
+    <p class="body">The benchmark lab on the front page — threshold, name variants, identity evidence, the real book — then all eight console screens: Overview, the command menu, the queue, a case file with both checks, the four-eyes decision, customers, a CSV imported and screened on upload, reverse screening from a listing back into the book, the Wire, screening in Devanagari, the benchmark, and the audit chain.</p>
+  </div>
+</section>
+
+<section class="wrap links">
+  <a class="btn primary" href="https://github.com/aniket-311211/satark">The repository</a>
+  <a class="btn" href="https://github.com/aniket-311211/satark/blob/main/docs/ARCHITECTURE.md">Architecture</a>
+  <a class="btn" href="https://github.com/aniket-311211/satark/blob/main/docs/BENCHMARKS.md">Benchmarks</a>
+  <a class="btn" href="https://github.com/aniket-311211/satark/tree/main/docs/demo/stills">Every beat as a still</a>
+</section>
+
+<footer class="wrap">
+  Satark is an independent portfolio project. It is not affiliated with any exchange, regulator or data vendor. Matches are leads for a human reviewer, never findings. Watchlist data © <a href="https://www.opensanctions.org">OpenSanctions</a> (CC BY-NC 4.0).
+</footer>
+</body>
+</html>
