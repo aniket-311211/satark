@@ -89,7 +89,7 @@ export default function Customers() {
 
   return (
     <div className="space-y-5">
-      <PageHeader brand title="Customers" description={`${fmtInt(customers.data?.total ?? 0)} counterparties from three sources: ${sources}.`} />
+      <PageHeader brand title="Customers" description={`${fmtInt(customers.data?.total ?? 0)} counterparties: ${sources}.`} />
       {customers.error ? <ErrorState error={customers.error} what="customers" /> : (
         <>
           {items.length > 0 && <SummaryStrip customers={items} />}

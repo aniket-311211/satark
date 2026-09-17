@@ -1,131 +1,75 @@
+import { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router";
-import { ScanSearch } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ListTag } from "@/components/satark/badges";
-import { ErrorState, LoadingBlock, PageHeader, Panel } from "@/components/satark/page";
-import { WatchlistBoard } from "@/components/overview/watchlist-board";
+import { useSearchParams } from "react-router";
+import { ErrorState, LoadingBlock, PageHeader } from "@/components/satark/page";
+import { ListSelector } from "@/components/lists/list-selector";
+import { ListingTable, type ListingFilters } from "@/components/lists/listing-table";
+import { ExposurePanel } from "@/components/lists/exposure-panel";
 import { q } from "@/lib/api";
-import { fmtInt, fmtTime } from "@/lib/format";
+import { fmtInt } from "@/lib/format";
 
 const pctOf = (part: number, whole: number) => (whole ? `${Math.round((part / whole) * 100)}%` : "—");
 
 export default function Watchlists() {
   const lists = useQuery(q.watchlists());
+  const [params, setParams] = useSearchParams();
+  const filters: ListingFilters = {
+    source: params.get("list") ?? "",
+    q: params.get("q") ?? "",
+    status: params.get("status") ?? "",
+    kind: params.get("kind") ?? "",
+    page: Number(params.get("page") ?? 0) || 0,
+  };
+  const entity = params.get("entity") ?? "";
+
+  // Every filter lives in the URL, so a listing view can be shared or bookmarked.
+  const update = useCallback((next: Partial<ListingFilters & { entity: string }>) => {
+    setParams((current) => {
+      const merged = new URLSearchParams(current);
+      const keys: Record<string, string> = { source: "list", q: "q", status: "status", kind: "kind", page: "page", entity: "entity" };
+      for (const [field, value] of Object.entries(next)) {
+        const key = keys[field];
+        if (value === "" || value === 0 || value === undefined) merged.delete(key);
+        else merged.set(key, String(value));
+      }
+      return merged;
+    }, { replace: true });
+  }, [setParams]);
+
   const totals = lists.data?.reduce((t, l) => ({ entities: t.entities + l.entities, active: t.active + l.active, historical: t.historical + l.historical }),
     { entities: 0, active: 0, historical: 0 });
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        title="Watchlists"
-        description="Five official lists, ingested from the full OpenSanctions records. Revoked, expired and out-of-office entries stay searchable but never raise alerts."
-        actions={
-          <Button asChild variant="outline">
-            <Link to="/screen"><ScanSearch aria-hidden /> Screen a name</Link>
-          </Button>
-        }
-      />
+      <PageHeader brand title="Lists"
+        description="Search the listings behind every alert, open a record as the authority published it, and see who in the customer book it matches." />
 
-      {lists.error ? <ErrorState error={lists.error} what="watchlists" /> : !lists.data || !totals ? <LoadingBlock rows={6} /> : (
+      {lists.error ? <ErrorState error={lists.error} what="watchlists" /> : !lists.data || !totals ? <LoadingBlock rows={3} /> : (
         <>
-          <div className="flex flex-col divide-y divide-rule sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 border border-rule bg-panel text-[13px] text-ink-2" role="group" aria-label="List totals">
-            <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Lists</span><span className="font-mono text-ink">{fmtInt(lists.data.length)}</span></div>
+          <div className="flex flex-col divide-y divide-rule border border-rule bg-panel text-[13px] text-ink-2 sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0" role="group" aria-label="List totals">
             <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Entries</span><span className="font-mono text-ink">{fmtInt(totals.entities)}</span></div>
             <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Active</span><span><span className="font-mono text-ink">{fmtInt(totals.active)}</span> raise alerts</span></div>
-            <div className="flex items-baseline gap-2 px-3 py-2"><span className="label-caps text-ink-3">Historical</span><span><span className="font-mono text-ink-3">{fmtInt(totals.historical)}</span> {pctOf(totals.historical, totals.entities)} of entries, never alert</span></div>
-          </div>
-
-          <Panel label="List board" meta={`${fmtInt(lists.data.length)} authorities`} bodyClassName="p-0">
-            <ul className="divide-y divide-rule md:hidden">
-              {lists.data.map((l) => (
-                <li key={l.key} className="p-3">
-                  <div className="flex items-center gap-2"><ListTag source={l.key} /><span className="text-ink">{l.label}</span></div>
-                  <p className="mt-1 text-[13px] text-ink-2">{l.authority}</p>
-                  <dl className="mt-2 grid grid-cols-3 gap-2 text-[13px]">
-                    <div><dt className="label-caps text-ink-3">Entries</dt><dd className="font-mono text-ink">{fmtInt(l.entities)}</dd></div>
-                    <div><dt className="label-caps text-ink-3">Active</dt><dd className="font-mono text-ink">{fmtInt(l.active)}</dd></div>
-                    <div><dt className="label-caps text-ink-3">Historical</dt><dd><span className="font-mono text-ink-3">{fmtInt(l.historical)}</span> <span className="text-xs text-ink-2">{pctOf(l.historical, l.entities)}</span></dd></div>
-                  </dl>
-                </li>
-              ))}
-            </ul>
-            <div className="hidden overflow-x-auto md:block">
-              <Table className="tabular">
-                <TableHeader>
-                  <TableRow className="border-rule hover:bg-transparent">
-                    <TableHead className="text-xs font-medium text-ink-2">List</TableHead>
-                    <TableHead className="min-w-[12rem] text-xs font-medium text-ink-2">Authority</TableHead>
-                    <TableHead className="text-right text-xs font-medium text-ink-2">Entries</TableHead>
-                    <TableHead className="text-right text-xs font-medium text-ink-2">Active</TableHead>
-                    <TableHead className="text-right text-xs font-medium text-ink-2">Historical</TableHead>
-                    <TableHead className="text-xs font-medium text-ink-2">Last ingest</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {lists.data.map((l) => (
-                    <TableRow key={l.key} className="border-rule">
-                      <TableCell className="py-3">
-                        <div className="flex items-center gap-2">
-                          <ListTag source={l.key} />
-                          <span className="whitespace-nowrap text-ink">{l.label}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-[18rem] min-w-[12rem] py-3 whitespace-normal text-ink-2">{l.authority}</TableCell>
-                      <TableCell className="py-3 text-right font-mono text-ink">{fmtInt(l.entities)}</TableCell>
-                      <TableCell className="py-3 text-right font-mono text-ink">{fmtInt(l.active)}</TableCell>
-                      <TableCell className="py-3 text-right">
-                        <span className="font-mono text-ink-3">{fmtInt(l.historical)}</span>
-                        <span className="ml-1.5 text-xs text-ink-2">{pctOf(l.historical, l.entities)}</span>
-                      </TableCell>
-                      <TableCell className="py-3 whitespace-nowrap text-ink-2">
-                        {l.last_run ? (
-                          <>
-                            <span className="text-ink">{fmtTime(l.last_run.at)}</span> · {l.last_run.mode}
-                            <span className="block font-mono text-xs">
-                              +{fmtInt(l.last_run.added)} · ~{fmtInt(l.last_run.changed)} · −{fmtInt(l.last_run.removed)}
-                            </span>
-                          </>
-                        ) : "Never ingested"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow className="border-rule bg-sunken/50 hover:bg-sunken/50">
-                    <TableCell className="py-3 font-medium text-ink" colSpan={2}>All lists</TableCell>
-                    <TableCell className="py-3 text-right font-mono font-medium text-ink">{fmtInt(totals.entities)}</TableCell>
-                    <TableCell className="py-3 text-right font-mono font-medium text-ink">{fmtInt(totals.active)}</TableCell>
-                    <TableCell className="py-3 text-right">
-                      <span className="font-mono font-medium text-ink">{fmtInt(totals.historical)}</span>
-                      <span className="ml-1.5 text-xs text-ink-2">{pctOf(totals.historical, totals.entities)}</span>
-                    </TableCell>
-                    <TableCell className="py-3 text-xs text-ink-2">+ added · ~ changed · − removed</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+            <div className="flex items-baseline gap-2 px-3 py-2">
+              <span className="label-caps text-ink-3">Historical</span>
+              <span title="Revoked or expired orders, and members of Parliament more than 12 months out of office (FCA FG17/6). Still searchable, never alert.">
+                <span className="font-mono text-ink-3">{fmtInt(totals.historical)}</span> {pctOf(totals.historical, totals.entities)}: revoked, expired or out of office, never alert
+              </span>
             </div>
-          </Panel>
-
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-            <Panel label="Active vs historical" meta="Full height active, half height historical">
-              <WatchlistBoard />
-            </Panel>
-            <Panel label="Why an entry goes historical">
-              <ul className="space-y-3 text-sm text-ink-2">
-                <li className="border-l border-rule-strong py-0.5 pl-3">
-                  <span className="text-ink">Revoked or expired orders.</span> An NSE entry is historical when every order against it is revoked, or its debarment period has run out.
-                </li>
-                <li className="border-l border-rule-strong py-0.5 pl-3">
-                  <span className="text-ink">Former PEPs.</span> A member of Parliament stays active for 12 months after leaving office, following the FCA's guidance on former politically exposed persons (FG17/6).
-                </li>
-                <li className="border-l border-rule py-0.5 pl-3">
-                  <span className="text-ink">Only active entries alert.</span> Historical entries still show up when you screen a name, labelled as such, so the history stays visible without queueing work.
-                </li>
-              </ul>
-            </Panel>
           </div>
+          <ListSelector lists={lists.data} value={filters.source} onChange={(source) => update({ source, page: 0 })} />
         </>
       )}
+
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
+        <ListingTable filters={filters} onChange={update} selected={entity} onSelect={(id) => {
+          update({ entity: id });
+          // stacked layout: the record opens below the list, so bring it into view
+          if (!matchMedia("(min-width: 1024px)").matches) requestAnimationFrame(() => document.getElementById("listing-detail")?.scrollIntoView({ block: "start" }));
+        }} />
+        <div id="listing-detail" className="scroll-mt-16 lg:sticky lg:top-16">
+          <ExposurePanel entityId={entity} />
+        </div>
+      </div>
     </div>
   );
 }

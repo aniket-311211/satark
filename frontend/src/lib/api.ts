@@ -1,8 +1,8 @@
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { actingAs } from "./identity";
 import type {
-  AuditEntry, AuditVerify, CaseDetail, CaseRow, Customer, CustomerProfile, Entity, EvalReport, FeedStatus, MediaBrief,
-  NewsArticle, NewsItem, Paged, RealEval, ScreenResult, Stats, User, Watchlist, Alert,
+  AuditEntry, AuditVerify, CaseDetail, CaseRow, Customer, CustomerProfile, Entity, EntityRow, EvalReport, Exposure, FeedStatus,
+  ImportReport, MediaBrief, NewsArticle, NewsItem, Paged, RealEval, ScreenResult, Stats, User, Watchlist, Alert,
 } from "./types";
 
 export class ApiError extends Error {
@@ -46,6 +46,13 @@ export const q = {
     queryOptions({ queryKey: ["customers", params], queryFn: () => request<Paged<Customer>>(`/customers?${qs({ ...params, limit: 2000 })}`) }),
   customer: (id: number) => queryOptions({ queryKey: ["customer", id], queryFn: () => request<CustomerProfile>(`/customers/${id}`) }),
   entity: (id: string) => queryOptions({ queryKey: ["entity", id], queryFn: () => request<Entity>(`/entities/${encodeURIComponent(id)}`) }),
+  entities: (params: { q?: string; source?: string; status?: string; kind?: string; offset?: number }) =>
+    queryOptions({
+      queryKey: ["entities", params],
+      queryFn: () => request<Paged<EntityRow>>(`/entities?${qs({ ...params, limit: 50 })}`),
+      placeholderData: (previous) => previous,
+    }),
+  exposure: (id: string) => queryOptions({ queryKey: ["exposure", id], queryFn: () => request<Exposure>(`/entities/${encodeURIComponent(id)}/exposure`) }),
   audit: () => queryOptions({ queryKey: ["audit"], queryFn: () => request<AuditEntry[]>("/audit?limit=500") }),
   auditVerify: () => queryOptions({ queryKey: ["audit", "verify"], queryFn: () => request<AuditVerify>("/audit/verify") }),
   evalReport: () => queryOptions({ queryKey: ["eval"], queryFn: () => request<EvalReport>("/eval"), staleTime: Infinity }),
@@ -62,7 +69,10 @@ export const api = {
     post<ScreenResult>("/screen", body),
   mediaBrief: (subject: string, refresh = false) => post<MediaBrief>("/media/brief", { subject, refresh }),
   pollNews: () => post<{ name: string; status: string; new: number; total: number }[]>("/news/poll"),
+  importCustomers: (csv: string, dryRun: boolean) => post<ImportReport>("/customers/import", { csv, dry_run: dryRun }),
 };
+
+export const IMPORT_TEMPLATE_URL = "/api/customers/import/template";
 
 export function useCaseActions(caseId: number) {
   const client = useQueryClient();
