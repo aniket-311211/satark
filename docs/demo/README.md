@@ -6,7 +6,7 @@
 | [`satark-walkthrough.mp4`](satark-walkthrough.mp4) | 3 min 46 s | 8.7 MB | The long form, with the four-eyes decision and a live CSV import in full |
 | [`threshold.gif`](threshold.gif) | 12 s | 1.5 MB | The looping still the README opens with |
 
-Both videos are 1280×720 with on-screen captions and a synthesised score: a fast 120 BPM bed under the demo, a slower one under the walkthrough. Both play in the browser at [aniket-311211.github.io/satark](https://aniket-311211.github.io/satark/).
+Both videos are 1280×720 with on-screen captions. The music is *The Mountain* (lofi, Pixabay licence), the same track under both, looped once in the walkthrough. Both play in the browser at [aniket-311211.github.io/satark](https://aniket-311211.github.io/satark/).
 
 The run is scripted with Playwright (`Discover → Rehearse → Record`): a cursor overlay, a caption bar, and a still saved at every beat. It runs against a **copy of the database**, so the maker-checker decision and the CSV import in the video are real writes — nothing in it is a mock-up. The only cut is the hand-off from the landing page to the console: headless Chrome freezes on the cross-document view transition, so it is recorded as a cut rather than the sweep you get in a real browser.
 
@@ -51,4 +51,4 @@ The scripts live outside the repository (they are throwaway harness code). The s
 - an invisible full-screen overlay (a title card faded to `opacity: 0`) swallows every click that follows unless it is also `pointer-events: none`;
 - `button:has-text("Screen")` matched the command bar's own "find a customer or **screen** a name" before the Screen page's submit button, which silently opened ⌘K over everything.
 
-The score is synthesised with ffmpeg oscillators (an A-minor bed, a pulse on the two, a slow arpeggio, low-passed and limited) — no sampled or licensed material.
+The audio is muxed in afterwards with ffmpeg: the track is laid under the finished picture at -6 dB, with a fade in and a fade out, and looped when the picture runs longer than the track.
