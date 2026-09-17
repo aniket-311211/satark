@@ -116,7 +116,7 @@ export default function Audit() {
   const audit = useQuery(q.audit());
   return (
     <div className="space-y-6">
-      <PageHeader title="Audit trail" description="Every case decision and news/media action, hash-chained so a change to history is detectable." />
+      <PageHeader brand title="Audit" description="Every case decision and news/media action, hash-chained so a change to history is detectable." />
       <VerifyBanner />
       {audit.data && <ActionBreakdown entries={audit.data} />}
       <Section title="Events">

@@ -3,13 +3,18 @@ import { AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-/** Screen header: title, one line of purpose, actions on the right. `code` is for record identifiers (CASE-033), never a screen label. */
-export function PageHeader({ title, description, actions, code }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; code?: string }) {
+/**
+ * Screen header: title, one line of purpose, actions on the right.
+ * `brand` sets the product name in the wordmark's face before the title (Satark Overview, Satark Queue);
+ * `code` is for record identifiers (CASE-033), never a screen label.
+ */
+export function PageHeader({ title, description, actions, code, brand }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; code?: string; brand?: boolean }) {
   return (
     <header className="mb-5 flex flex-col gap-3 border-b border-rule pb-4 md:flex-row md:items-end md:justify-between">
       <div className="min-w-0">
-        <h1 className="flex items-baseline gap-3 text-[26px] leading-tight text-ink [overflow-wrap:anywhere]">
+        <h1 className="flex flex-wrap items-baseline gap-x-3 text-[26px] leading-tight text-ink [overflow-wrap:anywhere]">
           {code && <span className="font-mono text-[13px] font-normal tracking-normal text-amber [font-stretch:88%]">{code}</span>}
+          {brand && <span className="font-extrabold tracking-[0.1em] uppercase [font-stretch:125%]">Satark</span>}
           <span className="min-w-0">{title}</span>
         </h1>
         {description && <p className="mt-1 max-w-[80ch] text-[13px] text-ink-2">{description}</p>}

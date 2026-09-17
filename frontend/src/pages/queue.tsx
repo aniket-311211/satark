@@ -175,7 +175,8 @@ export default function Queue() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Review queue"
+        brand
+        title="Queue"
         description="One case per customer. An analyst proposes a decision with a rationale; a different reviewer approves it. Name matches cleared by independent identity evidence are listed separately, never deleted."
       />
 

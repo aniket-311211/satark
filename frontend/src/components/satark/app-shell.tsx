@@ -87,7 +87,7 @@ function Clocks() {
   }, []);
   const time = (zone: string) => now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: zone });
   return (
-    <div className="hidden items-center gap-3 font-mono text-[11px] text-ink-2 xl:flex" aria-label="Desk clocks">
+    <div className="hidden items-center gap-3 font-mono text-[11px] text-ink-2 min-[1400px]:flex" aria-label="Desk clocks">
       <span><span className="text-ink-3">LON</span> {time("Europe/London")}</span>
       <span><span className="text-ink-3">MUM</span> {time("Asia/Kolkata")}</span>
     </div>
@@ -154,11 +154,13 @@ export function AppShell() {
           <FunctionTabs />
         </div>
         <div className="ml-auto flex min-w-0 items-center gap-3 px-3 md:px-4">
-          <button type="button" onClick={() => setCommandOpen(true)} aria-label="Screen a name or find a customer"
-            className="flex h-8 w-full min-w-0 cursor-pointer items-center gap-2 border border-rule bg-paper px-2.5 text-[13px] text-ink-3 transition-colors duration-150 hover:border-rule-strong hover:text-ink-2 sm:w-52 lg:w-auto 2xl:w-64">
+          {/* Command menu (⌘K): find a customer, screen any name, or jump to a screen. */}
+          <button type="button" onClick={() => setCommandOpen(true)} title="Find a customer, screen a name, or jump to a screen (⌘K)"
+            className="flex h-8 w-full min-w-0 shrink-0 cursor-pointer items-center gap-2 border border-rule bg-paper px-2.5 text-[13px] whitespace-nowrap text-ink-2 transition-colors duration-150 hover:border-rule-strong hover:text-ink sm:w-auto">
             <Search className="size-3.5 shrink-0" aria-hidden />
-            <span className="truncate lg:hidden 2xl:inline">Screen a name…</span>
-            <kbd className="ml-auto hidden border border-rule px-1 text-[10.5px] text-ink-2 sm:inline">⌘K</kbd>
+            <span className="2xl:hidden">Search</span>
+            <span className="hidden 2xl:inline">Find a customer or screen a name</span>
+            <kbd className="ml-auto hidden border border-rule px-1 font-mono text-[10.5px] text-ink-3 sm:inline">⌘K</kbd>
           </button>
           <Clocks />
           <div className="hidden md:block"><IdentitySwitch /></div>
