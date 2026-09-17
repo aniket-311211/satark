@@ -290,3 +290,17 @@ The first console read as plain, white and generic. The owner asked for:
 | The news agent removed the manual feed poll to avoid writing during its checks | restored |
 
 `tsc` and `vite build` are clean, 118 backend tests pass, and no route scrolls horizontally at 1440 or 390 px. The design detector flags one intentional case: the landing page clips overflow to hold its single-screen hero.
+
+**Independent finish review.** A fresh reviewer agent, with no memory of the build, judged the screenshots against the request, the direction contract and the craft floor.
+
+- **Round 1: "fix", with eight findings.**
+  1. The News desk sections below the fold still read as lists.
+  2. Datelines came in several formats.
+  3. The desk clocks were hidden at 1440 px.
+  4. Rows of stat tiles repeated figures shown in the panels below.
+  5. Tables clipped on phones.
+  6. Tab codes sat beside page titles, acting as eyebrow labels.
+  7. Some colours and line forms broke the one-meaning rule.
+  8. Two screens counted "strong" cases over different sets.
+- **Round 2: six resolved.** Two fixes were partial, and the round found two regressions (News overflowing on phones, and a risk-desk count that disagreed with the masthead).
+- **After round 2.** Those four were fixed and checked by screenshot, but not re-reviewed: two rounds is the review budget.
