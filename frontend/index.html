@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F6EAF2">
-<title>Satark — Every Name Gets a Second Look</title>
+<meta name="theme-color" content="#0E1116">
+<title>Satark · Screen every name, check the evidence</title>
+<meta name="description" content="Satark screens India-linked companies and their directors against sanctions, PEP and debarment lists, then checks identity evidence before a match reaches a reviewer.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&display=block">
 <style>
-/* Hallmark · macrostructure: master-prompt hero (pinned single screen) · tone: austere/technical · anchor hue: rose paper #F6EAF2 */
+/* Hallmark · macrostructure: master-prompt hero (pinned single screen) · ground: the console's graphite, so the hand-off is seamless */
 @view-transition{navigation:auto}
 html{
   font-size:min(calc(100vw / 1594), calc(100vh / 987), 1.75px);
@@ -19,11 +20,12 @@ html{
   html{font-size:min(calc(100vw / 1594), calc(100dvh / 987), 1.75px)}
 }
 
+@supports (color:oklch(0% 0 0)){:root{--bg:oklch(16.4% 0.011 255);--ink:oklch(91.8% 0.013 85)}}
 :root{
-  --ink:#000000;
-  --bg:#F6EAF2;
-  --hairline:rgba(0,0,0,.55);
-  --glass:rgba(255,255,255,.15);
+  --ink:#E8E3D8;
+  --bg:#0E1116;
+  --hairline:rgba(232,227,216,.42);
+  --glass:rgba(232,227,216,.05);
   --bust-top:80.5rem;
   --bust-zoom:1;
   --bust-nudge-x:0%;
@@ -45,7 +47,7 @@ body{
   text-rendering:geometricPrecision;
 }
 .stage{position:fixed;inset:0;isolation:isolate}
-:focus-visible{outline:2px solid #000;outline-offset:3px}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 
 /* anchor frame */
 .pin{position:absolute}
@@ -94,9 +96,14 @@ body{
   transform:scale(var(--bust-zoom)) translate(var(--bust-nudge-x), var(--bust-nudge-y));
   transform-origin:50% 100%;
   display:block;
-  filter:brightness(1.18) saturate(1.22);
-  mix-blend-mode:multiply;
+  filter:saturate(1.12);
 }
+.bust-c{
+  position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;
+  transform:scale(var(--bust-zoom)) translate(var(--bust-nudge-x), var(--bust-nudge-y));
+  transform-origin:50% 100%;
+}
+.bust.keyed .bust-v{opacity:0}
 
 /* masthead: wordmark + entry CTA, top centre, above the figure's head */
 .wordmark{
@@ -127,11 +134,6 @@ body{
   .cta:hover{translate:0 -2rem}
   .cta:active{translate:0 0;scale:.97}
 }
-
-.moon{--x:115.0rem; --y:35.0rem; width:21rem;height:22rem;z-index:3}
-.mode{--x:44.5rem; --y:26.9rem; width:37.8rem;height:37.8rem;z-index:3}
-.mode svg{width:100%;height:100%;display:block}
-.mode:disabled{cursor:default}
 
 /* headline */
 .headline{
@@ -189,21 +191,8 @@ body{
 .note:nth-child(2){--dx:148rem;--dy:-322rem;--lead:70rem}
 .note:nth-child(3){--dx:200rem;--dy:-104rem;--lead:92rem}
 .note:nth-child(4){--dx:-702rem;--dy:150rem;--lead:178rem}
-html[data-notes="off"] .note{display:none}
 
 /* controls */
-.brightness{
-  --x:41.0rem; --y:6.0rem;
-  width:41.6rem;height:41.6rem;
-  border-radius:50%;
-  border:1.1rem solid var(--hairline);
-  background:var(--glass);
-  -webkit-backdrop-filter:blur(6rem);backdrop-filter:blur(6rem);
-  display:grid;place-items:center;
-  color:inherit;text-decoration:none;
-  z-index:3;
-}
-.brightness svg{width:26rem;height:26rem;display:block}
 
 .tags{--x:43.0rem; --y:9.0rem; display:flex;gap:3.0rem;z-index:3}
 .tag{
@@ -227,8 +216,8 @@ html[data-anim] .instruments{display:block;position:absolute;inset:0;pointer-eve
 html[data-anim] .instruments > *{pointer-events:auto}
 
 @media (prefers-reduced-motion:no-preference){
-  .tag,.brightness,.mode{transition:opacity .25s ease}
-  .tag:hover,.brightness:hover,.mode:not(:disabled):hover{opacity:.62}
+  .tag{transition:opacity .25s ease}
+  .tag:hover{opacity:.62}
 }
 
 /* entrance: initial states (no script => no attribute => nothing hidden) */
@@ -236,8 +225,6 @@ html[data-anim] *{transition:none !important}
 html[data-anim="pending"] .bust{opacity:0;scale:1.028;transform-origin:50% 100%;will-change:opacity,scale}
 html[data-anim="pending"] .wordmark,
 html[data-anim="pending"] .cta{opacity:0;scale:.9;will-change:opacity,scale}
-html[data-anim="pending"] .moon,
-html[data-anim="pending"] .mode{opacity:0;translate:0 -8rem;will-change:opacity,translate}
 html[data-anim="pending"] .headline .l1,
 html[data-anim="pending"] .headline .l2{overflow:hidden}
 html[data-anim="pending"] .headline .ln{translate:0 105%;will-change:translate}
@@ -252,10 +239,6 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
 @media (pointer:coarse) and (max-width:1600px), (max-width:999px){
   .wordmark{--y:24rem;font-size:44rem}
   .cta{--y:80rem;height:max(52rem,48px);padding:0 max(30rem,22px);font-size:22rem}
-  .moon{--x:132rem;--y:32rem;width:28rem;height:29rem}
-  .mode{--x:43rem;--y:23rem;width:50rem;height:50rem}
-  .brightness{--x:41rem;--y:8rem;width:60rem;height:60rem;border-width:1.4rem}
-  .brightness svg{width:37rem;height:37rem}
   .tags{--x:43rem;--y:9rem;gap:6rem}
   .tag{height:52rem;padding:0 23rem;border-radius:26rem;font-size:27rem;border-width:1.6rem}
 }
@@ -280,8 +263,6 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
   }
   .wordmark{--y:32rem;--dx:0rem;font-size:56rem}
   .cta{--y:96rem;height:max(48rem,44px);padding:0 max(28rem,20px);font-size:24rem}
-  .moon{display:none}
-  .mode{--x:32rem;--y:33rem;width:48rem;height:48rem}
   .headline{
     left:var(--col-x);right:auto;
     top:212rem;
@@ -303,8 +284,6 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
     transform:translateX(-50%);
   }
   .note{display:none}
-  .brightness{--x:32rem;--y:32rem;width:52rem;height:52rem;border-width:1.4rem}
-  .brightness svg{width:32rem;height:32rem}
   .tags{--x:32rem;--y:36rem;gap:6rem}
   .tag{height:44rem;padding:0 18rem;border-radius:22rem;font-size:21rem;border-width:1.6rem}
 }
@@ -325,14 +304,10 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
   }
   .wordmark{--y:18rem;--dx:0rem;font-size:26px}
   .cta{--y:50rem;height:44px;padding:0 18px;font-size:14px}
-  .moon{display:block;--x:84rem;--y:32rem;width:18px;height:19px}
-  .mode{--x:24rem;--y:22rem;width:36px;height:36px}
   .headline{top:var(--text-top);left:24rem;right:24rem;font-size:28px;line-height:34px}
   .headline b{-webkit-text-stroke:1.5px var(--ink)}
   .blurb{top:calc(var(--text-top) + 104rem);left:24rem;right:24rem;width:auto;font-size:16px;line-height:24px}
   .bust{height:var(--fig-h)}
-  .brightness{--x:24rem;--y:24rem;width:44px;height:44px;border-width:1px}
-  .brightness svg{width:22px;height:22px}
   .tags{--x:24rem;--y:24rem;gap:6px}
   .tag{height:36px;padding:0 12px;border-radius:18px;font-size:14px;border-width:1px}
   .tag:nth-child(1),.tag:nth-child(2),.tag:nth-child(3){width:auto}
@@ -363,51 +338,33 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
 </head>
 <body>
 <!-- Deviations from the master prompt, on purpose:
-     1. The CTA, tags and the round button link to /app/... (relative): this page is the front door of the Satark console.
-     2. The ring button (.mode) toggles a notes layer of real project figures around the figure; hidden in the stacked layouts. -->
+     1. The ground is the console's graphite and the figure is keyed onto it, so "Let's get started" hands over seamlessly.
+     2. Decorative controls are gone; the notes around the figure are the product's two checks and its real data. -->
 <main class="stage">
   <p class="wordmark pin pin-tc" aria-label="Satark">Satark</p>
   <a class="cta pin pin-tc" href="/app/">Let's get started</a>
 
   <div class="bust" role="img"
        aria-label="Translucent iridescent figure with light tracing through it, turning to its left">
-    <video class="bust-v" muted playsinline loop preload="auto" disablepictureinpicture
+    <video class="bust-v" muted playsinline loop preload="auto" disablepictureinpicture crossorigin="anonymous"
            tabindex="-1" aria-hidden="true"
            src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/24f3c998-86fb-4f1d-9906-07c7fa740f8a.mp4"></video>
   </div>
 
-  <svg class="moon pin pin-tr" viewBox="0 0 21 22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M9.71 20.24 C12.47 19.82 14.94 18.02 16.40 15.36 C17.01 14.25 17.16 13.82 17.37 12.50 C17.53 11.50 17.53 10.75 17.37 9.75 C17.17 8.49 16.93 7.71 16.57 7.16 C16.40 6.89 16.16 6.48 16.05 6.27 C15.94 6.05 15.58 5.54 15.25 5.12 C13.81 3.35 11.91 2.23 11.63 3.02 C11.56 3.22 11.64 3.42 12.19 4.54 C12.91 6.00 13.00 6.40 13.00 8.12 C13.00 9.45 12.89 10.00 12.39 11.35 C12.04 12.27 11.81 12.74 11.37 13.38 C10.35 14.90 8.83 16.25 7.23 17.05 C6.28 17.53 5.73 17.67 4.75 17.67 C3.52 17.67 3.17 17.82 3.17 18.36 C3.17 18.88 3.88 19.31 5.71 19.87 C7.44 20.41 8.11 20.48 9.71 20.24 Z" fill="#000" fill-rule="evenodd"/>
-  </svg>
+  <h1 class="headline pin pin-ml"><span class="l1"><span class="ln"><span class="w1">Screen</span> <span class="w2">Every</span> <span class="w3">Name,</span></span></span><span class="l2"><span class="ln"><span class="w4">Check</span> <span class="w5">the</span> <b>Evidence</b></span></span></h1>
 
-  <button class="mode pin pin-tr" type="button" aria-pressed="true" aria-label="Show project details">
-    <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#000" fill-rule="evenodd"
-            d="M19 .25A18.75 18.75 0 1 1 19 37.75 18.75 18.75 0 1 1 19 .25Z
-               M19 13A6 6 0 1 0 19 25 6 6 0 1 0 19 13Z"/>
-    </svg>
-  </button>
-
-  <h1 class="headline pin pin-ml"><span class="l1"><span class="ln"><span class="w1">Every</span> <span class="w2">Name</span> <span class="w3">Gets</span></span></span><span class="l2"><span class="ln"><span class="w4">a</span> <span class="w5">Second</span> <b>Look</b></span></span></h1>
-
-  <p class="blurb pin pin-mr">Satark screens companies and directors against five official watchlists, then weighs the <b>evidence</b> before anyone is flagged.</p>
+  <p class="blurb pin pin-mr">Satark checks Indian companies and their directors against sanctions, PEP and debarment lists, and uses date of birth to clear <b>false matches</b> before they reach a reviewer.</p>
 
   <aside class="notes" aria-label="Project details">
     <dl>
-      <div class="note note-r pin pin-mc"><dt>Name match</dt><dd>100 · a perfect string match</dd></div>
-      <div class="note note-l pin pin-mc"><dt>Identity evidence</dt><dd>born 19 years apart · auto-cleared</dd></div>
-      <div class="note note-l pin pin-mc"><dt>Five official lists</dt><dd>29,574 entries · 9,400 revoked</dd></div>
-      <div class="note note-r pin pin-mc"><dt>Real customer book</dt><dd>1,385 from GLEIF + Companies House</dd></div>
+      <div class="note note-r pin pin-mc"><dt>Check 1 · Name match</dt><dd>Indian names, scored 0–100</dd></div>
+      <div class="note note-l pin pin-mc"><dt>Check 2 · Identity</dt><dd>Date of birth confirms or clears it</dd></div>
+      <div class="note note-l pin pin-mc"><dt>Watchlists</dt><dd>29,574 entries on 5 lists</dd></div>
+      <div class="note note-r pin pin-mc"><dt>Customer book</dt><dd>1,385 real companies and directors</dd></div>
     </dl>
   </aside>
 
   <div class="instruments">
-    <a class="brightness pin pin-bl" href="/app/" aria-label="Open the Satark console">
-      <svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="13" cy="13" r="7.5" fill="none" stroke="#000" stroke-width="2"/>
-        <g fill="#000"><circle cx="13.000" cy="1.200" r="1.3"/><circle cx="18.900" cy="2.781" r="1.3"/><circle cx="23.219" cy="7.100" r="1.3"/><circle cx="24.800" cy="13.000" r="1.3"/><circle cx="23.219" cy="18.900" r="1.3"/><circle cx="18.900" cy="23.219" r="1.3"/><circle cx="13.000" cy="24.800" r="1.3"/><circle cx="7.100" cy="23.219" r="1.3"/><circle cx="2.781" cy="18.900" r="1.3"/><circle cx="1.200" cy="13.000" r="1.3"/><circle cx="2.781" cy="7.100" r="1.3"/><circle cx="7.100" cy="2.781" r="1.3"/></g>
-      </svg>
-    </a>
     <div class="tags pin pin-br">
       <a class="tag" href="/app/lists">Sanctions</a>
       <a class="tag" href="/app/lists">PEPs</a>
@@ -434,7 +391,6 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
     tween(document.querySelector('.bust'),[{opacity:0,scale:'1.028'},{opacity:1,scale:'1'}],1250,50,HERO);
     tween(document.querySelector('.wordmark'),pop,550,300,HERO);
     tween(document.querySelector('.cta'),pop,550,360,HERO);
-    all('.moon,.mode').forEach(function(el,i){tween(el,drop,500,440+i*60,UI);});
     all('.headline .ln').forEach(function(el,i){tween(el,[{translate:'0 105%'},{translate:'0 0'}],660,580+i*110,TYPE);});
     tween(document.querySelector('.blurb'),rise12,620,920,UI);
     tween(document.querySelector('.instruments'),rise12,620,1060,UI);
@@ -494,20 +450,67 @@ html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,t
   });
 })();
 
-/* notes toggle: the ring button shows or hides the project figures; inert where the stacked layouts hide them */
+/* the figure on graphite: a WebGL key lifts the video's light backdrop, so the figure keeps its own colour on the dark ground.
+   Without WebGL (or if the frame can't be read) the plain video shows instead. */
 (function(){
-  var d=document.documentElement,btn=document.querySelector('.mode');
-  if(!btn)return;
-  var stacked;
-  try{stacked=matchMedia('(max-aspect-ratio:13/10), (max-width:899px)');}catch(e){}
-  function sync(){btn.disabled=!!(stacked&&stacked.matches);}
-  if(stacked){stacked.addEventListener?stacked.addEventListener('change',sync):stacked.addListener(sync);}
-  sync();
-  btn.addEventListener('click',function(){
-    var hide=d.getAttribute('data-notes')!=='off';
-    if(hide)d.setAttribute('data-notes','off');else d.removeAttribute('data-notes');
-    btn.setAttribute('aria-pressed',hide?'false':'true');
-  });
+  var bust=document.querySelector('.bust'),v=document.querySelector('.bust-v');
+  if(!bust||!v)return;
+  var c=document.createElement('canvas');
+  c.className='bust-c';c.setAttribute('aria-hidden','true');
+  var gl=c.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false});
+  if(!gl)return;
+  function shader(type,src){var s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
+  var prog=gl.createProgram();
+  gl.attachShader(prog,shader(gl.VERTEX_SHADER,'attribute vec2 p;varying vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}'));
+  gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,[
+    'precision mediump float;varying vec2 uv;uniform sampler2D t;uniform vec2 k;uniform vec2 px;',
+    // the backdrop is one flat pink-grey (sampled rgb .924/.873/.907; corners vary by < .023), so a tight key lifts it
+    'const vec3 B=vec3(.924,.873,.907);',
+    'float key(vec2 q){return smoothstep(.052,.1,distance(texture2D(t,q).rgb,B));}',
+    // along one axis: is there figure on both sides (a hole), and is there figure on either side (not a lone speck)?
+    'vec2 axis(vec2 q,vec2 d){vec2 r1=d*px*6.,r2=d*px*14.;',
+    '  float a=max(key(q+r1),key(q+r2)),b=max(key(q-r1),key(q-r2));return vec2(min(a,b),max(a,b));}',
+    'void main(){vec2 q=(uv-.5)*k+.5;vec3 c=texture2D(t,q).rgb;float a=key(q);',
+    '  vec2 h=vec2(0.);vec2 s;',
+    '  s=axis(q,vec2(1.,0.));h=max(h,s);s=axis(q,vec2(0.,1.));h=max(h,s);',
+    '  s=axis(q,vec2(.707,.707));h=max(h,s);s=axis(q,vec2(.707,-.707));h=max(h,s);',
+    // close pale reflections the key punched through, then drop isolated compression specks
+    '  a=min(max(a,h.x),h.y);',
+    '  float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,1.12);',
+    // squaring the colour weight darkens the half-keyed edge, so no pale fringe rings the silhouette
+    '  gl_FragColor=vec4(c*a*a,a);}'
+  ].join('\n')));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS))return;
+  gl.useProgram(prog);
+  var buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  var loc=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  var tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);
+  [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(function(w){gl.texParameteri(gl.TEXTURE_2D,w,gl.CLAMP_TO_EDGE);});
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  var kLoc=gl.getUniformLocation(prog,'k'),pxLoc=gl.getUniformLocation(prog,'px'),failed=false;
+  bust.appendChild(c);
+  function fail(){failed=true;bust.classList.remove('keyed');if(c.parentNode)c.parentNode.removeChild(c);}
+  function draw(){
+    if(failed||v.readyState<2||!v.videoWidth)return;
+    var r=bust.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+    var w=Math.max(1,Math.round(r.width*dpr)),h=Math.max(1,Math.round(r.height*dpr));
+    if(c.width!==w||c.height!==h){c.width=w;c.height=h;gl.viewport(0,0,w,h);}
+    var s=Math.max(r.width/v.videoWidth,r.height/v.videoHeight);  // object-fit: cover
+    gl.uniform2f(kLoc,r.width/(v.videoWidth*s),r.height/(v.videoHeight*s));
+    gl.uniform2f(pxLoc,1/v.videoWidth,1/v.videoHeight);
+    try{gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,v);}catch(e){fail();return;}
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    bust.classList.add('keyed');
+  }
+  function onFrame(){draw();v.requestVideoFrameCallback(onFrame);}
+  function loop(){draw();if(!v.paused)requestAnimationFrame(loop);}
+  if(v.requestVideoFrameCallback)v.requestVideoFrameCallback(onFrame);
+  ['loadeddata','seeked'].forEach(function(ev){v.addEventListener(ev,draw);});
+  v.addEventListener('play',function(){if(!v.requestVideoFrameCallback)loop();});
+  window.addEventListener('resize',draw);
+  draw();
 })();
 
 /* the figure's turn: mouse-scrub video */
