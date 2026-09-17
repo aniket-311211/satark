@@ -1,16 +1,594 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Satark · Screening Console</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230b3b4a'/><path d='M9 21c2 2 4 3 7 3 4 0 7-2 7-6 0-7-13-4-13-10 0-3 3-5 6-5 3 0 5 1 6 3' stroke='%23f2a541' stroke-width='3' fill='none' stroke-linecap='round'/></svg>" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6EAF2">
+<title>Satark — Every Name Gets a Second Look</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&display=block">
+<style>
+/* Hallmark · macrostructure: master-prompt hero (pinned single screen) · tone: austere/technical · anchor hue: rose paper #F6EAF2 */
+html{
+  font-size:min(calc(100vw / 1594), calc(100vh / 987), 1.75px);
+  -webkit-text-size-adjust:100%;
+}
+@supports (height:100dvh){
+  html{font-size:min(calc(100vw / 1594), calc(100dvh / 987), 1.75px)}
+}
+
+:root{
+  --ink:#000000;
+  --bg:#F6EAF2;
+  --hairline:rgba(0,0,0,.55);
+  --glass:rgba(255,255,255,.15);
+  --bust-top:80.5rem;
+  --bust-zoom:1;
+  --bust-nudge-x:0%;
+  --bust-nudge-y:0%;
+}
+
+/* minimal reset: the measured offsets assume no UA margins on ul / h1 / p / dl */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+::selection{background:var(--ink);color:var(--bg)}
+
+button{font:inherit;letter-spacing:inherit;color:inherit;background:none;border:0;cursor:pointer}
+body{
+  min-height:100vh;min-height:100dvh;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Questrial',system-ui,-apple-system,'Segoe UI',sans-serif;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:geometricPrecision;
+}
+.stage{position:fixed;inset:0;isolation:isolate}
+:focus-visible{outline:2px solid #000;outline-offset:3px}
+
+/* anchor frame */
+.pin{position:absolute}
+.pin-tl{top:var(--y);left:var(--x)}
+.pin-tc{top:var(--y);left:50%;transform:translateX(calc(-50% + var(--dx,0rem)))}
+.pin-tr{top:var(--y);right:var(--x)}
+.pin-ml{top:calc(50% + var(--dy));left:var(--x)}
+.pin-mr{top:calc(50% + var(--dy));right:var(--x)}
+.pin-bl{bottom:var(--y);left:var(--x)}
+.pin-br{bottom:var(--y);right:var(--x)}
+.pin-mc{top:calc(50% + var(--dy));left:calc(50% + var(--dx))}
+
+/* figure */
+.bust{
+  position:absolute;
+  top:var(--bust-top);
+  left:50%;
+  height:calc(100vh - var(--bust-top));
+  width:auto;
+  aspect-ratio:1049 / 1032;
+  transform:translateX(calc(-50% + -51.50rem));
+  z-index:0;
+  pointer-events:none;
+  user-select:none;
+  overflow:hidden;
+  background:var(--bg);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 9%, #000 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 9%, #000 100%);
+  -webkit-mask-composite:source-in;
+  mask-composite:intersect;
+}
+@supports (height:100dvh){
+  .bust{height:calc(100dvh - var(--bust-top))}
+}
+.bust-v{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:50% 50%;
+  transform:scale(var(--bust-zoom)) translate(var(--bust-nudge-x), var(--bust-nudge-y));
+  transform-origin:50% 100%;
+  display:block;
+  filter:brightness(1.18) saturate(1.22);
+  mix-blend-mode:multiply;
+}
+
+/* masthead */
+.nav{
+  --x:41.7rem; --y:29.0rem;
+  font-size:21.1rem;
+  line-height:27.0rem;
+  letter-spacing:-0.33rem;
+  -webkit-text-stroke:0.323rem var(--bg);paint-order:fill stroke;
+  z-index:3;
+}
+.nav ul{list-style:none;white-space:nowrap}
+.nav .col-b{position:absolute;top:0;left:165.0rem}
+.nav a{color:inherit;text-decoration:none;display:block}
+.nav .lead{-webkit-text-stroke:0.146rem var(--ink);paint-order:stroke fill;letter-spacing:-0.33rem}
+
+.burger{
+  display:none;
+  border-radius:50%;
+  border:1.1rem solid var(--hairline);
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(6rem);backdrop-filter:blur(6rem);
+  place-items:center;
+  z-index:5;
+}
+.burger svg{width:60%;height:60%;display:block;fill:var(--ink)}
+
+.logo{--y:24.0rem; --dx:-0.5rem; width:60rem;height:38rem;z-index:3}
+.moon{--x:115.0rem; --y:35.0rem; width:21rem;height:22rem;z-index:3}
+.mode{--x:44.5rem; --y:26.9rem; width:37.8rem;height:37.8rem;z-index:3}
+.mode svg{width:100%;height:100%;display:block}
+.mode:disabled{cursor:default}
+
+/* headline */
+.headline{
+  --x:47.0rem; --dy:-38.5rem;
+  font-size:42.3rem;
+  line-height:55.0rem;
+  letter-spacing:1.5rem;
+  font-weight:400;
+  white-space:nowrap;
+  -webkit-text-stroke:0.791rem var(--bg);paint-order:fill stroke;
+  z-index:2;
+}
+.headline .l1,.headline .l2,.headline .ln{display:block}
+.headline .l2{word-spacing:0.0rem}
+.headline .w1{letter-spacing:3.25rem}
+.headline .w2{letter-spacing:3.167rem;margin-left:-4.0rem}
+.headline .w3{letter-spacing:1.167rem;margin-left:-7.0rem}
+.headline .w4{letter-spacing:1.5rem}
+.headline .w5{letter-spacing:2.5rem;margin-left:-5.0rem}
+.headline b{
+  font-weight:400;
+  -webkit-text-stroke:1.436rem var(--ink);paint-order:stroke fill;
+  margin-left:-4.0rem;
+  letter-spacing:2.858888888888889rem;
+}
+
+/* blurb */
+.blurb{
+  --x:32.0rem; --dy:162.5rem;
+  width:400.5rem;
+  font-size:22.66rem;
+  line-height:30.0rem;
+  letter-spacing:0.06rem;
+  -webkit-text-stroke:0.189rem var(--bg);paint-order:fill stroke;
+  z-index:2;
+}
+.blurb b{font-weight:400;-webkit-text-stroke:0.147rem var(--ink);paint-order:stroke fill;letter-spacing:0.5rem}
+
+/* project notes around the figure */
+.note{
+  white-space:nowrap;
+  -webkit-text-stroke:0.189rem var(--bg);paint-order:fill stroke;
+  z-index:2;
+}
+.note dt{font-size:13rem;line-height:18rem;letter-spacing:0.4rem}
+.note dd{font-size:17rem;line-height:23rem;letter-spacing:0.06rem}
+.note::before{content:"";position:absolute;top:8.45rem;height:1.1rem;width:var(--lead);background:var(--hairline)}
+.note::after{content:"";position:absolute;top:5rem;width:8rem;height:8rem;border:1.1rem solid var(--ink);border-radius:50%;background:var(--bg)}
+.note-r::before{left:calc(100% + 10rem)}
+.note-r::after{left:calc(100% + 10rem + var(--lead))}
+.note-l{text-align:right}
+.note-l::before{right:calc(100% + 10rem)}
+.note-l::after{right:calc(100% + 10rem + var(--lead))}
+.note:nth-child(1){--dx:-452rem;--dy:-296rem;--lead:74rem}
+.note:nth-child(2){--dx:148rem;--dy:-322rem;--lead:70rem}
+.note:nth-child(3){--dx:200rem;--dy:-104rem;--lead:92rem}
+.note:nth-child(4){--dx:-702rem;--dy:150rem;--lead:178rem}
+html[data-notes="off"] .note{display:none}
+
+/* controls */
+.brightness{
+  --x:41.0rem; --y:6.0rem;
+  width:41.6rem;height:41.6rem;
+  border-radius:50%;
+  border:1.1rem solid var(--hairline);
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(6rem);backdrop-filter:blur(6rem);
+  display:grid;place-items:center;
+  color:inherit;text-decoration:none;
+  z-index:3;
+}
+.brightness svg{width:26rem;height:26rem;display:block}
+
+.tags{--x:43.0rem; --y:9.0rem; display:flex;gap:3.0rem;z-index:3}
+.tag{
+  height:32.0rem;
+  padding:0 14rem;width:auto;
+  border:1.2rem solid var(--ink);
+  border-radius:16.0rem;
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(6rem);backdrop-filter:blur(6rem);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16.6rem;
+  letter-spacing:-0.2rem;
+  line-height:1;
+  -webkit-text-stroke:0.241rem var(--ink);paint-order:stroke fill;
+  white-space:nowrap;
+  color:inherit;text-decoration:none;
+}
+
+.instruments{display:contents}
+html[data-anim] .instruments{display:block;position:absolute;inset:0;pointer-events:none}
+html[data-anim] .instruments > *{pointer-events:auto}
+
+@media (prefers-reduced-motion:no-preference){
+  .nav a,.tag,.brightness,.mode{transition:opacity .25s ease}
+  .nav a:hover,.tag:hover,.brightness:hover,.mode:not(:disabled):hover{opacity:.62}
+}
+
+/* entrance: initial states (no script => no attribute => nothing hidden) */
+html[data-anim] *{transition:none !important}
+html[data-anim="pending"] .bust{opacity:0;scale:1.028;transform-origin:50% 100%;will-change:opacity,scale}
+html[data-anim="pending"] .logo{opacity:0;scale:.9;will-change:opacity,scale}
+html[data-anim="pending"] .nav a,
+html[data-anim="pending"] .burger,
+html[data-anim="pending"] .moon,
+html[data-anim="pending"] .mode{opacity:0;translate:0 -8rem;will-change:opacity,translate}
+html[data-anim="pending"] .headline .l1,
+html[data-anim="pending"] .headline .l2{overflow:hidden}
+html[data-anim="pending"] .headline .ln{translate:0 105%;will-change:translate}
+html[data-anim="pending"] .blurb{opacity:0;translate:0 12rem;will-change:opacity,translate}
+html[data-anim="pending"] .instruments{opacity:0;translate:0 12rem;will-change:opacity,translate}
+html[data-anim="pending"] .note{opacity:0;translate:0 8rem;will-change:opacity,translate}
+@media (prefers-reduced-motion:reduce){
+  html[data-anim] *{opacity:1 !important;translate:none !important;scale:none !important}
+}
+
+/* A. DENSITY: nav collapses to a burger on touch or narrow widths */
+@media (pointer:coarse) and (max-width:1600px), (max-width:999px){
+  .burger{display:grid;--x:41rem;--y:24rem;width:56rem;height:56rem;border-width:1.4rem}
+  .moon{--x:132rem;--y:32rem;width:28rem;height:29rem}
+  .mode{--x:43rem;--y:23rem;width:50rem;height:50rem}
+  .nav{
+    --x:41rem;--y:96rem;
+    display:flex;gap:62rem;
+    padding:30rem 38rem 32rem;
+    border:1.4rem solid var(--ink);
+    border-radius:30rem;
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(18rem);backdrop-filter:blur(18rem);
+    font-size:30rem;line-height:40rem;letter-spacing:0;
+    opacity:0;visibility:hidden;translate:0 -12rem;pointer-events:none;
+    z-index:4;
+  }
+  .nav .col-b{position:static;left:auto}
+  .nav .lead{letter-spacing:0}
+  html[data-menu="open"] .nav{opacity:1;visibility:visible;translate:0 0;pointer-events:auto}
+  .brightness{--x:41rem;--y:8rem;width:60rem;height:60rem;border-width:1.4rem}
+  .brightness svg{width:37rem;height:37rem}
+  .tags{--x:43rem;--y:9rem;gap:6rem}
+  .tag{height:52rem;padding:0 23rem;border-radius:26rem;font-size:27rem;border-width:1.6rem}
+}
+
+/* B. PROPORTION: squarer frame, ease the type back */
+@media (min-aspect-ratio:13/10) and (max-aspect-ratio:31/20){
+  .headline{font-size:38.4rem;line-height:49.5rem}
+  .blurb{width:350rem}
+  .note:nth-child(1){--dx:-520rem;--lead:142rem}
+  .note:nth-child(2){--dx:200rem;--dy:-338rem;--lead:122rem}
+  .note:nth-child(3){--dx:262rem;--lead:154rem}
+  .note:nth-child(4){--dx:-730rem;--lead:206rem}
+}
+
+/* C. STACK: tablet portrait / phone, reference frame 720 x 1040 */
+@media (max-aspect-ratio:13/10), (max-width:899px){
+  html{font-size:min(calc(100vw / 720), calc(100vh / 1040), 1.75px)}
+  :root{
+    --bust-top:auto;
+    --col-x:max(32rem, calc(50% - 336rem));
+    --col-w:min(672rem, calc(100% - 64rem));
+  }
+  .burger{display:grid;--x:32rem;--y:32rem;width:48rem;height:48rem}
+  .logo{--y:35rem;--dx:0rem;width:70rem;height:44rem}
+  .moon{display:none}
+  .mode{--x:32rem;--y:33rem;width:48rem;height:48rem}
+  .nav{
+    --x:32rem;--y:94rem;
+    display:flex;gap:48rem;
+    padding:24rem 30rem 26rem;
+    border:1.4rem solid var(--ink);
+    border-radius:26rem;
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(18rem);backdrop-filter:blur(18rem);
+    font-size:26rem;line-height:36rem;letter-spacing:0;
+    opacity:0;visibility:hidden;translate:0 -10rem;pointer-events:none;
+    z-index:4;
+  }
+  .nav .col-b{position:static;left:auto}
+  .nav .lead{letter-spacing:0}
+  html[data-menu="open"] .nav{opacity:1;visibility:visible;translate:0 0;pointer-events:auto}
+  .headline{
+    left:var(--col-x);right:auto;
+    top:212rem;
+    font-size:54rem;line-height:64rem;letter-spacing:0;
+  }
+  .headline .l2{word-spacing:0}
+  .headline .w1,.headline .w2,.headline .w3,
+  .headline .w4,.headline .w5{letter-spacing:0;margin-left:0}
+  .headline .l1,.headline .l2,.blurb{-webkit-text-stroke-width:0}
+  .headline b{margin-left:0;letter-spacing:0;-webkit-text-stroke:2.6rem var(--ink);paint-order:stroke fill}
+  .blurb{
+    left:var(--col-x);right:auto;width:var(--col-w);
+    top:366rem;
+    font-size:27rem;line-height:38rem;letter-spacing:0;
+  }
+  .bust{
+    top:auto;bottom:0;
+    height:max(430rem, calc(100vh - 496rem));
+    transform:translateX(-50%);
+  }
+  .note{display:none}
+  .brightness{--x:32rem;--y:32rem;width:52rem;height:52rem;border-width:1.4rem}
+  .brightness svg{width:32rem;height:32rem}
+  .tags{--x:32rem;--y:36rem;gap:6rem}
+  .tag{height:44rem;padding:0 18rem;border-radius:22rem;font-size:21rem;border-width:1.6rem}
+}
+
+@media (max-aspect-ratio:13/10) and (min-height:1px), (max-width:899px){
+  @supports (height:100dvh){
+    html{font-size:min(calc(100vw / 720), calc(100dvh / 1040), 1.75px)}
+    .bust{height:max(430rem, calc(100dvh - 496rem))}
+  }
+}
+
+/* D. MOBILE: same stack redrawn on a 360px frame */
+@media (max-width:520px){
+  html{font-size:min(calc(100vw / 360), 1.2px)}
+  :root{
+    --fig-h:min(max(300rem, calc(100vh - 350rem)), 112vw);
+    --text-top:calc((90rem + 100vh - var(--fig-h)) / 2 - 91rem);
+  }
+  .burger{--x:24rem;--y:22rem;width:44px;height:44px;border-width:1px}
+  .burger svg{width:20px;height:20px}
+  .logo{--y:25rem;--dx:0rem;width:48px;height:30px}
+  .moon{display:block;--x:84rem;--y:32rem;width:18px;height:19px}
+  .mode{--x:24rem;--y:22rem;width:36px;height:36px}
+  .nav{
+    --x:24rem;--y:82rem;
+    gap:28px;padding:16px 20px 18px;
+    border-radius:20px;border-width:1px;
+    font-size:16px;line-height:24px;
+  }
+  .headline{top:var(--text-top);left:24rem;right:24rem;font-size:28px;line-height:34px}
+  .headline b{-webkit-text-stroke:1.5px var(--ink)}
+  .blurb{top:calc(var(--text-top) + 104rem);left:24rem;right:24rem;width:auto;font-size:16px;line-height:24px}
+  .bust{height:var(--fig-h)}
+  .brightness{--x:24rem;--y:24rem;width:44px;height:44px;border-width:1px}
+  .brightness svg{width:22px;height:22px}
+  .tags{--x:24rem;--y:24rem;gap:6px}
+  .tag{height:36px;padding:0 12px;border-radius:18px;font-size:14px;border-width:1px}
+  .tag:nth-child(1),.tag:nth-child(2),.tag:nth-child(3){width:auto}
+}
+
+@media (max-width:359px){
+  .tags{gap:4px}
+  .tag{padding:0 8px;font-size:12px}
+}
+
+@media (max-width:520px){
+  @supports (height:100dvh){
+    :root{
+      --fig-h:min(max(300rem, calc(100dvh - 350rem)), 112vw);
+      --text-top:calc((90rem + 100dvh - var(--fig-h)) / 2 - 91rem);
+    }
+  }
+}
+</style>
+<script>
+(function(){var d=document.documentElement;
+ if(!('animate' in Element.prototype))return;
+ try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(e){}
+ d.setAttribute('data-anim','pending');
+ window.__entryGuard=setTimeout(function(){d.removeAttribute('data-anim');},4000);
+})();
+</script>
+</head>
+<body>
+<!-- Deviations from the master prompt, on purpose:
+     1. Nav, tags and the round button link to /app/... (relative): this page is the front door of the Satark console.
+     2. The ring button (.mode) toggles a notes layer of real project figures around the figure; hidden in the stacked layouts. -->
+<main class="stage">
+  <div class="bust" role="img"
+       aria-label="Translucent iridescent figure with light tracing through it, turning to its left">
+    <video class="bust-v" muted playsinline loop preload="auto" disablepictureinpicture
+           tabindex="-1" aria-hidden="true"
+           src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/24f3c998-86fb-4f1d-9906-07c7fa740f8a.mp4"></video>
+  </div>
+
+  <button class="burger pin pin-tl" type="button" aria-label="Menu" aria-expanded="false" aria-controls="primary-nav">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="3" y="8.4" width="18" height="1.7" rx=".85"/>
+      <rect x="3" y="13.9" width="18" height="1.7" rx=".85"/>
+    </svg>
+  </button>
+
+  <nav class="nav pin pin-tl" id="primary-nav" aria-label="Primary">
+    <ul class="col-a">
+      <li><a class="lead" href="/app/">Console</a></li>
+      <li><a href="/app/queue">Queue</a></li>
+      <li><a href="/app/customers">Customers</a></li>
+    </ul>
+    <ul class="col-b">
+      <li><a class="lead" href="/app/news">Evidence</a></li>
+      <li><a href="/app/benchmark">Benchmark</a></li>
+      <li><a href="https://github.com/aniket-311211/satark">Source</a></li>
+    </ul>
+  </nav>
+
+  <svg class="logo pin pin-tc" viewBox="0 0 60 38" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Satark">
+    <circle cx="22" cy="19" r="14.5" fill="none" stroke="#000" stroke-width="2.6"/>
+    <circle cx="38" cy="19" r="14.5" fill="none" stroke="#000" stroke-width="2.6"/>
+    <path d="M30 6.907A14.5 14.5 0 0 1 30 31.093A14.5 14.5 0 0 1 30 6.907Z" fill="#000"/>
+  </svg>
+
+  <svg class="moon pin pin-tr" viewBox="0 0 21 22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M9.71 20.24 C12.47 19.82 14.94 18.02 16.40 15.36 C17.01 14.25 17.16 13.82 17.37 12.50 C17.53 11.50 17.53 10.75 17.37 9.75 C17.17 8.49 16.93 7.71 16.57 7.16 C16.40 6.89 16.16 6.48 16.05 6.27 C15.94 6.05 15.58 5.54 15.25 5.12 C13.81 3.35 11.91 2.23 11.63 3.02 C11.56 3.22 11.64 3.42 12.19 4.54 C12.91 6.00 13.00 6.40 13.00 8.12 C13.00 9.45 12.89 10.00 12.39 11.35 C12.04 12.27 11.81 12.74 11.37 13.38 C10.35 14.90 8.83 16.25 7.23 17.05 C6.28 17.53 5.73 17.67 4.75 17.67 C3.52 17.67 3.17 17.82 3.17 18.36 C3.17 18.88 3.88 19.31 5.71 19.87 C7.44 20.41 8.11 20.48 9.71 20.24 Z" fill="#000" fill-rule="evenodd"/>
+  </svg>
+
+  <button class="mode pin pin-tr" type="button" aria-pressed="true" aria-label="Show project details">
+    <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#000" fill-rule="evenodd"
+            d="M19 .25A18.75 18.75 0 1 1 19 37.75 18.75 18.75 0 1 1 19 .25Z
+               M19 13A6 6 0 1 0 19 25 6 6 0 1 0 19 13Z"/>
+    </svg>
+  </button>
+
+  <h1 class="headline pin pin-ml"><span class="l1"><span class="ln"><span class="w1">Every</span> <span class="w2">Name</span> <span class="w3">Gets</span></span></span><span class="l2"><span class="ln"><span class="w4">a</span> <span class="w5">Second</span> <b>Look</b></span></span></h1>
+
+  <p class="blurb pin pin-mr">Satark screens companies and directors against five official watchlists, then weighs the <b>evidence</b> before anyone is flagged.</p>
+
+  <aside class="notes" aria-label="Project details">
+    <dl>
+      <div class="note note-r pin pin-mc"><dt>Name match</dt><dd>100 · a perfect string match</dd></div>
+      <div class="note note-l pin pin-mc"><dt>Identity evidence</dt><dd>born 19 years apart · auto-cleared</dd></div>
+      <div class="note note-l pin pin-mc"><dt>Five official lists</dt><dd>29,574 entries · 9,400 revoked</dd></div>
+      <div class="note note-r pin pin-mc"><dt>Real customer book</dt><dd>1,385 from GLEIF + Companies House</dd></div>
+    </dl>
+  </aside>
+
+  <div class="instruments">
+    <a class="brightness pin pin-bl" href="/app/" aria-label="Open the Satark console">
+      <svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="13" cy="13" r="7.5" fill="none" stroke="#000" stroke-width="2"/>
+        <g fill="#000"><circle cx="13.000" cy="1.200" r="1.3"/><circle cx="18.900" cy="2.781" r="1.3"/><circle cx="23.219" cy="7.100" r="1.3"/><circle cx="24.800" cy="13.000" r="1.3"/><circle cx="23.219" cy="18.900" r="1.3"/><circle cx="18.900" cy="23.219" r="1.3"/><circle cx="13.000" cy="24.800" r="1.3"/><circle cx="7.100" cy="23.219" r="1.3"/><circle cx="2.781" cy="18.900" r="1.3"/><circle cx="1.200" cy="13.000" r="1.3"/><circle cx="2.781" cy="7.100" r="1.3"/><circle cx="7.100" cy="2.781" r="1.3"/></g>
+      </svg>
+    </a>
+    <div class="tags pin pin-br">
+      <a class="tag" href="/app/lists">Sanctions</a>
+      <a class="tag" href="/app/lists">PEPs</a>
+      <a class="tag" href="/app/lists">Debarments</a>
+    </div>
+  </div>
+</main>
+<script>
+/* entrance timeline */
+(function(){
+  var d=document.documentElement;
+  if(d.getAttribute('data-anim')!=='pending')return;
+  var HERO='cubic-bezier(.16,1,.3,1)',TYPE='cubic-bezier(.3,.7,.55,1)',UI='cubic-bezier(.3,.7,.55,1)';
+  var tweens=[];
+  function all(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+  function tween(el,frames,dur,delay,ease){
+    if(!el||getComputedStyle(el).display==='none')return;
+    tweens.push(el.animate(frames,{duration:dur,delay:delay,easing:ease,fill:'both'}));
+  }
+  function run(){
+    var drop=[{opacity:0,translate:'0 -8rem'},{opacity:1,translate:'0 0'}];
+    var rise12=[{opacity:0,translate:'0 12rem'},{opacity:1,translate:'0 0'}];
+    tween(document.querySelector('.bust'),[{opacity:0,scale:'1.028'},{opacity:1,scale:'1'}],1250,50,HERO);
+    tween(document.querySelector('.logo'),[{opacity:0,scale:'.9'},{opacity:1,scale:'1'}],550,300,HERO);
+    all('.nav a').forEach(function(el,i){tween(el,drop,500,380+i*40,UI);});
+    all('.burger,.moon,.mode').forEach(function(el,i){tween(el,drop,500,440+i*60,UI);});
+    all('.headline .ln').forEach(function(el,i){tween(el,[{translate:'0 105%'},{translate:'0 0'}],660,580+i*110,TYPE);});
+    tween(document.querySelector('.blurb'),rise12,620,920,UI);
+    tween(document.querySelector('.instruments'),rise12,620,1060,UI);
+    all('.note').forEach(function(el,i){tween(el,[{opacity:0,translate:'0 8rem'},{opacity:1,translate:'0 0'}],520,1180+i*90,UI);});
+    Promise.all(tweens.map(function(t){return t.finished;})).then(function(){
+      clearTimeout(window.__entryGuard);
+      d.setAttribute('data-anim','done');
+      tweens.forEach(function(t){t.cancel();});
+      requestAnimationFrame(function(){d.removeAttribute('data-anim');});
+    });
+  }
+  var fired=false;
+  function go(){if(fired)return;fired=true;requestAnimationFrame(run);}
+  var v=document.querySelector('.bust-v');
+  var videoReady=new Promise(function(resolve){
+    if(!v||v.readyState>=2)return resolve();
+    v.addEventListener('loadeddata',resolve,{once:true});
+    v.addEventListener('error',resolve,{once:true});
+  });
+  Promise.all([document.fonts?document.fonts.ready:Promise.resolve(),videoReady]).then(go);
+  setTimeout(go,400);
+})();
+
+/* mobile menu */
+(function(){
+  var d=document.documentElement,burger=document.querySelector('.burger'),nav=document.getElementById('primary-nav');
+  if(!burger||!nav)return;
+  function set(open){
+    if(open)d.setAttribute('data-menu','open');else d.removeAttribute('data-menu');
+    burger.setAttribute('aria-expanded',open?'true':'false');
+  }
+  burger.addEventListener('click',function(e){e.stopPropagation();set(d.getAttribute('data-menu')!=='open');});
+  document.addEventListener('click',function(e){if(d.getAttribute('data-menu')==='open'&&!nav.contains(e.target))set(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&d.getAttribute('data-menu')==='open'){set(false);burger.focus();}});
+  nav.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('a'))set(false);});
+})();
+
+/* notes toggle: the ring button shows or hides the project figures; inert where the stacked layouts hide them */
+(function(){
+  var d=document.documentElement,btn=document.querySelector('.mode');
+  if(!btn)return;
+  var stacked;
+  try{stacked=matchMedia('(max-aspect-ratio:13/10), (max-width:899px)');}catch(e){}
+  function sync(){btn.disabled=!!(stacked&&stacked.matches);}
+  if(stacked){stacked.addEventListener?stacked.addEventListener('change',sync):stacked.addListener(sync);}
+  sync();
+  btn.addEventListener('click',function(){
+    var hide=d.getAttribute('data-notes')!=='off';
+    if(hide)d.setAttribute('data-notes','off');else d.removeAttribute('data-notes');
+    btn.setAttribute('aria-pressed',hide?'false':'true');
+  });
+})();
+
+/* the figure's turn: mouse-scrub video */
+(function(){
+  var v=document.querySelector('.bust-v');
+  if(!v)return;
+  var SENSITIVITY=0.8,EPSILON=0.04;
+  var prevX=null,targetTime=0,seeking=false,requested=-1;
+
+  v.pause();
+  function anchor(){targetTime=v.currentTime;if(!v.currentTime){v.currentTime=0.001;}}
+  v.addEventListener('loadeddata',anchor,{once:true});
+  if(v.readyState>=2)anchor();
+
+  var reduce=false,hover=true;
+  try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  try{hover=matchMedia('(hover: hover) and (pointer: fine)').matches;}catch(e){}
+  if(reduce){v.pause();return;}
+  if(!hover){
+    v.addEventListener('canplay',function(){var p=v.play();if(p&&p.catch)p.catch(function(){});},{once:true});
+    return;
+  }
+
+  function duration(){var d=v.duration;return (isFinite(d)&&d>0)?d:0;}
+  function pump(){
+    if(seeking||Math.abs(targetTime-v.currentTime)<EPSILON)return;
+    seeking=true;
+    requested=targetTime;
+    try{v.currentTime=targetTime;}catch(e){seeking=false;}
+  }
+  v.addEventListener('seeked',function(){
+    seeking=false;
+    if(targetTime!==requested)pump();
+  });
+  window.addEventListener('mousemove',function(e){
+    var d=duration();
+    if(prevX===null||!d){prevX=e.clientX;return;}
+    var delta=prevX-e.clientX;
+    prevX=e.clientX;
+    if(!delta)return;
+    var t=targetTime+(delta/window.innerWidth)*SENSITIVITY*d;
+    targetTime=Math.min(Math.max(t,0),d);
+    pump();
+  },{passive:true});
+  function reset(){prevX=null;}
+  document.addEventListener('mouseleave',reset);
+  window.addEventListener('blur',reset);
+  document.addEventListener('visibilitychange',reset);
+})();
+</script>
+</body>
 </html>
