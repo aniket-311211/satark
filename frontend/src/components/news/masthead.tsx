@@ -1,4 +1,5 @@
 import { Radio } from "lucide-react";
+import { PageHeader } from "@/components/satark/page";
 import { fmtInt, fmtTime } from "@/lib/format";
 import type { NewsItem } from "@/lib/types";
 import { byNewest } from "./lib";
@@ -7,14 +8,14 @@ const editionFmt = new Intl.DateTimeFormat("en-GB", { weekday: "long", day: "num
 
 function Stat({ value, label, title }: { value: string; label: string; title?: string }) {
   return (
-    <span className="flex items-baseline gap-1.5 whitespace-nowrap" title={title}>
-      <span className="font-mono text-ink">{value}</span>
+    <div className="flex items-baseline gap-2 px-3 py-2" title={title}>
       <span className="label-caps text-ink-3">{label}</span>
-    </span>
+      <span className="font-mono text-ink">{value}</span>
+    </div>
   );
 }
 
-/** The masthead: wordmark-scale title, edition date, and the live counts a reviewer skims first. */
+/** The masthead: the same branded header every screen uses, the edition date, and the live counts a reviewer skims first. */
 export function Nameplate({
   articlesIndexed, regulatorCount, riskCount, feedsOk, feedsTotal, lastPoll,
 }: {
@@ -26,21 +27,18 @@ export function Nameplate({
   lastPoll: string | null;
 }) {
   return (
-    <header className="border-b border-rule-strong pb-4">
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1.5">
-        <h1 className="text-[38px] leading-[0.95] uppercase tracking-[0.01em] text-ink [font-stretch:135%] sm:text-[52px]">
-          Satark Wire
-        </h1>
-        <p className="label-caps pb-1 text-ink-2">{editionFmt.format(new Date())}</p>
-      </div>
-      <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1.5 border-t border-rule pt-2.5">
+    <div>
+      <PageHeader brand title="Wire"
+        description="Regulator orders and business news from ten feeds, read like a front page: what's new, what carries risk, and which names appear in it."
+        actions={<p className="label-caps text-ink-2">{editionFmt.format(new Date())}</p>} />
+      <div className="flex flex-col divide-y divide-rule border border-rule bg-panel text-[13px] sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0" role="group" aria-label="Wire counts">
         <Stat value={fmtInt(articlesIndexed)} label="Articles indexed" title="Total articles across every tracked feed" />
         <Stat value={fmtInt(regulatorCount)} label="Regulator items" />
         <Stat value={fmtInt(riskCount)} label="Risk-tagged" title="Counted across the recent window loaded below, not the full archive" />
         <Stat value={`${feedsOk}/${feedsTotal}`} label="Feeds OK" />
         <Stat value={lastPoll ? fmtTime(lastPoll) : "—"} label="Last poll" />
       </div>
-    </header>
+    </div>
   );
 }
 
