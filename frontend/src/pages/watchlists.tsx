@@ -51,7 +51,7 @@ export default function Watchlists() {
                         <span className="whitespace-nowrap text-ink">{l.label}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-[18rem] py-3 whitespace-normal text-ink-2">{l.authority}</TableCell>
+                    <TableCell className="max-w-[18rem] min-w-[12rem] py-3 whitespace-normal text-ink-2">{l.authority}</TableCell>
                     <TableCell className="py-3 text-right font-mono text-ink">{fmtInt(l.entities)}</TableCell>
                     <TableCell className="py-3 text-right font-mono text-ink">{fmtInt(l.active)}</TableCell>
                     <TableCell className="py-3 text-right">
