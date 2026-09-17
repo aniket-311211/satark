@@ -94,7 +94,7 @@ export function AppShell() {
           </Button>
           <div className="lg:hidden"><Brand /></div>
           <button type="button" onClick={() => setCommandOpen(true)}
-            className="ml-auto flex h-9 w-full max-w-sm cursor-pointer items-center gap-2 rounded-full border border-rule-strong bg-surface px-3.5 text-sm text-ink-3 transition-colors duration-150 hover:text-ink-2 md:ml-0"
+            className="ml-auto flex h-9 w-full min-w-0 max-w-sm cursor-pointer items-center gap-2 rounded-full border border-rule-strong bg-surface px-3.5 text-sm text-ink-3 transition-colors duration-150 hover:text-ink-2 md:ml-0"
             aria-label="Search or screen a name">
             <Search className="size-4" aria-hidden />
             <span className="truncate">Screen a name or find a customer</span>
